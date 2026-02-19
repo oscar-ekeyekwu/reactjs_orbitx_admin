@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  admin-frontend:
+    image: ghcr.io/oscar-ekeyekwu/orbtix-admin-frontend:latest
+    container_name: orbtix-admin-frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4100:80"

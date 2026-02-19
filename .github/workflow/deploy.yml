@@ -1,0 +1,80 @@
+name: Deploy Orbitx Admin Frontend
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+
+jobs:
+  deploy:
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.ref == 'development'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push
+        run: |
+          IMAGE=ghcr.io/${{ github.repository_owner }}/orbtix-admin-frontend:latest
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+      - name: Copy project files to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "docker-compose.yml,.env"
+          target: "/var/www/orbitx-admin"
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            DEPLOY_DIR=/var/www/orbtix-admin
+
+            echo "Creating deployment directory..."
+            mkdir -p $DEPLOY_DIR
+            cd $DEPLOY_DIR
+
+            echo "Logging into GitHub Container Registry..."
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            echo "Pulling latest images..."
+            docker pull ghcr.io/${{ github.repository_owner }}/orbitx-admin-frontend:latest
+
+            echo "Stopping existing services..."
+            docker compose down || true
+
+            echo "Waiting for containers to stop..."
+            sleep 3
+
+            echo "Starting services with docker compose..."
+            docker compose up -d
+
+            echo "Waiting for services to be ready..."
+            sleep 10
+
+            echo "Checking service status..."
+            docker compose ps
+
+            echo "Checking app logs..."
+            docker compose logs app | tail -20
