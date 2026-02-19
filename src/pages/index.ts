@@ -1,0 +1,9 @@
+export { LoginPage } from './Login';
+export { DashboardPage } from './Dashboard';
+export { CustomersPage } from './Customers';
+export { DriversPage } from './Drivers';
+export { OrdersPage } from './Orders';
+export { PriceSettingsPage } from './PriceSettings';
+export { FAQsPage } from './FAQs';
+export { SupportPage } from './Support';
+export { SettingsPage } from './Settings';
