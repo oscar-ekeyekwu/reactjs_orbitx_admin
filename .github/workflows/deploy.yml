@@ -33,6 +33,9 @@ jobs:
           docker build --cache-from $IMAGE -t $IMAGE .
           docker push $IMAGE
 
+      - name: Debug files
+        run: ls -la
+
       - name: Copy project files to server
         uses: appleboy/scp-action@master
         with:
