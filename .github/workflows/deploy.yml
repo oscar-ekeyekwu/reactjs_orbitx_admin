@@ -1,4 +1,4 @@
-name: Deploy Orbitx Admin Frontend
+name: Deploy OrbitX Admin Frontend
 
 on:
   pull_request:
@@ -18,19 +18,20 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Log in to GHCR
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & Push Docker Image
+      - name: Build and Push Docker Image
         run: |
-          IMAGE=ghcr.io/${{ github.repository_owner }}/orbitx-admin-frontend:latest
-          docker build --cache-from $IMAGE -t $IMAGE .
+          IMAGE=ghcr.io/${{ github.repository_owner }}/orbitx-admin:latest
+          docker build -t $IMAGE .
           docker push $IMAGE
 
       - name: Copy project files to server
@@ -39,10 +40,10 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "./docker-compose.yml"
+          source: "docker-compose.yml"
           target: "/home/${{ secrets.SERVER_USER }}/orbitx-admin"
 
-      - name: Deploy on Server
+      - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -51,6 +52,8 @@ jobs:
           script: |
             set -e
             DEPLOY_DIR=/home/${{ secrets.SERVER_USER }}/orbitx-admin
+
+            echo "Creating deployment directory..."
             mkdir -p $DEPLOY_DIR
             cd $DEPLOY_DIR
 
@@ -58,13 +61,22 @@ jobs:
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             echo "Pulling latest image..."
-            docker pull ghcr.io/${{ github.repository_owner }}/orbitx-admin-frontend:latest
+            docker pull ghcr.io/${{ github.repository_owner }}/orbitx-admin:latest
 
-            echo "Deploying container with zero downtime..."
-            docker compose up -d --remove-orphans
+            echo "Stopping existing container..."
+            docker compose down || true
 
-            echo "Verifying service status..."
+            echo "Starting service with docker compose..."
+            docker compose up -d
+
+            echo "Waiting for service to be ready..."
+            sleep 5
+
+            echo "Checking service status..."
             docker compose ps
 
-            echo "Recent logs..."
-            docker compose logs admin-frontend --tail 20
+            echo "Checking health..."
+            curl -f http://localhost:4100/health || echo "Health check failed"
+
+            echo "Checking logs..."
+            docker compose logs admin-frontend --tail 10
