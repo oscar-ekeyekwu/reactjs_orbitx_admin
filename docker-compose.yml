@@ -1,7 +1,7 @@
 services:
   admin-frontend:
-    image: ghcr.io/oscar-ekeyekwu/orbtix-admin-frontend:latest
-    container_name: orbtix-admin-frontend
+    image: ghcr.io/oscar-ekeyekwu/orbitx-admin-frontend:latest
+    container_name: orbitx-admin-frontend
     restart: always
     env_file:
       - .env
