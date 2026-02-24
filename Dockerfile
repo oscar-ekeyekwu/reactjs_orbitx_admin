@@ -13,9 +13,6 @@ FROM nginx:alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci --omit=dev
-
 # Copy build to nginx default root
 COPY --from=builder /app/dist /usr/share/nginx/html
 
