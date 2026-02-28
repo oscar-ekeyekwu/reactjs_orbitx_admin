@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Search, MoreVertical, Mail, Phone, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Mail, Phone, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
 import {
@@ -25,6 +26,7 @@ import { usersApi } from '@/services/api';
 export function CustomersPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const navigate = useNavigate();
 
   const { data, isLoading } = useQuery({
     queryKey: ['customers', page, search],
@@ -79,12 +81,15 @@ export function CustomersPage() {
                     <TableHead>Status</TableHead>
                     <TableHead>Verified</TableHead>
                     <TableHead>Joined</TableHead>
-                    <TableHead className="w-10"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {customers.map((customer) => (
-                    <TableRow key={customer.id}>
+                    <TableRow
+                      key={customer.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => navigate(`/customers/${customer.id}`)}
+                    >
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar>
@@ -143,11 +148,6 @@ export function CustomersPage() {
                           <Calendar className="h-3 w-3" />
                           {format(new Date(customer.createdAt), 'MMM d, yyyy')}
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

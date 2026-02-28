@@ -1,8 +1,11 @@
 export { LoginPage } from './Login';
 export { DashboardPage } from './Dashboard';
 export { CustomersPage } from './Customers';
+export { CustomerDetailPage } from './CustomerDetail';
 export { DriversPage } from './Drivers';
+export { DriverDetailPage } from './DriverDetail';
 export { OrdersPage } from './Orders';
+export { OrderDetailPage } from './OrderDetail';
 export { PriceSettingsPage } from './PriceSettings';
 export { FAQsPage } from './FAQs';
 export { SupportPage } from './Support';

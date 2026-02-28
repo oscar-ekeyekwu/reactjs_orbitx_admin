@@ -6,8 +6,11 @@ import {
   LoginPage,
   DashboardPage,
   CustomersPage,
+  CustomerDetailPage,
   DriversPage,
+  DriverDetailPage,
   OrdersPage,
+  OrderDetailPage,
   PriceSettingsPage,
   FAQsPage,
   SupportPage,
@@ -41,8 +44,11 @@ function App() {
           >
             <Route path="/" element={<DashboardPage />} />
             <Route path="/customers" element={<CustomersPage />} />
+            <Route path="/customers/:id" element={<CustomerDetailPage />} />
             <Route path="/drivers" element={<DriversPage />} />
+            <Route path="/drivers/:id" element={<DriverDetailPage />} />
             <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/orders/:id" element={<OrderDetailPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/settings/pricing" element={<PriceSettingsPage />} />
             <Route path="/faqs" element={<FAQsPage />} />

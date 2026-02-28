@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   Search,
   Plus,
-  MoreVertical,
   Mail,
   Phone,
   Calendar,
   UserCheck,
   UserX,
+  ChevronRight,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
@@ -54,6 +55,7 @@ export function DriversPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   const queryClient = useQueryClient();
 
@@ -149,7 +151,10 @@ export function DriversPage() {
                 </TableHeader>
                 <TableBody>
                   {drivers.map((driver) => (
-                    <TableRow key={driver.id}>
+                    <TableRow
+                      key={driver.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                    >
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar>
@@ -214,12 +219,13 @@ export function DriversPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() =>
+                            onClick={(e) => {
+                              e.stopPropagation();
                               toggleActiveMutation.mutate({
                                 id: driver.id,
                                 isActive: !driver.isActive,
-                              })
-                            }
+                              });
+                            }}
                             title={driver.isActive ? 'Deactivate' : 'Activate'}
                           >
                             {driver.isActive ? (
@@ -228,8 +234,12 @@ export function DriversPage() {
                               <UserCheck className="h-4 w-4 text-green-500" />
                             )}
                           </Button>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => navigate(`/drivers/${driver.id}`)}
+                          >
+                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
                           </Button>
                         </div>
                       </TableCell>

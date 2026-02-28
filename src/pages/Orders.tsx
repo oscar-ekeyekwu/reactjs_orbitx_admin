@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Search, Package, MapPin, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { Header } from "@/components/layout";
@@ -37,6 +38,7 @@ export function OrdersPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const navigate = useNavigate();
 
   const { data, isLoading } = useQuery({
     queryKey: ["orders", page, search, statusFilter],
@@ -111,7 +113,11 @@ export function OrdersPage() {
                 </TableHeader>
                 <TableBody>
                   {orders.map((order) => (
-                    <TableRow key={order.id}>
+                    <TableRow
+                      key={order.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => navigate(`/orders/${order.id}`)}
+                    >
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Package className="h-4 w-4 text-muted-foreground" />
@@ -125,13 +131,13 @@ export function OrdersPage() {
                           <div className="flex items-center gap-1">
                             <MapPin className="h-3 w-3 text-green-500" />
                             <span className="truncate max-w-[200px]">
-                              {order.pickupLocation.address}
+                              {order.pickupAddress}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
                             <MapPin className="h-3 w-3 text-red-500" />
                             <span className="truncate max-w-[200px]">
-                              {order.deliveryLocation.address}
+                              {order.deliveryAddress}
                             </span>
                           </div>
                         </div>
