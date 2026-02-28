@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Package, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import {
   Button,
   Input,

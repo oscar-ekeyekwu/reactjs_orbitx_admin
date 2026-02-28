@@ -10,5 +10,5 @@ export const cleanParams = <T extends object>(params?: T): Partial<T> => {
     Object.entries(params || {}).filter(
       ([_, value]) => value !== undefined && value !== null && value !== "",
     ),
-  );
+  ) as Partial<T>;
 };
