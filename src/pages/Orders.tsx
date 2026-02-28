@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Search, Package, MapPin, Clock } from 'lucide-react';
-import { format } from 'date-fns';
-import { Header } from '@/components/layout';
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Search, Package, MapPin, Clock } from "lucide-react";
+import { format } from "date-fns";
+import { Header } from "@/components/layout";
 import {
   Card,
   CardContent,
@@ -17,26 +17,29 @@ import {
   Badge,
   Spinner,
   Select,
-} from '@/components/ui';
-import { ordersApi } from '@/services/api';
-import type { OrderStatus } from '@/types';
+} from "@/components/ui";
+import { ordersApi } from "@/services/api";
+import type { OrderStatus } from "@/types";
 
-const statusColors: Record<OrderStatus, 'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'info'> = {
-  pending: 'warning',
-  accepted: 'info',
-  picked_up: 'info',
-  in_transit: 'info',
-  delivered: 'success',
-  cancelled: 'destructive',
+const statusColors: Record<
+  OrderStatus,
+  "default" | "secondary" | "success" | "warning" | "destructive" | "info"
+> = {
+  pending: "warning",
+  accepted: "info",
+  picked_up: "info",
+  in_transit: "info",
+  delivered: "success",
+  cancelled: "destructive",
 };
 
 export function OrdersPage() {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>("");
 
   const { data, isLoading } = useQuery({
-    queryKey: ['orders', page, search, statusFilter],
+    queryKey: ["orders", page, search, statusFilter],
     queryFn: () =>
       ordersApi.getAll({
         page,
@@ -143,18 +146,18 @@ export function OrdersPage() {
                       </TableCell>
                       <TableCell>
                         <Badge variant={statusColors[order.status]}>
-                          {order.status.replace('_', ' ')}
+                          {order.status.replace("_", " ")}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <span className="font-medium">
-                          ${order.finalPrice || order.estimatedPrice}
+                          ₦{order.finalPrice || order.estimatedPrice}
                         </span>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <Clock className="h-3 w-3" />
-                          {format(new Date(order.createdAt), 'MMM d, HH:mm')}
+                          {format(new Date(order.createdAt), "MMM d, HH:mm")}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -168,7 +171,7 @@ export function OrdersPage() {
           {meta && meta.totalPages > 1 && (
             <div className="flex items-center justify-between border-t px-4 py-3">
               <p className="text-sm text-muted-foreground">
-                Showing {(meta.page - 1) * meta.limit + 1} to{' '}
+                Showing {(meta.page - 1) * meta.limit + 1} to{" "}
                 {Math.min(meta.page * meta.limit, meta.total)} of {meta.total}
               </p>
               <div className="flex gap-2">

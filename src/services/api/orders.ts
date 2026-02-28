@@ -1,5 +1,6 @@
-import apiClient from './client';
-import type { Order, PaginatedResponse, OrderStatus } from '@/types';
+import apiClient from "./client";
+import type { Order, PaginatedResponse, OrderStatus } from "@/types";
+import { cleanParams } from "@/lib/utils";
 
 export interface OrdersQueryParams {
   page?: number;
@@ -12,8 +13,14 @@ export interface OrdersQueryParams {
 }
 
 export const ordersApi = {
-  getAll: async (params?: OrdersQueryParams): Promise<PaginatedResponse<Order>> => {
-    const response = await apiClient.get<PaginatedResponse<Order>>('/orders', { params });
+  getAll: async (
+    params?: OrdersQueryParams,
+  ): Promise<PaginatedResponse<Order>> => {
+    console.log("Fetched orders with params:", cleanParams(params));
+
+    const response = await apiClient.get<PaginatedResponse<Order>>("/orders", {
+      params: cleanParams(params),
+    });
     return response.data;
   },
 
@@ -23,12 +30,16 @@ export const ordersApi = {
   },
 
   updateStatus: async (id: string, status: OrderStatus): Promise<Order> => {
-    const response = await apiClient.patch<Order>(`/orders/${id}/status`, { status });
+    const response = await apiClient.patch<Order>(`/orders/${id}/status`, {
+      status,
+    });
     return response.data;
   },
 
   cancel: async (id: string, reason?: string): Promise<Order> => {
-    const response = await apiClient.post<Order>(`/orders/${id}/cancel`, { reason });
+    const response = await apiClient.post<Order>(`/orders/${id}/cancel`, {
+      reason,
+    });
     return response.data;
   },
 };

@@ -147,7 +147,7 @@ export function DashboardPage() {
           />
           <StatCard
             title="Total Revenue"
-            value={`$${stats?.totalRevenue?.toLocaleString() || '0'}`}
+            value={`₦${stats?.totalRevenue?.toLocaleString() || '0'}`}
             icon={<DollarSign className="h-5 w-5 text-primary" />}
             trend="23%"
             trendUp
@@ -239,7 +239,7 @@ export function DashboardPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Today's Revenue</p>
                 <p className="text-2xl font-bold">
-                  ${stats?.todayRevenue?.toLocaleString() || 0}
+                  ₦{stats?.todayRevenue?.toLocaleString() || 0}
                 </p>
               </div>
             </CardContent>
@@ -284,7 +284,7 @@ export function DashboardPage() {
                           {order.status}
                         </Badge>
                         <p className="mt-1 text-sm font-medium">
-                          ${order.estimatedPrice}
+                          ₦{order.estimatedPrice}
                         </p>
                       </div>
                     </div>
