@@ -113,7 +113,7 @@ export function PriceSettingsPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="baseFare">Base Fare ($)</Label>
+                  <Label htmlFor="baseFare">Base Fare (₦)</Label>
                   <Input
                     id="baseFare"
                     type="number"
@@ -125,7 +125,7 @@ export function PriceSettingsPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="minimumFare">Minimum Fare ($)</Label>
+                  <Label htmlFor="minimumFare">Minimum Fare (₦)</Label>
                   <Input
                     id="minimumFare"
                     type="number"
@@ -139,7 +139,7 @@ export function PriceSettingsPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="perKmRate">Per Kilometer Rate ($)</Label>
+                  <Label htmlFor="perKmRate">Per Kilometer Rate (₦)</Label>
                   <Input
                     id="perKmRate"
                     type="number"
@@ -151,7 +151,7 @@ export function PriceSettingsPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="perMinuteRate">Per Minute Rate ($)</Label>
+                  <Label htmlFor="perMinuteRate">Per Minute Rate (₦)</Label>
                   <Input
                     id="perMinuteRate"
                     type="number"

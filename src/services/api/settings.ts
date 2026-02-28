@@ -1,10 +1,18 @@
-import apiClient from './client';
-import type { PriceSettings, FAQ, SupportTicket, PaginatedResponse, DashboardStats } from '@/types';
+import apiClient from "./client";
+import type {
+  PriceSettings,
+  FAQ,
+  SupportTicket,
+  PaginatedResponse,
+  DashboardStats,
+} from "@/types";
 
 // Dashboard
 export const dashboardApi = {
   getStats: async (): Promise<DashboardStats> => {
-    const response = await apiClient.get<DashboardStats>('/admin/dashboard/stats');
+    const response = await apiClient.get<DashboardStats>(
+      "/admin/dashboard/stats",
+    );
     return response.data;
   },
 };
@@ -23,12 +31,17 @@ export interface UpdatePriceSettingsDto {
 
 export const priceSettingsApi = {
   get: async (): Promise<PriceSettings> => {
-    const response = await apiClient.get<PriceSettings>('/admin/settings/pricing');
+    const response = await apiClient.get<PriceSettings>(
+      "/admin/settings/pricing",
+    );
     return response.data;
   },
 
   update: async (data: UpdatePriceSettingsDto): Promise<PriceSettings> => {
-    const response = await apiClient.put<PriceSettings>('/admin/settings/pricing', data);
+    const response = await apiClient.put<PriceSettings>(
+      "/admin/settings/pricing",
+      data,
+    );
     return response.data;
   },
 };
@@ -46,7 +59,9 @@ export interface UpdateFAQDto extends Partial<CreateFAQDto> {}
 
 export const faqApi = {
   getAll: async (): Promise<FAQ[]> => {
-    const response = await apiClient.get<FAQ[]>('/faqs');
+    const response = await apiClient.get<FAQ[]>("/faqs", {
+      params: { all: true },
+    });
     return response.data;
   },
 
@@ -56,7 +71,7 @@ export const faqApi = {
   },
 
   create: async (data: CreateFAQDto): Promise<FAQ> => {
-    const response = await apiClient.post<FAQ>('/faqs', data);
+    const response = await apiClient.post<FAQ>("/faqs", data);
     return response.data;
   },
 
@@ -70,7 +85,7 @@ export const faqApi = {
   },
 
   reorder: async (orderedIds: string[]): Promise<void> => {
-    await apiClient.post('/faqs/reorder', { ids: orderedIds });
+    await apiClient.post("/faqs/reorder", { ids: orderedIds });
   },
 };
 
@@ -89,22 +104,35 @@ export interface UpdateSupportTicketDto {
 }
 
 export const supportApi = {
-  getAll: async (params?: SupportTicketsQueryParams): Promise<PaginatedResponse<SupportTicket>> => {
-    const response = await apiClient.get<PaginatedResponse<SupportTicket>>('/support/tickets', { params });
+  getAll: async (
+    params?: SupportTicketsQueryParams,
+  ): Promise<PaginatedResponse<SupportTicket>> => {
+    const response = await apiClient.get<PaginatedResponse<SupportTicket>>(
+      "/support/tickets",
+      { params },
+    );
     return response.data;
   },
 
   getById: async (id: string): Promise<SupportTicket> => {
-    const response = await apiClient.get<SupportTicket>(`/support/tickets/${id}`);
+    const response = await apiClient.get<SupportTicket>(
+      `/support/tickets/${id}`,
+    );
     return response.data;
   },
 
-  update: async (id: string, data: UpdateSupportTicketDto): Promise<SupportTicket> => {
-    const response = await apiClient.patch<SupportTicket>(`/support/tickets/${id}`, data);
+  update: async (
+    id: string,
+    data: UpdateSupportTicketDto,
+  ): Promise<SupportTicket> => {
+    const response = await apiClient.patch<SupportTicket>(
+      `/support/tickets/${id}`,
+      data,
+    );
     return response.data;
   },
 
   close: async (id: string): Promise<SupportTicket> => {
-    return supportApi.update(id, { status: 'closed' });
+    return supportApi.update(id, { status: "closed" });
   },
 };
