@@ -89,6 +89,34 @@ export const faqApi = {
   },
 };
 
+// Driver & Order Settings
+export interface DriverSettingsDto {
+  driverMinBalance?: number;
+  orderDeliveryRadiusKm?: number;
+}
+
+export interface DriverSettings {
+  driverMinBalance: number;
+  orderDeliveryRadiusKm: number;
+}
+
+export const driverSettingsApi = {
+  get: async (): Promise<DriverSettings> => {
+    const response = await apiClient.get<DriverSettings>(
+      '/config/driver-settings',
+    );
+    return response.data;
+  },
+
+  update: async (data: DriverSettingsDto): Promise<DriverSettings> => {
+    const response = await apiClient.put<DriverSettings>(
+      '/config/driver-settings',
+      data,
+    );
+    return response.data;
+  },
+};
+
 // Support Tickets
 export interface SupportTicketsQueryParams {
   page?: number;
