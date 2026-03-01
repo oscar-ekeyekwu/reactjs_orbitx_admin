@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Save, DollarSign, Package, Gauge } from 'lucide-react';
+import { Save, DollarSign, Package, Gauge, Truck } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
   Card,
@@ -15,7 +15,7 @@ import {
   Label,
   Spinner,
 } from '@/components/ui';
-import { priceSettingsApi } from '@/services/api';
+import { priceSettingsApi, driverSettingsApi } from '@/services/api';
 
 const priceSettingsSchema = z.object({
   baseFare: z.string().transform((val) => parseFloat(val) || 0),
@@ -80,6 +80,39 @@ export function PriceSettingsPage() {
 
   const onSubmit = (data: PriceSettingsFormData) => {
     updateMutation.mutate(data);
+  };
+
+  const { data: driverSettings } = useQuery({
+    queryKey: ['driver-settings'],
+    queryFn: driverSettingsApi.get,
+    placeholderData: { driverMinBalance: 5000, orderDeliveryRadiusKm: 50 },
+  });
+
+  const driverSettingsMutation = useMutation({
+    mutationFn: driverSettingsApi.update,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['driver-settings'] });
+    },
+  });
+
+  const {
+    register: registerDriver,
+    handleSubmit: handleSubmitDriver,
+    formState: { errors: driverErrors, isDirty: isDriverDirty },
+  } = useForm({
+    values: driverSettings
+      ? {
+          driverMinBalance: String(driverSettings.driverMinBalance),
+          orderDeliveryRadiusKm: String(driverSettings.orderDeliveryRadiusKm),
+        }
+      : undefined,
+  });
+
+  const onSubmitDriverSettings = (data: { driverMinBalance: string; orderDeliveryRadiusKm: string }) => {
+    driverSettingsMutation.mutate({
+      driverMinBalance: parseFloat(data.driverMinBalance) || 0,
+      orderDeliveryRadiusKm: parseFloat(data.orderDeliveryRadiusKm) || 0,
+    });
   };
 
   if (isLoading) {
@@ -258,6 +291,58 @@ export function PriceSettingsPage() {
             <Button type="submit" disabled={!isDirty || updateMutation.isPending}>
               <Save className="mr-2 h-4 w-4" />
               {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
+        </form>
+
+        {/* Driver & Order Settings */}
+        <form onSubmit={handleSubmitDriver(onSubmitDriverSettings)} className="space-y-6 max-w-3xl mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Truck className="h-5 w-5" />
+                Driver &amp; Order Settings
+              </CardTitle>
+              <CardDescription>
+                Configure minimum driver balance and order delivery radius
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="driverMinBalance">Minimum Balance Required (₦)</Label>
+                  <Input
+                    id="driverMinBalance"
+                    type="number"
+                    step="100"
+                    min="0"
+                    {...registerDriver('driverMinBalance')}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Drivers must hold at least this balance to accept orders (security deposit)
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="orderDeliveryRadiusKm">Order Delivery Radius (km)</Label>
+                  <Input
+                    id="orderDeliveryRadiusKm"
+                    type="number"
+                    step="1"
+                    min="1"
+                    {...registerDriver('orderDeliveryRadiusKm')}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Drivers only see orders within this radius of their location
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end">
+            <Button type="submit" disabled={!isDriverDirty || driverSettingsMutation.isPending}>
+              <Save className="mr-2 h-4 w-4" />
+              {driverSettingsMutation.isPending ? 'Saving...' : 'Save Driver Settings'}
             </Button>
           </div>
         </form>
