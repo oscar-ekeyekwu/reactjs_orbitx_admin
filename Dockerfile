@@ -14,10 +14,12 @@ FROM nginx:alpine
 # Copy bundle to nginx default root.
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Patch default nginx config for SPA routing — unknown paths return index.html
-# so React Router can handle them client-side.
-RUN sed -i 's|try_files $uri $uri/ =404;|try_files $uri $uri/ /index.html;|' \
-    /etc/nginx/conf.d/default.conf
+# Replace the stock default.conf with our SPA-aware config. The previous
+# approach (sed-patching the stock file) was fragile — when the upstream
+# image's default.conf text changed, the substitution silently missed and
+# refreshing on a deep link returned 404. Shipping a complete config is
+# more robust.
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Runtime config injection. nginx:alpine runs every /docker-entrypoint.d/*.sh
 # before starting nginx, so this generates /config.js from env vars at
