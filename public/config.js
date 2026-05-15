@@ -3,5 +3,5 @@
 // startup with values from the container's environment. The defaults below
 // are what gets used during local `npm run dev` and `vite build && vite preview`.
 window.__APP_CONFIG__ = {
-  API_URL: 'http://localhost:5050/api/v1',
+  API_URL: "http://api.orbitxng.com/api/v1",
 };
