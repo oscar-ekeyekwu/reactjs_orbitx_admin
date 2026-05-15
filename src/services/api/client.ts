@@ -1,6 +1,11 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://185.113.249.246/api/v1';
+// Read from runtime config injected by /config.js (see index.html).
+// In production the container's entrypoint regenerates /config.js from
+// env vars at startup, so changing API_URL in the server's .env and
+// restarting the container is enough — no rebuild required.
+const API_URL =
+  window.__APP_CONFIG__?.API_URL || 'http://localhost:5050/api/v1';
 
 export const apiClient = axios.create({
   baseURL: API_URL,

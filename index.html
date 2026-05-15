@@ -8,6 +8,9 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Runtime config. Must load BEFORE the module bundle so window.__APP_CONFIG__
+         is defined by the time client.ts evaluates. -->
+    <script src="/config.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

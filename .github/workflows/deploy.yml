@@ -34,11 +34,11 @@ jobs:
           # (was orbitx-admin in this workflow but compose pulls orbitx-admin-frontend
           # — `docker compose up` would fail with "image not found" until aligned).
           IMAGE=ghcr.io/${{ github.repository_owner }}/orbitx-admin-frontend:latest
-          # Vite envs are baked into the bundle at build time — pass them
-          # as build args so the production bundle points at the prod API.
-          docker build \
-            --build-arg VITE_API_URL=https://api.orbitxng.com/api/v1 \
-            -t $IMAGE .
+          # API URL is no longer baked into the bundle. The container's
+          # entrypoint (docker/40-runtime-config.sh) generates /config.js
+          # from env vars at startup. Set API_URL in the host .env (loaded
+          # via docker-compose env_file) to control where the SPA calls.
+          docker build -t $IMAGE .
           docker push $IMAGE
 
       - name: Copy project files to server
