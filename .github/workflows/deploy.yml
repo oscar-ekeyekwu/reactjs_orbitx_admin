@@ -30,8 +30,15 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          IMAGE=ghcr.io/${{ github.repository_owner }}/orbitx-admin:latest
-          docker build -t $IMAGE .
+          # Image name must match docker-compose.yml's services.admin-frontend.image
+          # (was orbitx-admin in this workflow but compose pulls orbitx-admin-frontend
+          # — `docker compose up` would fail with "image not found" until aligned).
+          IMAGE=ghcr.io/${{ github.repository_owner }}/orbitx-admin-frontend:latest
+          # Vite envs are baked into the bundle at build time — pass them
+          # as build args so the production bundle points at the prod API.
+          docker build \
+            --build-arg VITE_API_URL=https://api.orbitxng.com/api/v1 \
+            -t $IMAGE .
           docker push $IMAGE
 
       - name: Copy project files to server
@@ -61,10 +68,16 @@ jobs:
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             echo "Pulling latest image..."
-            docker pull ghcr.io/${{ github.repository_owner }}/orbitx-admin:latest
+            docker pull ghcr.io/${{ github.repository_owner }}/orbitx-admin-frontend:latest
 
             echo "Stopping existing container..."
             docker compose down || true
+
+            # docker-compose.yml declares `orbitx-network` as external because
+            # the backend and other services on this VPS share it. Create it
+            # on first deploy / fresh VPS — no-op on subsequent runs.
+            echo "Ensuring shared orbitx-network exists..."
+            docker network create orbitx-network 2>/dev/null || true
 
             echo "Starting service with docker compose..."
             docker compose up -d
