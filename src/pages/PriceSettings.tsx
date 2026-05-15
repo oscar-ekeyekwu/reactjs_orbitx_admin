@@ -98,7 +98,7 @@ export function PriceSettingsPage() {
   const {
     register: registerDriver,
     handleSubmit: handleSubmitDriver,
-    formState: { errors: driverErrors, isDirty: isDriverDirty },
+    formState: { isDirty: isDriverDirty },
   } = useForm({
     values: driverSettings
       ? {
