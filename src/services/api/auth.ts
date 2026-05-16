@@ -1,6 +1,20 @@
 import apiClient, { setTokens, clearTokens } from './client';
 import type { AuthResponse, LoginDto, User } from '@/types';
 
+export interface AdminSession {
+  id: string;
+  ipAddress: string | null;
+  userAgent: string | null;
+  deviceId: string | null;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface ChangePasswordDto {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export const authApi = {
   login: async (data: LoginDto): Promise<AuthResponse> => {
     const response = await apiClient.post<AuthResponse>('/auth/login', data);
@@ -35,5 +49,22 @@ export const authApi = {
     const authData = response.data;
     setTokens(authData.access_token, authData.refresh_token);
     return authData;
+  },
+
+  changePassword: async (data: ChangePasswordDto): Promise<{ message: string }> => {
+    const response = await apiClient.post<{ message: string }>(
+      '/auth/change-password',
+      data,
+    );
+    return response.data;
+  },
+
+  listSessions: async (): Promise<AdminSession[]> => {
+    const response = await apiClient.get<AdminSession[]>('/auth/sessions');
+    return response.data;
+  },
+
+  revokeSession: async (id: string): Promise<void> => {
+    await apiClient.delete(`/auth/sessions/${id}`);
   },
 };

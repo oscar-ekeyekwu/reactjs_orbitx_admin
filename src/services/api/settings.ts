@@ -27,6 +27,27 @@ export const dashboardApi = {
   },
 };
 
+export type ExportResource = "users" | "orders" | "transactions";
+
+export const exportApi = {
+  download: async (resource: ExportResource): Promise<void> => {
+    const response = await apiClient.get<string>(
+      `/admin/export/${resource}`,
+      { responseType: "text", transformResponse: (v) => v },
+    );
+    const blob = new Blob([response.data], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.download = `${resource}-${stamp}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+};
+
 // Price Settings
 export interface UpdatePriceSettingsDto {
   baseFare?: number;

@@ -1,5 +1,6 @@
 export { default as apiClient, getToken, setTokens, clearTokens } from './client';
-export { authApi } from './auth';
+export { authApi, type AdminSession, type ChangePasswordDto } from './auth';
 export { usersApi, type CreateDriverDto, type UpdateUserDto } from './users';
 export { ordersApi } from './orders';
-export { dashboardApi, priceSettingsApi, faqApi, supportApi, driverSettingsApi, type CreateFAQDto, type UpdateFAQDto, type UpdatePriceSettingsDto, type DriverSettings, type DriverSettingsDto, type UpdateSupportTicketDto, type SupportTicketsQueryParams, type AdminCreateSupportTicketDto } from './settings';
+export { dashboardApi, priceSettingsApi, faqApi, supportApi, driverSettingsApi, exportApi, type CreateFAQDto, type UpdateFAQDto, type UpdatePriceSettingsDto, type DriverSettings, type DriverSettingsDto, type UpdateSupportTicketDto, type SupportTicketsQueryParams, type AdminCreateSupportTicketDto, type ExportResource } from './settings';
+export { notificationTemplatesApi, type NotificationTemplate, type NotificationEventType, type UpdateNotificationTemplateDto } from './notification-templates';
