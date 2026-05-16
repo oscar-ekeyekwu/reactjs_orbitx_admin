@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Save, DollarSign, Package, Gauge, Truck } from 'lucide-react';
+import { Save, DollarSign, Package, Truck } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
   Card,
@@ -20,9 +20,6 @@ import { priceSettingsApi, driverSettingsApi } from '@/services/api';
 const priceSettingsSchema = z.object({
   baseFare: z.string().transform((val) => parseFloat(val) || 0),
   perKmRate: z.string().transform((val) => parseFloat(val) || 0),
-  perMinuteRate: z.string().transform((val) => parseFloat(val) || 0),
-  minimumFare: z.string().transform((val) => parseFloat(val) || 0),
-  surgeFactor: z.string().transform((val) => parseFloat(val) || 1),
   smallPackageMultiplier: z.string().transform((val) => parseFloat(val) || 0),
   mediumPackageMultiplier: z.string().transform((val) => parseFloat(val) || 0),
   largePackageMultiplier: z.string().transform((val) => parseFloat(val) || 0),
@@ -36,19 +33,6 @@ export function PriceSettingsPage() {
   const { data: settings, isLoading } = useQuery({
     queryKey: ['price-settings'],
     queryFn: priceSettingsApi.get,
-    // Placeholder data if API doesn't exist yet
-    placeholderData: {
-      id: '1',
-      baseFare: 5.0,
-      perKmRate: 1.5,
-      perMinuteRate: 0.25,
-      minimumFare: 8.0,
-      surgeFactor: 1.0,
-      smallPackageMultiplier: 1.0,
-      mediumPackageMultiplier: 1.25,
-      largePackageMultiplier: 1.5,
-      updatedAt: new Date().toISOString(),
-    },
   });
 
   const updateMutation = useMutation({
@@ -68,9 +52,6 @@ export function PriceSettingsPage() {
       ? {
           baseFare: String(settings.baseFare),
           perKmRate: String(settings.perKmRate),
-          perMinuteRate: String(settings.perMinuteRate),
-          minimumFare: String(settings.minimumFare),
-          surgeFactor: String(settings.surgeFactor),
           smallPackageMultiplier: String(settings.smallPackageMultiplier),
           mediumPackageMultiplier: String(settings.mediumPackageMultiplier),
           largePackageMultiplier: String(settings.largePackageMultiplier),
@@ -85,7 +66,6 @@ export function PriceSettingsPage() {
   const { data: driverSettings } = useQuery({
     queryKey: ['driver-settings'],
     queryFn: driverSettingsApi.get,
-    placeholderData: { driverMinBalance: 5000, orderDeliveryRadiusKm: 50 },
   });
 
   const driverSettingsMutation = useMutation({
@@ -158,20 +138,6 @@ export function PriceSettingsPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="minimumFare">Minimum Fare (₦)</Label>
-                  <Input
-                    id="minimumFare"
-                    type="number"
-                    step="0.01"
-                    {...register('minimumFare')}
-                  />
-                  {errors.minimumFare && (
-                    <p className="text-sm text-red-500">{errors.minimumFare.message}</p>
-                  )}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
                   <Label htmlFor="perKmRate">Per Kilometer Rate (₦)</Label>
                   <Input
                     id="perKmRate"
@@ -183,46 +149,6 @@ export function PriceSettingsPage() {
                     <p className="text-sm text-red-500">{errors.perKmRate.message}</p>
                   )}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="perMinuteRate">Per Minute Rate (₦)</Label>
-                  <Input
-                    id="perMinuteRate"
-                    type="number"
-                    step="0.01"
-                    {...register('perMinuteRate')}
-                  />
-                  {errors.perMinuteRate && (
-                    <p className="text-sm text-red-500">{errors.perMinuteRate.message}</p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Surge Pricing */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gauge className="h-5 w-5" />
-                Surge Pricing
-              </CardTitle>
-              <CardDescription>
-                Configure surge multiplier for high-demand periods
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="max-w-xs space-y-2">
-                <Label htmlFor="surgeFactor">Surge Factor (1.0 = no surge)</Label>
-                <Input
-                  id="surgeFactor"
-                  type="number"
-                  step="0.1"
-                  min="1"
-                  {...register('surgeFactor')}
-                />
-                {errors.surgeFactor && (
-                  <p className="text-sm text-red-500">{errors.surgeFactor.message}</p>
-                )}
               </div>
             </CardContent>
           </Card>

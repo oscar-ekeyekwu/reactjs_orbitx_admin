@@ -22,37 +22,25 @@ import {
 import { Header } from '@/components/layout';
 import { Card, CardHeader, CardTitle, CardContent, Spinner, Badge } from '@/components/ui';
 import { dashboardApi, ordersApi, usersApi } from '@/services/api';
-
-// Mock data for charts (replace with real API data)
-const revenueData = [
-  { name: 'Mon', revenue: 4000 },
-  { name: 'Tue', revenue: 3000 },
-  { name: 'Wed', revenue: 5000 },
-  { name: 'Thu', revenue: 2780 },
-  { name: 'Fri', revenue: 1890 },
-  { name: 'Sat', revenue: 2390 },
-  { name: 'Sun', revenue: 3490 },
-];
-
-const ordersData = [
-  { name: 'Mon', orders: 24 },
-  { name: 'Tue', orders: 18 },
-  { name: 'Wed', orders: 32 },
-  { name: 'Thu', orders: 28 },
-  { name: 'Fri', orders: 22 },
-  { name: 'Sat', orders: 35 },
-  { name: 'Sun', orders: 30 },
-];
+import type { Trend } from '@/types';
 
 interface StatCardProps {
   title: string;
   value: string | number;
   icon: React.ReactNode;
-  trend?: string;
-  trendUp?: boolean;
+  trend?: Trend;
 }
 
-function StatCard({ title, value, icon, trend, trendUp }: StatCardProps) {
+function StatCard({ title, value, icon, trend }: StatCardProps) {
+  const trendColor =
+    trend?.direction === 'up'
+      ? 'text-green-600'
+      : trend?.direction === 'down'
+        ? 'text-red-600'
+        : 'text-muted-foreground';
+  const trendArrow =
+    trend?.direction === 'up' ? '↑' : trend?.direction === 'down' ? '↓' : '→';
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -61,12 +49,8 @@ function StatCard({ title, value, icon, trend, trendUp }: StatCardProps) {
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
             <p className="mt-1 text-2xl font-bold">{value}</p>
             {trend && (
-              <p
-                className={`mt-1 text-xs ${
-                  trendUp ? 'text-green-600' : 'text-red-600'
-                }`}
-              >
-                {trendUp ? '↑' : '↓'} {trend} from last week
+              <p className={`mt-1 text-xs ${trendColor}`}>
+                {trendArrow} {trend.deltaPercent}% from last week
               </p>
             )}
           </div>
@@ -78,22 +62,14 @@ function StatCard({ title, value, icon, trend, trendUp }: StatCardProps) {
 }
 
 export function DashboardPage() {
-  // Fetch dashboard data
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: dashboardApi.getStats,
-    // Use placeholder data if API doesn't exist yet
-    placeholderData: {
-      totalUsers: 1250,
-      totalCustomers: 1100,
-      totalDrivers: 150,
-      totalOrders: 5420,
-      pendingOrders: 45,
-      completedOrders: 5200,
-      totalRevenue: 125000,
-      todayOrders: 32,
-      todayRevenue: 2450,
-    },
+  });
+
+  const { data: timeseries, isLoading: timeseriesLoading } = useQuery({
+    queryKey: ['dashboard-timeseries'],
+    queryFn: dashboardApi.getTimeseries,
   });
 
   const { data: recentOrders, isLoading: ordersLoading } = useQuery({
@@ -128,29 +104,25 @@ export function DashboardPage() {
             title="Total Customers"
             value={stats?.totalCustomers?.toLocaleString() || '0'}
             icon={<Users className="h-5 w-5 text-primary" />}
-            trend="12%"
-            trendUp
+            trend={stats?.trends?.customers}
           />
           <StatCard
             title="Active Drivers"
             value={stats?.totalDrivers?.toLocaleString() || '0'}
             icon={<Truck className="h-5 w-5 text-primary" />}
-            trend="8%"
-            trendUp
+            trend={stats?.trends?.drivers}
           />
           <StatCard
             title="Total Orders"
             value={stats?.totalOrders?.toLocaleString() || '0'}
             icon={<Package className="h-5 w-5 text-primary" />}
-            trend="15%"
-            trendUp
+            trend={stats?.trends?.orders}
           />
           <StatCard
             title="Total Revenue"
             value={`₦${stats?.totalRevenue?.toLocaleString() || '0'}`}
             icon={<DollarSign className="h-5 w-5 text-primary" />}
-            trend="23%"
-            trendUp
+            trend={stats?.trends?.revenue}
           />
         </div>
 
@@ -165,21 +137,32 @@ export function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={revenueData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Area
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="#61F62A"
-                    fill="#61F62A"
-                    fillOpacity={0.2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              {timeseriesLoading ? (
+                <div className="flex h-[300px] items-center justify-center">
+                  <Spinner />
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={timeseries?.revenue ?? []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value) => [
+                        `₦${Number(value ?? 0).toLocaleString()}`,
+                        'Revenue',
+                      ]}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#61F62A"
+                      fill="#61F62A"
+                      fillOpacity={0.2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </CardContent>
           </Card>
 
@@ -192,15 +175,23 @@ export function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={ordersData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="orders" fill="#61F62A" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {timeseriesLoading ? (
+                <div className="flex h-[300px] items-center justify-center">
+                  <Spinner />
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={timeseries?.orders ?? []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip
+                      formatter={(value) => [Number(value ?? 0), 'Orders']}
+                    />
+                    <Bar dataKey="value" fill="#61F62A" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -225,7 +216,7 @@ export function DashboardPage() {
                 <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Completed Today</p>
+                <p className="text-sm text-muted-foreground">Orders Today</p>
                 <p className="text-2xl font-bold">{stats?.todayOrders || 0}</p>
               </div>
             </CardContent>
