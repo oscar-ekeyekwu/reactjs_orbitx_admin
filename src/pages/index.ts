@@ -10,3 +10,7 @@ export { PriceSettingsPage } from './PriceSettings';
 export { FAQsPage } from './FAQs';
 export { SupportPage } from './Support';
 export { SettingsPage } from './Settings';
+export { NotificationSettingsPage } from './settings/NotificationSettings';
+export { SecuritySettingsPage } from './settings/SecuritySettings';
+export { AppearanceSettingsPage } from './settings/AppearanceSettings';
+export { DataSettingsPage } from './settings/DataSettings';

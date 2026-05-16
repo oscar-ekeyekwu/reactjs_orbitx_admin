@@ -21,6 +21,8 @@ import {
   Select,
   Textarea,
   Label,
+  Avatar,
+  AvatarFallback,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -395,22 +397,34 @@ function CreateTicketDialog({ open, onClose }: CreateTicketDialogProps) {
     });
   };
 
+  const subjectCount = subject.trim().length;
+  const descriptionCount = description.trim().length;
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       {open && (
-        <DialogContent onClose={onClose}>
-          <DialogHeader>
+        <DialogContent onClose={onClose} className="max-w-xl">
+          <DialogHeader className="pr-8">
             <DialogTitle>New Support Ticket</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              File a ticket on behalf of a customer or driver.
+            </p>
           </DialogHeader>
-          <div className="space-y-4">
+
+          <div className="space-y-5">
             <div className="space-y-2">
               <Label>User</Label>
               {selectedUser ? (
-                <div className="flex items-center justify-between rounded border p-2">
-                  <div>
-                    <p className="font-medium">{selectedUser.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedUser.email}
+                <div className="flex items-center gap-3 rounded-md border bg-muted/30 p-3">
+                  <Avatar className="h-9 w-9">
+                    <AvatarFallback className="text-xs font-medium">
+                      {userInitials(selectedUser)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{selectedUser.name}</p>
+                    <p className="truncate text-sm text-muted-foreground">
+                      {selectedUser.email} · {selectedUser.role}
                     </p>
                   </div>
                   <Button
@@ -424,15 +438,20 @@ function CreateTicketDialog({ open, onClose }: CreateTicketDialogProps) {
                 </div>
               ) : (
                 <>
-                  <Input
-                    placeholder="Search users by name or email"
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                  />
-                  {debouncedUserSearch && (
-                    <div className="max-h-48 overflow-y-auto rounded border">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <Input
+                      placeholder="Search users by name or email"
+                      value={userSearch}
+                      onChange={(e) => setUserSearch(e.target.value)}
+                      className="pl-9"
+                      autoFocus
+                    />
+                  </div>
+                  {debouncedUserSearch ? (
+                    <div className="max-h-56 overflow-y-auto rounded-md border">
                       {usersLoading ? (
-                        <div className="flex justify-center py-3">
+                        <div className="flex justify-center py-4">
                           <Spinner size="sm" />
                         </div>
                       ) : userResults?.data?.length ? (
@@ -441,45 +460,84 @@ function CreateTicketDialog({ open, onClose }: CreateTicketDialogProps) {
                             type="button"
                             key={u.id}
                             onClick={() => setSelectedUser(u)}
-                            className="block w-full border-b px-3 py-2 text-left last:border-0 hover:bg-accent"
+                            className="flex w-full items-center gap-3 border-b px-3 py-2 text-left last:border-0 hover:bg-accent focus:bg-accent focus:outline-none"
                           >
-                            <p className="text-sm font-medium">{u.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {u.email} · {u.role}
-                            </p>
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="text-xs font-medium">
+                                {userInitials(u)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-medium">
+                                {u.name}
+                              </p>
+                              <p className="truncate text-xs text-muted-foreground">
+                                {u.email}
+                              </p>
+                            </div>
+                            <Badge variant="secondary" className="ml-auto capitalize">
+                              {u.role}
+                            </Badge>
                           </button>
                         ))
                       ) : (
-                        <p className="px-3 py-2 text-sm text-muted-foreground">
-                          No matches
+                        <p className="px-3 py-4 text-center text-sm text-muted-foreground">
+                          No users match "{debouncedUserSearch}"
                         </p>
                       )}
                     </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Start typing to search.
+                    </p>
                   )}
                 </>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="ticket-subject">Subject</Label>
+              <div className="flex items-baseline justify-between">
+                <Label htmlFor="ticket-subject">Subject</Label>
+                <span
+                  className={`text-xs ${
+                    subjectCount > 0 && subjectCount < 3
+                      ? 'text-red-500'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  {subjectCount}/200
+                </span>
+              </div>
               <Input
                 id="ticket-subject"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                placeholder="Short summary"
+                placeholder="Short summary of the issue"
                 maxLength={200}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="ticket-description">Description</Label>
+              <div className="flex items-baseline justify-between">
+                <Label htmlFor="ticket-description">Description</Label>
+                <span
+                  className={`text-xs ${
+                    descriptionCount > 0 && descriptionCount < 10
+                      ? 'text-red-500'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  {descriptionCount}/2000
+                </span>
+              </div>
               <Textarea
                 id="ticket-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="What happened?"
-                rows={4}
+                placeholder="What happened? Include any relevant order or driver IDs."
+                rows={6}
                 maxLength={2000}
+                className="resize-y"
               />
             </div>
 
@@ -500,13 +558,13 @@ function CreateTicketDialog({ open, onClose }: CreateTicketDialogProps) {
             </div>
 
             {createMutation.isError && (
-              <p className="text-sm text-red-500">
+              <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                 Failed to create ticket. Please try again.
-              </p>
+              </div>
             )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="gap-2 pt-2">
             <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>
@@ -521,4 +579,10 @@ function CreateTicketDialog({ open, onClose }: CreateTicketDialogProps) {
       )}
     </Dialog>
   );
+}
+
+function userInitials(u: UserType): string {
+  const f = u.first_name?.[0] ?? '';
+  const l = u.last_name?.[0] ?? '';
+  return (f + l).toUpperCase() || u.email?.[0]?.toUpperCase() || '?';
 }

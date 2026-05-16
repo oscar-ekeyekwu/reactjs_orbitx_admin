@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AdminLayout } from '@/components/layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { useThemeStore, applyTheme } from '@/stores/themeStore';
 import {
   LoginPage,
   DashboardPage,
@@ -15,6 +17,10 @@ import {
   FAQsPage,
   SupportPage,
   SettingsPage,
+  NotificationSettingsPage,
+  SecuritySettingsPage,
+  AppearanceSettingsPage,
+  DataSettingsPage,
 } from '@/pages';
 
 const queryClient = new QueryClient({
@@ -27,6 +33,21 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  const mode = useThemeStore((s) => s.mode);
+  const accentId = useThemeStore((s) => s.accentId);
+
+  useEffect(() => {
+    applyTheme(mode, accentId);
+  }, [mode, accentId]);
+
+  useEffect(() => {
+    if (mode !== 'system') return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => applyTheme(mode, accentId);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [mode, accentId]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
@@ -49,10 +70,27 @@ function App() {
             <Route path="/drivers/:id" element={<DriverDetailPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/orders/:id" element={<OrderDetailPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/settings/pricing" element={<PriceSettingsPage />} />
+            <Route path="/price-settings" element={<PriceSettingsPage />} />
+            <Route
+              path="/settings/pricing"
+              element={<Navigate to="/price-settings" replace />}
+            />
             <Route path="/faqs" element={<FAQsPage />} />
             <Route path="/support" element={<SupportPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route
+              path="/settings/notifications"
+              element={<NotificationSettingsPage />}
+            />
+            <Route
+              path="/settings/security"
+              element={<SecuritySettingsPage />}
+            />
+            <Route
+              path="/settings/appearance"
+              element={<AppearanceSettingsPage />}
+            />
+            <Route path="/settings/data" element={<DataSettingsPage />} />
           </Route>
 
           {/* Fallback */}

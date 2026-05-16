@@ -4,11 +4,11 @@ import {
   Users,
   Truck,
   Package,
-  Settings,
   HelpCircle,
   MessageSquare,
   LogOut,
   DollarSign,
+  Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/authStore';
@@ -18,7 +18,7 @@ const navigation = [
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Drivers', href: '/drivers', icon: Truck },
   { name: 'Orders', href: '/orders', icon: Package },
-  { name: 'Price Settings', href: '/settings/pricing', icon: DollarSign },
+  { name: 'Price Settings', href: '/price-settings', icon: DollarSign },
   { name: 'FAQs', href: '/faqs', icon: HelpCircle },
   { name: 'Support', href: '/support', icon: MessageSquare },
   { name: 'Settings', href: '/settings', icon: Settings },

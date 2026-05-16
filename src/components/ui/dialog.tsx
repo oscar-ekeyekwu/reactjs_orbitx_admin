@@ -17,7 +17,7 @@ const Dialog: React.FC<DialogProps> = ({ open, onOpenChange, children }) => {
         className="fixed inset-0 bg-black/80"
         onClick={() => onOpenChange(false)}
       />
-      <div className="fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%]">
+      <div className="fixed left-[50%] top-[50%] z-50 w-[92vw] max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] overflow-y-auto">
         {children}
       </div>
     </div>

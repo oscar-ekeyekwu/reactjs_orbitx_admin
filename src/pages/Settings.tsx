@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import {
-  DollarSign,
   Bell,
   Shield,
   Palette,
@@ -11,12 +10,6 @@ import { Header } from '@/components/layout';
 import { Card, CardContent } from '@/components/ui';
 
 const settingsLinks = [
-  {
-    name: 'Price Settings',
-    description: 'Configure pricing parameters and multipliers',
-    href: '/settings/pricing',
-    icon: DollarSign,
-  },
   {
     name: 'Notifications',
     description: 'Manage notification preferences and templates',
