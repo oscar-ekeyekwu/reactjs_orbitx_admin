@@ -97,16 +97,11 @@ export interface Transaction {
 
 // Settings types
 export interface PriceSettings {
-  id: string;
   baseFare: number;
   perKmRate: number;
-  perMinuteRate: number;
-  minimumFare: number;
-  surgeFactor: number;
   smallPackageMultiplier: number;
   mediumPackageMultiplier: number;
   largePackageMultiplier: number;
-  updatedAt: string;
 }
 
 // FAQ types
@@ -159,6 +154,11 @@ export interface PaginatedResponse<T> {
 }
 
 // Dashboard stats
+export interface Trend {
+  deltaPercent: number;
+  direction: 'up' | 'down' | 'flat';
+}
+
 export interface DashboardStats {
   totalUsers: number;
   totalCustomers: number;
@@ -169,4 +169,20 @@ export interface DashboardStats {
   totalRevenue: number;
   todayOrders: number;
   todayRevenue: number;
+  trends: {
+    customers: Trend;
+    drivers: Trend;
+    orders: Trend;
+    revenue: Trend;
+  };
+}
+
+export interface TimeseriesPoint {
+  name: string;
+  value: number;
+}
+
+export interface DashboardTimeseries {
+  revenue: TimeseriesPoint[];
+  orders: TimeseriesPoint[];
 }

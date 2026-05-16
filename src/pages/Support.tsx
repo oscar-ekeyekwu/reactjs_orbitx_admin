@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Search,
@@ -7,6 +7,7 @@ import {
   AlertCircle,
   CheckCircle,
   User,
+  Plus,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
@@ -18,14 +19,23 @@ import {
   Badge,
   Spinner,
   Select,
+  Textarea,
+  Label,
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from '@/components/ui';
-import { supportApi } from '@/services/api';
-import type { SupportTicket, SupportTicketStatus, SupportTicketPriority } from '@/types';
+import { supportApi, usersApi } from '@/services/api';
+import type { UpdateSupportTicketDto } from '@/services/api';
+import type {
+  SupportTicket,
+  SupportTicketStatus,
+  SupportTicketPriority,
+  User as UserType,
+} from '@/types';
+import { useDebouncedValue } from '@/lib/use-debounced-value';
 
 const statusColors: Record<SupportTicketStatus, 'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'info'> = {
   open: 'warning',
@@ -46,32 +56,28 @@ export function SupportPage() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const queryClient = useQueryClient();
+  const debouncedSearch = useDebouncedValue(search.trim(), 300);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['support-tickets', page, search, statusFilter],
+    queryKey: ['support-tickets', page, debouncedSearch, statusFilter],
     queryFn: () =>
       supportApi.getAll({
         page,
         limit: 10,
-        status: statusFilter || undefined,
+        status: (statusFilter || undefined) as SupportTicketStatus | undefined,
+        search: debouncedSearch || undefined,
       }),
-    placeholderData: {
-      data: [],
-      meta: {
-        total: 0,
-        page: 1,
-        limit: 10,
-        totalPages: 0,
-        hasNextPage: false,
-        hasPreviousPage: false,
-      },
-    },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { status?: string; priority?: string } }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateSupportTicketDto }) =>
       supportApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['support-tickets'] });
@@ -82,7 +88,7 @@ export function SupportPage() {
   const tickets = data?.data || [];
   const meta = data?.meta;
 
-  const handleStatusChange = (ticketId: string, status: string) => {
+  const handleStatusChange = (ticketId: string, status: SupportTicketStatus) => {
     updateMutation.mutate({ id: ticketId, data: { status } });
   };
 
@@ -115,6 +121,11 @@ export function SupportPage() {
                 <option value="resolved">Resolved</option>
                 <option value="closed">Closed</option>
               </Select>
+              <div className="flex-1" />
+              <Button onClick={() => setIsCreateOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                New Ticket
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -298,7 +309,10 @@ export function SupportPage() {
                 <Select
                   value={selectedTicket.status}
                   onChange={(e) =>
-                    handleStatusChange(selectedTicket.id, e.target.value)
+                    handleStatusChange(
+                      selectedTicket.id,
+                      e.target.value as SupportTicketStatus,
+                    )
                   }
                 >
                   <option value="open">Open</option>
@@ -317,6 +331,194 @@ export function SupportPage() {
           </DialogContent>
         )}
       </Dialog>
+
+      <CreateTicketDialog
+        open={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+      />
     </div>
+  );
+}
+
+interface CreateTicketDialogProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+function CreateTicketDialog({ open, onClose }: CreateTicketDialogProps) {
+  const queryClient = useQueryClient();
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [userSearch, setUserSearch] = useState('');
+  const [subject, setSubject] = useState('');
+  const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState<SupportTicketPriority>('medium');
+  const debouncedUserSearch = useDebouncedValue(userSearch.trim(), 300);
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedUser(null);
+      setUserSearch('');
+      setSubject('');
+      setDescription('');
+      setPriority('medium');
+    }
+  }, [open]);
+
+  const { data: userResults, isFetching: usersLoading } = useQuery({
+    queryKey: ['users-search', debouncedUserSearch],
+    queryFn: () =>
+      usersApi.getAll({
+        search: debouncedUserSearch || undefined,
+        limit: 8,
+      }),
+    enabled: open && !selectedUser && debouncedUserSearch.length > 0,
+  });
+
+  const createMutation = useMutation({
+    mutationFn: supportApi.adminCreate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['support-tickets'] });
+      onClose();
+    },
+  });
+
+  const canSubmit =
+    !!selectedUser && subject.trim().length >= 3 && description.trim().length >= 10;
+
+  const handleSubmit = () => {
+    if (!selectedUser || !canSubmit) return;
+    createMutation.mutate({
+      userId: selectedUser.id,
+      subject: subject.trim(),
+      description: description.trim(),
+      priority,
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      {open && (
+        <DialogContent onClose={onClose}>
+          <DialogHeader>
+            <DialogTitle>New Support Ticket</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>User</Label>
+              {selectedUser ? (
+                <div className="flex items-center justify-between rounded border p-2">
+                  <div>
+                    <p className="font-medium">{selectedUser.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedUser.email}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedUser(null)}
+                  >
+                    Change
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Input
+                    placeholder="Search users by name or email"
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                  />
+                  {debouncedUserSearch && (
+                    <div className="max-h-48 overflow-y-auto rounded border">
+                      {usersLoading ? (
+                        <div className="flex justify-center py-3">
+                          <Spinner size="sm" />
+                        </div>
+                      ) : userResults?.data?.length ? (
+                        userResults.data.map((u) => (
+                          <button
+                            type="button"
+                            key={u.id}
+                            onClick={() => setSelectedUser(u)}
+                            className="block w-full border-b px-3 py-2 text-left last:border-0 hover:bg-accent"
+                          >
+                            <p className="text-sm font-medium">{u.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {u.email} · {u.role}
+                            </p>
+                          </button>
+                        ))
+                      ) : (
+                        <p className="px-3 py-2 text-sm text-muted-foreground">
+                          No matches
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ticket-subject">Subject</Label>
+              <Input
+                id="ticket-subject"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="Short summary"
+                maxLength={200}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ticket-description">Description</Label>
+              <Textarea
+                id="ticket-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="What happened?"
+                rows={4}
+                maxLength={2000}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ticket-priority">Priority</Label>
+              <Select
+                id="ticket-priority"
+                value={priority}
+                onChange={(e) =>
+                  setPriority(e.target.value as SupportTicketPriority)
+                }
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </Select>
+            </div>
+
+            {createMutation.isError && (
+              <p className="text-sm text-red-500">
+                Failed to create ticket. Please try again.
+              </p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={!canSubmit || createMutation.isPending}
+            >
+              {createMutation.isPending ? 'Creating...' : 'Create Ticket'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      )}
+    </Dialog>
   );
 }

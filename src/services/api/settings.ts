@@ -3,8 +3,11 @@ import type {
   PriceSettings,
   FAQ,
   SupportTicket,
+  SupportTicketStatus,
+  SupportTicketPriority,
   PaginatedResponse,
   DashboardStats,
+  DashboardTimeseries,
 } from "@/types";
 
 // Dashboard
@@ -15,15 +18,19 @@ export const dashboardApi = {
     );
     return response.data;
   },
+
+  getTimeseries: async (): Promise<DashboardTimeseries> => {
+    const response = await apiClient.get<DashboardTimeseries>(
+      "/admin/dashboard/timeseries",
+    );
+    return response.data;
+  },
 };
 
 // Price Settings
 export interface UpdatePriceSettingsDto {
   baseFare?: number;
   perKmRate?: number;
-  perMinuteRate?: number;
-  minimumFare?: number;
-  surgeFactor?: number;
   smallPackageMultiplier?: number;
   mediumPackageMultiplier?: number;
   largePackageMultiplier?: number;
@@ -32,14 +39,14 @@ export interface UpdatePriceSettingsDto {
 export const priceSettingsApi = {
   get: async (): Promise<PriceSettings> => {
     const response = await apiClient.get<PriceSettings>(
-      "/admin/settings/pricing",
+      "/config/pricing-settings",
     );
     return response.data;
   },
 
   update: async (data: UpdatePriceSettingsDto): Promise<PriceSettings> => {
     const response = await apiClient.put<PriceSettings>(
-      "/admin/settings/pricing",
+      "/config/pricing-settings",
       data,
     );
     return response.data;
@@ -121,14 +128,23 @@ export const driverSettingsApi = {
 export interface SupportTicketsQueryParams {
   page?: number;
   limit?: number;
-  status?: string;
-  priority?: string;
+  status?: SupportTicketStatus;
+  priority?: SupportTicketPriority;
+  search?: string;
 }
 
 export interface UpdateSupportTicketDto {
-  status?: string;
-  priority?: string;
+  status?: SupportTicketStatus;
+  priority?: SupportTicketPriority;
   assignedTo?: string;
+}
+
+export interface AdminCreateSupportTicketDto {
+  userId: string;
+  subject: string;
+  description: string;
+  priority?: SupportTicketPriority;
+  orderId?: string;
 }
 
 export const supportApi = {
@@ -138,6 +154,16 @@ export const supportApi = {
     const response = await apiClient.get<PaginatedResponse<SupportTicket>>(
       "/support/tickets",
       { params },
+    );
+    return response.data;
+  },
+
+  adminCreate: async (
+    data: AdminCreateSupportTicketDto,
+  ): Promise<SupportTicket> => {
+    const response = await apiClient.post<SupportTicket>(
+      "/support/tickets/admin",
+      data,
     );
     return response.data;
   },
@@ -161,6 +187,6 @@ export const supportApi = {
   },
 
   close: async (id: string): Promise<SupportTicket> => {
-    return supportApi.update(id, { status: "closed" });
+    return supportApi.update(id, { status: "closed" as SupportTicketStatus });
   },
 };
