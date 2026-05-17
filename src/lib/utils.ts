@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 export const cleanParams = <T extends object>(params?: T): Partial<T> => {
   return Object.fromEntries(
     Object.entries(params || {}).filter(
-      ([_, value]) => value !== undefined && value !== null && value !== "",
+      ([, value]) => value !== undefined && value !== null && value !== "",
     ),
   ) as Partial<T>;
 };

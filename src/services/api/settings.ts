@@ -105,7 +105,7 @@ export interface CreateFAQDto {
   isActive?: boolean;
 }
 
-export interface UpdateFAQDto extends Partial<CreateFAQDto> {}
+export type UpdateFAQDto = Partial<CreateFAQDto>;
 
 export const faqApi = {
   getAll: async (): Promise<FAQ[]> => {

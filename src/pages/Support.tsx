@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Search,
@@ -63,9 +63,16 @@ export function SupportPage() {
   const queryClient = useQueryClient();
   const debouncedSearch = useDebouncedValue(search.trim(), 300);
 
-  useEffect(() => {
+  // Reset to page 1 during render when the search query or status filter
+  // changes — React 19 idiom (see notification settings for the same pattern).
+  const [prevFilter, setPrevFilter] = useState({ debouncedSearch, statusFilter });
+  if (
+    prevFilter.debouncedSearch !== debouncedSearch ||
+    prevFilter.statusFilter !== statusFilter
+  ) {
+    setPrevFilter({ debouncedSearch, statusFilter });
     setPage(1);
-  }, [debouncedSearch, statusFilter]);
+  }
 
   const { data, isLoading } = useQuery({
     queryKey: ['support-tickets', page, debouncedSearch, statusFilter],
@@ -356,7 +363,11 @@ function CreateTicketDialog({ open, onClose }: CreateTicketDialogProps) {
   const [priority, setPriority] = useState<SupportTicketPriority>('medium');
   const debouncedUserSearch = useDebouncedValue(userSearch.trim(), 300);
 
-  useEffect(() => {
+  // Reset all dialog fields during render when the dialog closes.
+  // React 19 idiom: compare against previous open value rather than useEffect.
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (prevOpen !== open) {
+    setPrevOpen(open);
     if (!open) {
       setSelectedUser(null);
       setUserSearch('');
@@ -364,7 +375,7 @@ function CreateTicketDialog({ open, onClose }: CreateTicketDialogProps) {
       setDescription('');
       setPriority('medium');
     }
-  }, [open]);
+  }
 
   const { data: userResults, isFetching: usersLoading } = useQuery({
     queryKey: ['users-search', debouncedUserSearch],

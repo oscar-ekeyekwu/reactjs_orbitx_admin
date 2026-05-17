@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -93,7 +93,7 @@ export function FAQsPage() {
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     setValue,
     formState: { errors },
   } = useForm<FAQFormData>({
@@ -101,10 +101,12 @@ export function FAQsPage() {
     defaultValues: { isActive: true },
   });
 
-  const watchedQuestion = watch('question') ?? '';
-  const watchedAnswer = watch('answer') ?? '';
-  const watchedCategory = watch('category') ?? '';
-  const watchedIsActive = watch('isActive') ?? true;
+  // useWatch is React-Compiler-friendly and re-renders only when the
+  // specific watched field changes; watch() re-renders on every change.
+  const watchedQuestion = useWatch({ control, name: 'question' }) ?? '';
+  const watchedAnswer = useWatch({ control, name: 'answer' }) ?? '';
+  const watchedCategory = useWatch({ control, name: 'category' }) ?? '';
+  const watchedIsActive = useWatch({ control, name: 'isActive' }) ?? true;
 
   const openCreateDialog = () => {
     setEditingFaq(null);
