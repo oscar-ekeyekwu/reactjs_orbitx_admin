@@ -74,6 +74,28 @@ export const priceSettingsApi = {
   },
 };
 
+// Feature Flags
+export interface FeatureFlags {
+  useMapView: boolean;
+}
+
+export const featureFlagsApi = {
+  get: async (): Promise<FeatureFlags> => {
+    const response = await apiClient.get<FeatureFlags>(
+      "/config/feature-flags",
+    );
+    return response.data;
+  },
+
+  update: async (data: FeatureFlags): Promise<FeatureFlags> => {
+    const response = await apiClient.put<FeatureFlags>(
+      "/config/feature-flags",
+      data,
+    );
+    return response.data;
+  },
+};
+
 // FAQs
 export interface CreateFAQDto {
   question: string;
