@@ -5,6 +5,7 @@ import {
   Palette,
   Database,
   ChevronRight,
+  ToggleLeft,
 } from 'lucide-react';
 import { Header } from '@/components/layout';
 import { Card, CardContent } from '@/components/ui';
@@ -33,6 +34,12 @@ const settingsLinks = [
     description: 'Export data and manage backups',
     href: '/settings/data',
     icon: Database,
+  },
+  {
+    name: 'Feature Flags',
+    description: 'Toggle product features without releasing a new app build',
+    href: '/settings/feature-flags',
+    icon: ToggleLeft,
   },
 ];
 

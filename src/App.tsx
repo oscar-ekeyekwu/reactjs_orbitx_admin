@@ -21,6 +21,7 @@ import {
   SecuritySettingsPage,
   AppearanceSettingsPage,
   DataSettingsPage,
+  FeatureFlagsSettingsPage,
 } from '@/pages';
 
 const queryClient = new QueryClient({
@@ -91,6 +92,10 @@ function App() {
               element={<AppearanceSettingsPage />}
             />
             <Route path="/settings/data" element={<DataSettingsPage />} />
+            <Route
+              path="/settings/feature-flags"
+              element={<FeatureFlagsSettingsPage />}
+            />
           </Route>
 
           {/* Fallback */}

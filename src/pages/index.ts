@@ -14,3 +14,4 @@ export { NotificationSettingsPage } from './settings/NotificationSettings';
 export { SecuritySettingsPage } from './settings/SecuritySettings';
 export { AppearanceSettingsPage } from './settings/AppearanceSettings';
 export { DataSettingsPage } from './settings/DataSettings';
+export { FeatureFlagsSettingsPage } from './settings/FeatureFlagsSettings';

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Bell, Save } from 'lucide-react';
@@ -98,27 +98,28 @@ interface TemplateEditorProps {
   template: NotificationTemplate;
 }
 
-function TemplateEditor({ template }: TemplateEditorProps) {
-  const queryClient = useQueryClient();
-  const [form, setForm] = useState({
+function makeFormFromTemplate(template: NotificationTemplate) {
+  return {
     title: template.title,
     body: template.body,
     emailSubject: template.emailSubject ?? '',
     emailBody: template.emailBody ?? '',
     smsBody: template.smsBody ?? '',
     isEnabled: template.isEnabled,
-  });
+  };
+}
 
-  useEffect(() => {
-    setForm({
-      title: template.title,
-      body: template.body,
-      emailSubject: template.emailSubject ?? '',
-      emailBody: template.emailBody ?? '',
-      smsBody: template.smsBody ?? '',
-      isEnabled: template.isEnabled,
-    });
-  }, [template]);
+function TemplateEditor({ template }: TemplateEditorProps) {
+  const queryClient = useQueryClient();
+  // Reset form during render when the template prop changes (e.g., after a
+  // save invalidates the React Query cache and refetched values arrive).
+  // This is the React 19 idiom — see https://react.dev/reference/react/useState#storing-information-from-previous-renders
+  const [prevTemplate, setPrevTemplate] = useState(template);
+  const [form, setForm] = useState(() => makeFormFromTemplate(template));
+  if (template !== prevTemplate) {
+    setPrevTemplate(template);
+    setForm(makeFormFromTemplate(template));
+  }
 
   const mutation = useMutation({
     mutationFn: (data: UpdateNotificationTemplateDto) =>
