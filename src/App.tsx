@@ -23,6 +23,7 @@ import {
   DataSettingsPage,
   FeatureFlagsSettingsPage,
   ApprovalsPage,
+  TrackPage,
 } from '@/pages';
 
 const queryClient = new QueryClient({
@@ -56,6 +57,9 @@ function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
+          {/* E3 — public read-only order tracking. No auth required;
+              the mobile share sheet hands the recipient this URL. */}
+          <Route path="/track/:token" element={<TrackPage />} />
 
           {/* Protected admin routes */}
           <Route
