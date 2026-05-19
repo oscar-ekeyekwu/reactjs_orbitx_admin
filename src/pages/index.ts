@@ -17,3 +17,4 @@ export { DataSettingsPage } from './settings/DataSettings';
 export { FeatureFlagsSettingsPage } from './settings/FeatureFlagsSettings';
 export { ApprovalsPage } from './Approvals';
 export { TrackPage } from './Track';
+export { TransfersPage } from './Transfers';
