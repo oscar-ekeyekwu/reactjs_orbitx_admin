@@ -75,8 +75,12 @@ export const priceSettingsApi = {
 };
 
 // Feature Flags
+export type VehicleEditGraceMode = 'continue' | 'lock';
+
 export interface FeatureFlags {
   useMapView: boolean;
+  // F3 — toggles the F2 lock-mode gate in OrdersService.acceptOrder.
+  vehicleEditGraceMode: VehicleEditGraceMode;
 }
 
 export const featureFlagsApi = {
@@ -87,7 +91,7 @@ export const featureFlagsApi = {
     return response.data;
   },
 
-  update: async (data: FeatureFlags): Promise<FeatureFlags> => {
+  update: async (data: Partial<FeatureFlags>): Promise<FeatureFlags> => {
     const response = await apiClient.put<FeatureFlags>(
       "/config/feature-flags",
       data,

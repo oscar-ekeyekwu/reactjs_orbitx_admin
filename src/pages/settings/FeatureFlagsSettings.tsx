@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, ToggleLeft } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, ToggleLeft } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
   Card,
@@ -11,7 +11,11 @@ import {
   Label,
   Spinner,
 } from '@/components/ui';
-import { featureFlagsApi, type FeatureFlags } from '@/services/api';
+import {
+  featureFlagsApi,
+  type FeatureFlags,
+  type VehicleEditGraceMode,
+} from '@/services/api';
 
 export function FeatureFlagsSettingsPage() {
   const queryClient = useQueryClient();
@@ -30,7 +34,13 @@ export function FeatureFlagsSettingsPage() {
 
   const toggle = (key: keyof FeatureFlags) => {
     if (!flags) return;
-    mutation.mutate({ ...flags, [key]: !flags[key] });
+    mutation.mutate({ [key]: !flags[key] } as Partial<FeatureFlags>);
+  };
+
+  const setGraceMode = (mode: VehicleEditGraceMode) => {
+    if (!flags) return;
+    if (flags.vehicleEditGraceMode === mode) return;
+    mutation.mutate({ vehicleEditGraceMode: mode });
   };
 
   return (
@@ -49,35 +59,93 @@ export function FeatureFlagsSettingsPage() {
           Back to Settings
         </Link>
 
-        <div className="max-w-3xl">
+        <div className="max-w-3xl space-y-6">
           {isLoading ? (
             <div className="flex justify-center py-12">
               <Spinner size="lg" />
             </div>
           ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ToggleLeft className="h-5 w-5" />
-                  Customer Tracking
-                </CardTitle>
-                <CardDescription>
-                  Controls visible to customers tracking an active order
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <FeatureToggle
-                  id="useMapView"
-                  label="Show map on customer tracking screen"
-                  description="When off, customers see a timeline-only fallback (no Google Maps SDK calls). Use this to disable map billing without a mobile release."
-                  checked={flags?.useMapView ?? true}
-                  pending={mutation.isPending}
-                  error={mutation.isError}
-                  success={mutation.isSuccess}
-                  onToggle={() => toggle('useMapView')}
-                />
-              </CardContent>
-            </Card>
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ToggleLeft className="h-5 w-5" />
+                    Customer Tracking
+                  </CardTitle>
+                  <CardDescription>
+                    Controls visible to customers tracking an active order
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <FeatureToggle
+                    id="useMapView"
+                    label="Show map on customer tracking screen"
+                    description="When off, customers see a timeline-only fallback (no Google Maps SDK calls). Use this to disable map billing without a mobile release."
+                    checked={flags?.useMapView ?? true}
+                    pending={mutation.isPending}
+                    error={mutation.isError}
+                    success={mutation.isSuccess}
+                    onToggle={() => toggle('useMapView')}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ShieldCheck className="h-5 w-5" />
+                    Vehicle edit grace mode
+                  </CardTitle>
+                  <CardDescription>
+                    What happens to an approved vehicle while a regulatory edit
+                    is awaiting admin review. Switching tightens or loosens
+                    trust policy without a code deploy.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <fieldset
+                    data-testid="vehicle-grace-mode-fieldset"
+                    className="space-y-3"
+                    aria-describedby="vehicle-grace-mode-help"
+                  >
+                    <GraceModeOption
+                      id="vehicle-grace-mode-continue"
+                      value="continue"
+                      label="Continue (lenient)"
+                      description="Driver keeps accepting orders against the already-approved vehicle while the edit is reviewed."
+                      checked={flags?.vehicleEditGraceMode === 'continue'}
+                      disabled={mutation.isPending}
+                      onChange={() => setGraceMode('continue')}
+                    />
+                    <GraceModeOption
+                      id="vehicle-grace-mode-lock"
+                      value="lock"
+                      label="Lock (strict)"
+                      description="Driver cannot accept orders until the admin signs off on the change. Surfaces VEHICLE_002 on the mobile client."
+                      checked={flags?.vehicleEditGraceMode === 'lock'}
+                      disabled={mutation.isPending}
+                      onChange={() => setGraceMode('lock')}
+                    />
+                    {mutation.isSuccess && (
+                      <p
+                        data-testid="vehicle-grace-mode-success"
+                        className="text-xs text-green-600"
+                      >
+                        Saved
+                      </p>
+                    )}
+                    {mutation.isError && (
+                      <p
+                        data-testid="vehicle-grace-mode-error"
+                        className="text-xs text-red-500"
+                      >
+                        Could not save. Please try again.
+                      </p>
+                    )}
+                  </fieldset>
+                </CardContent>
+              </Card>
+            </>
           )}
         </div>
       </div>
@@ -137,5 +205,54 @@ function FeatureToggle({
         />
       </button>
     </div>
+  );
+}
+
+interface GraceModeOptionProps {
+  id: string;
+  value: VehicleEditGraceMode;
+  label: string;
+  description: string;
+  checked: boolean;
+  disabled: boolean;
+  onChange: () => void;
+}
+
+function GraceModeOption({
+  id,
+  value,
+  label,
+  description,
+  checked,
+  disabled,
+  onChange,
+}: GraceModeOptionProps) {
+  return (
+    <label
+      htmlFor={id}
+      data-testid={id}
+      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
+        checked
+          ? 'border-primary bg-primary/5'
+          : 'border-border hover:bg-muted/50'
+      } ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
+    >
+      <input
+        id={id}
+        type="radio"
+        name="vehicleEditGraceMode"
+        value={value}
+        checked={checked}
+        disabled={disabled}
+        onChange={onChange}
+        className="mt-1 h-4 w-4"
+      />
+      <div className="space-y-0.5">
+        <Label htmlFor={id} className="cursor-pointer">
+          {label}
+        </Label>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </div>
+    </label>
   );
 }
