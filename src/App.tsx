@@ -22,6 +22,7 @@ import {
   AppearanceSettingsPage,
   DataSettingsPage,
   FeatureFlagsSettingsPage,
+  ApprovalsPage,
 } from '@/pages';
 
 const queryClient = new QueryClient({
@@ -69,6 +70,7 @@ function App() {
             <Route path="/customers/:id" element={<CustomerDetailPage />} />
             <Route path="/drivers" element={<DriversPage />} />
             <Route path="/drivers/:id" element={<DriverDetailPage />} />
+            <Route path="/approvals" element={<ApprovalsPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/orders/:id" element={<OrderDetailPage />} />
             <Route path="/price-settings" element={<PriceSettingsPage />} />

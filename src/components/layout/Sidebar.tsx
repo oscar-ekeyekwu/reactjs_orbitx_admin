@@ -9,6 +9,7 @@ import {
   LogOut,
   DollarSign,
   Settings,
+  ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/authStore';
@@ -17,6 +18,7 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Drivers', href: '/drivers', icon: Truck },
+  { name: 'Approvals', href: '/approvals', icon: ShieldCheck },
   { name: 'Orders', href: '/orders', icon: Package },
   { name: 'Price Settings', href: '/price-settings', icon: DollarSign },
   { name: 'FAQs', href: '/faqs', icon: HelpCircle },
