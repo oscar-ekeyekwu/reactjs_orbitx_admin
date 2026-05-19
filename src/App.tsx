@@ -23,6 +23,9 @@ import {
   DataSettingsPage,
   FeatureFlagsSettingsPage,
   ApprovalsPage,
+  TrackPage,
+  TransfersPage,
+  PayoutsPage,
 } from '@/pages';
 
 const queryClient = new QueryClient({
@@ -56,6 +59,9 @@ function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
+          {/* E3 — public read-only order tracking. No auth required;
+              the mobile share sheet hands the recipient this URL. */}
+          <Route path="/track/:token" element={<TrackPage />} />
 
           {/* Protected admin routes */}
           <Route
@@ -71,6 +77,8 @@ function App() {
             <Route path="/drivers" element={<DriversPage />} />
             <Route path="/drivers/:id" element={<DriverDetailPage />} />
             <Route path="/approvals" element={<ApprovalsPage />} />
+            <Route path="/transfers" element={<TransfersPage />} />
+            <Route path="/payouts" element={<PayoutsPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/orders/:id" element={<OrderDetailPage />} />
             <Route path="/price-settings" element={<PriceSettingsPage />} />

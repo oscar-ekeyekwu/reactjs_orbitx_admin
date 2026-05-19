@@ -75,8 +75,12 @@ export const priceSettingsApi = {
 };
 
 // Feature Flags
+export type VehicleEditGraceMode = 'continue' | 'lock';
+
 export interface FeatureFlags {
   useMapView: boolean;
+  // F3 — toggles the F2 lock-mode gate in OrdersService.acceptOrder.
+  vehicleEditGraceMode: VehicleEditGraceMode;
 }
 
 export const featureFlagsApi = {
@@ -87,7 +91,7 @@ export const featureFlagsApi = {
     return response.data;
   },
 
-  update: async (data: FeatureFlags): Promise<FeatureFlags> => {
+  update: async (data: Partial<FeatureFlags>): Promise<FeatureFlags> => {
     const response = await apiClient.put<FeatureFlags>(
       "/config/feature-flags",
       data,
@@ -143,11 +147,15 @@ export const faqApi = {
 export interface DriverSettingsDto {
   driverMinBalance?: number;
   orderDeliveryRadiusKm?: number;
+  // G5 — platform commission percentage. Range [0, 100]; the backend
+  // enforces the bounds + the wallet split helper double-checks them.
+  driverCommissionPct?: number;
 }
 
 export interface DriverSettings {
   driverMinBalance: number;
   orderDeliveryRadiusKm: number;
+  driverCommissionPct: number;
 }
 
 export const driverSettingsApi = {

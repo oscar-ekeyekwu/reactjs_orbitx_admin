@@ -121,17 +121,19 @@ export const approvalsApi = {
     return res.data;
   },
   approveVehicle: async (id: string, reason?: string) => {
-    const res = await apiClient.patch<PendingVehicle>(`/vehicles/${id}`, {
-      status: 'approved',
-      reason,
-    });
+    // F1 — admin status route moved to /status to free PATCH /:id for
+    // the owner self-service edit endpoint.
+    const res = await apiClient.patch<PendingVehicle>(
+      `/vehicles/${id}/status`,
+      { status: 'approved', reason },
+    );
     return res.data;
   },
   rejectVehicle: async (id: string, reason: string) => {
-    const res = await apiClient.patch<PendingVehicle>(`/vehicles/${id}`, {
-      status: 'rejected',
-      reason,
-    });
+    const res = await apiClient.patch<PendingVehicle>(
+      `/vehicles/${id}/status`,
+      { status: 'rejected', reason },
+    );
     return res.data;
   },
 
