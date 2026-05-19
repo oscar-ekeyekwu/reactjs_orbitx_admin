@@ -18,3 +18,4 @@ export { FeatureFlagsSettingsPage } from './settings/FeatureFlagsSettings';
 export { ApprovalsPage } from './Approvals';
 export { TrackPage } from './Track';
 export { TransfersPage } from './Transfers';
+export { PayoutsPage } from './Payouts';

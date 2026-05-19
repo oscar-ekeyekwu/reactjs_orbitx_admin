@@ -11,6 +11,7 @@ import {
   Settings,
   ShieldCheck,
   Banknote,
+  Wallet,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/authStore';
@@ -21,6 +22,7 @@ const navigation = [
   { name: 'Drivers', href: '/drivers', icon: Truck },
   { name: 'Approvals', href: '/approvals', icon: ShieldCheck },
   { name: 'Transfers', href: '/transfers', icon: Banknote },
+  { name: 'Disbursements', href: '/payouts', icon: Wallet },
   { name: 'Orders', href: '/orders', icon: Package },
   { name: 'Price Settings', href: '/price-settings', icon: DollarSign },
   { name: 'FAQs', href: '/faqs', icon: HelpCircle },

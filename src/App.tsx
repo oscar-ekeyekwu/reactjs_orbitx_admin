@@ -25,6 +25,7 @@ import {
   ApprovalsPage,
   TrackPage,
   TransfersPage,
+  PayoutsPage,
 } from '@/pages';
 
 const queryClient = new QueryClient({
@@ -77,6 +78,7 @@ function App() {
             <Route path="/drivers/:id" element={<DriverDetailPage />} />
             <Route path="/approvals" element={<ApprovalsPage />} />
             <Route path="/transfers" element={<TransfersPage />} />
+            <Route path="/payouts" element={<PayoutsPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/orders/:id" element={<OrderDetailPage />} />
             <Route path="/price-settings" element={<PriceSettingsPage />} />

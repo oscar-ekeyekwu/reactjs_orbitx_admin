@@ -6,3 +6,4 @@ export { dashboardApi, priceSettingsApi, faqApi, supportApi, driverSettingsApi, 
 export { notificationTemplatesApi, type NotificationTemplate, type NotificationEventType, type UpdateNotificationTemplateDto } from './notification-templates';
 export { approvalsApi, type PendingDriver, type PendingVehicle, type PendingCompany, type PendingDocument } from './approvals';
 export { transfersApi, type PendingTransfer } from './transfers';
+export { payoutsApi, type PendingPayout } from './payouts';
