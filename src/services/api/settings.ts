@@ -147,11 +147,15 @@ export const faqApi = {
 export interface DriverSettingsDto {
   driverMinBalance?: number;
   orderDeliveryRadiusKm?: number;
+  // G5 — platform commission percentage. Range [0, 100]; the backend
+  // enforces the bounds + the wallet split helper double-checks them.
+  driverCommissionPct?: number;
 }
 
 export interface DriverSettings {
   driverMinBalance: number;
   orderDeliveryRadiusKm: number;
+  driverCommissionPct: number;
 }
 
 export const driverSettingsApi = {

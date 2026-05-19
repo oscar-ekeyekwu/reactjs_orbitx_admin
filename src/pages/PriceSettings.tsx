@@ -53,6 +53,11 @@ const driverSettingsSchema = z.object({
   orderDeliveryRadiusKm: nonNeg.refine((v) => v >= 1, {
     message: 'Must be at least 1',
   }),
+  // G5 — platform commission percentage. Backend rejects anything
+  // outside [0, 100]; the form mirrors the same bounds.
+  driverCommissionPct: nonNeg.refine((v) => v >= 0 && v <= 100, {
+    message: 'Must be between 0 and 100',
+  }),
 });
 
 type DriverSettingsFormData = z.infer<typeof driverSettingsSchema>;
@@ -60,6 +65,7 @@ type DriverSettingsFormData = z.infer<typeof driverSettingsSchema>;
 const DRIVER_DEFAULTS: DriverSettingsFormData = {
   driverMinBalance: 0,
   orderDeliveryRadiusKm: 1,
+  driverCommissionPct: 15,
 };
 
 export function PriceSettingsPage() {
@@ -120,6 +126,7 @@ export function PriceSettingsPage() {
       driverForm.reset({
         driverMinBalance: driverSettings.driverMinBalance,
         orderDeliveryRadiusKm: driverSettings.orderDeliveryRadiusKm,
+        driverCommissionPct: driverSettings.driverCommissionPct,
       });
     }
   }, [driverSettings, driverForm]);
@@ -328,6 +335,35 @@ export function PriceSettingsPage() {
                   <p className="text-xs text-muted-foreground">
                     Drivers only see orders within this radius of their location
                   </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="driverCommissionPct">
+                    Platform commission (%)
+                  </Label>
+                  <Input
+                    id="driverCommissionPct"
+                    data-testid="driver-commission-pct-input"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="100"
+                    {...driverForm.register('driverCommissionPct', {
+                      valueAsNumber: true,
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Cut taken from each completed order. Stored on each
+                    transaction at completion time so changes apply only
+                    to future settlements (G5).
+                  </p>
+                  {driverForm.formState.errors.driverCommissionPct && (
+                    <p
+                      data-testid="driver-commission-pct-error"
+                      className="text-xs text-red-600"
+                    >
+                      {driverForm.formState.errors.driverCommissionPct.message}
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
