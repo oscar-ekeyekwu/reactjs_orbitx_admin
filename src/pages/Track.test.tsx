@@ -34,7 +34,7 @@ const sampleSnapshot = {
 
 describe('TrackPage (E3)', () => {
   beforeEach(() => {
-    mockedAxios.get = vi.fn();
+    mockedAxios.get = vi.fn() as never;
     mockedAxios.isAxiosError = vi.fn(
       (err: unknown) =>
         typeof err === 'object' && err !== null && 'response' in err,
@@ -46,13 +46,15 @@ describe('TrackPage (E3)', () => {
   });
 
   it('renders loading state while the snapshot is in flight', () => {
-    mockedAxios.get = vi.fn(() => new Promise(() => {}));
+    mockedAxios.get = vi.fn(() => new Promise(() => {})) as never;
     renderTrack('abc');
     expect(screen.getByTestId('track-page-loading')).toBeTruthy();
   });
 
   it('renders the stripped snapshot — driver first name, ETA, stages', async () => {
-    mockedAxios.get = vi.fn().mockResolvedValue({ data: sampleSnapshot });
+    mockedAxios.get = vi
+      .fn()
+      .mockResolvedValue({ data: sampleSnapshot }) as never;
     renderTrack('abc');
     await waitFor(() =>
       expect(screen.queryByTestId('track-page-loading')).toBeNull(),
@@ -68,7 +70,7 @@ describe('TrackPage (E3)', () => {
   it('shows the expired message on a 410 response', async () => {
     mockedAxios.get = vi.fn().mockRejectedValue({
       response: { status: 410, data: {} },
-    });
+    }) as never;
     renderTrack('abc');
     await waitFor(() =>
       expect(screen.getByTestId('track-page-expired')).toBeTruthy(),
@@ -78,7 +80,7 @@ describe('TrackPage (E3)', () => {
   it('shows the not-found message on a 404 response', async () => {
     mockedAxios.get = vi.fn().mockRejectedValue({
       response: { status: 404, data: {} },
-    });
+    }) as never;
     renderTrack('abc');
     await waitFor(() =>
       expect(screen.getByTestId('track-page-not-found')).toBeTruthy(),
@@ -86,7 +88,9 @@ describe('TrackPage (E3)', () => {
   });
 
   it('shows the generic error on other failures', async () => {
-    mockedAxios.get = vi.fn().mockRejectedValue(new Error('network down'));
+    mockedAxios.get = vi
+      .fn()
+      .mockRejectedValue(new Error('network down')) as never;
     renderTrack('abc');
     await waitFor(() =>
       expect(screen.getByTestId('track-page-error')).toBeTruthy(),
@@ -96,7 +100,7 @@ describe('TrackPage (E3)', () => {
   it('renders cancelled state with no ETA when status is cancelled', async () => {
     mockedAxios.get = vi.fn().mockResolvedValue({
       data: { ...sampleSnapshot, status: 'cancelled' },
-    });
+    }) as never;
     renderTrack('abc');
     await waitFor(() =>
       expect(screen.getByTestId('track-page-cancelled')).toBeTruthy(),

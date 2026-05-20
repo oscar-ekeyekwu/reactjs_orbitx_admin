@@ -170,7 +170,7 @@ export function ApprovalsPage() {
 
   return (
     <>
-      <Header title="Approvals" description="Review pending drivers, vehicles, companies, and documents." />
+      <Header title="Approvals" subtitle="Review pending drivers, vehicles, companies, and documents." />
 
       <div
         role="tablist"
