@@ -25,6 +25,8 @@ export { VehiclesPage } from './Vehicles';
 export { VehicleDetailPage } from './VehicleDetail';
 export { DocumentsPage } from './Documents';
 export { DocumentDetailPage } from './DocumentDetail';
+export { IncidentsPage } from './Incidents';
+export { IncidentDetailPage } from './IncidentDetail';
 export { ApprovalsPage } from './Approvals';
 export { TrackPage } from './Track';
 export { TransfersPage } from './Transfers';

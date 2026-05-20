@@ -32,6 +32,8 @@ import {
   VehicleDetailPage,
   DocumentsPage,
   DocumentDetailPage,
+  IncidentsPage,
+  IncidentDetailPage,
   ApprovalsPage,
   TrackPage,
   TransfersPage,
@@ -94,6 +96,8 @@ function App() {
             <Route path="/vehicles/:id" element={<VehicleDetailPage />} />
             <Route path="/documents" element={<DocumentsPage />} />
             <Route path="/documents/:id" element={<DocumentDetailPage />} />
+            <Route path="/incidents" element={<IncidentsPage />} />
+            <Route path="/incidents/:id" element={<IncidentDetailPage />} />
             <Route path="/transfers" element={<TransfersPage />} />
             <Route path="/payouts" element={<PayoutsPage />} />
             <Route path="/orders" element={<OrdersPage />} />

@@ -16,6 +16,7 @@ import {
   FileText,
   Car,
   History,
+  AlertOctagon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/authStore';
@@ -28,6 +29,7 @@ const navigation = [
   { name: 'Vehicles', href: '/vehicles', icon: Car },
   { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Approvals', href: '/approvals', icon: ShieldCheck },
+  { name: 'Incidents', href: '/incidents', icon: AlertOctagon },
   { name: 'Audit Log', href: '/audit-log', icon: History },
   { name: 'Transfers', href: '/transfers', icon: Banknote },
   { name: 'Disbursements', href: '/payouts', icon: Wallet },
