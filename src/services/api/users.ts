@@ -1,11 +1,29 @@
 import apiClient from './client';
 import type { User, PaginatedResponse, UserRole } from '@/types';
 
+export type DriverAccountType =
+  | 'individual'
+  | 'company_owner'
+  | 'company_employee';
+
+export type DriverVerificationStatus =
+  | 'setup_required'
+  | 'pending_approval'
+  | 'approved'
+  | 'active'
+  | 'rejected'
+  | 'suspended_docs_expired'
+  | 'suspended_admin';
+
 export interface UsersQueryParams {
   page?: number;
   limit?: number;
   role?: UserRole;
   search?: string;
+  // H3 — admin Drivers page filters; backend left-joins driver_profiles.
+  accountType?: DriverAccountType;
+  verificationStatus?: DriverVerificationStatus;
+  companyId?: string;
 }
 
 export interface CreateDriverDto {

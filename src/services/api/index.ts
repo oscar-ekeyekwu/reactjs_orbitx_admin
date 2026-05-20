@@ -7,3 +7,58 @@ export { notificationTemplatesApi, type NotificationTemplate, type NotificationE
 export { approvalsApi, type PendingDriver, type PendingVehicle, type PendingCompany, type PendingDocument } from './approvals';
 export { transfersApi, type PendingTransfer } from './transfers';
 export { payoutsApi, type PendingPayout } from './payouts';
+export {
+  auditLogApi,
+  auditDecisionsToCsv,
+  type AuditDecision,
+  type AuditDecisionsQuery,
+  type AuditDecisionListEnvelope,
+  type ApprovalAction,
+  type ApprovalTargetType,
+} from './audit-log';
+export {
+  adminCompaniesApi,
+  type AdminCompany,
+  type CompanyStatus,
+  type CompaniesQuery,
+  type CompanyListEnvelope,
+  type UpdateCompanyStatusDto,
+} from './companies';
+export {
+  adminVehiclesApi,
+  type AdminVehicle,
+  type VehicleStatus,
+  type VehicleOwnerType,
+  type VehiclesQuery,
+  type VehicleListEnvelope,
+  type UpdateVehicleStatusDto,
+} from './vehicles';
+export {
+  adminDocumentsApi,
+  expiryBand,
+  type AdminDocument,
+  type DocumentStatus,
+  type DocumentOwnerType,
+  type DocumentType,
+  type DocumentsQuery,
+  type ReviewDocumentDto,
+  type ExpiryBand,
+} from './documents';
+export {
+  storageProvidersApi,
+  storageMigrationsApi,
+  expectedDeleteSourcePhrase,
+  type StorageProvider,
+  type StorageProviderKind,
+  type CreateStorageProviderDto,
+  type UpdateStorageProviderDto,
+  type StorageProviderTestResult,
+  type StorageMigration,
+  type StorageMigrationStatus,
+  type StorageMigrationFailureRow,
+  type StorageMigrationVerification,
+  type StorageMigrationVerificationStatus,
+  type StorageMigrationDeletion,
+  type StorageMigrationDeletionStatus,
+  type QueueStorageMigrationDto,
+} from './storage';

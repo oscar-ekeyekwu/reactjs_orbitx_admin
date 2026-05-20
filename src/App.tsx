@@ -22,6 +22,19 @@ import {
   AppearanceSettingsPage,
   DataSettingsPage,
   FeatureFlagsSettingsPage,
+  StorageSettingsPage,
+  StorageMigrationsPage,
+  StorageMigrationDetailPage,
+  AuditLogPage,
+  CompaniesPage,
+  CompanyDetailPage,
+  VehiclesPage,
+  VehicleDetailPage,
+  DocumentsPage,
+  DocumentDetailPage,
+  IncidentsPage,
+  IncidentDetailPage,
+  PrivacySettingsPage,
   ApprovalsPage,
   TrackPage,
   TransfersPage,
@@ -77,6 +90,19 @@ function App() {
             <Route path="/drivers" element={<DriversPage />} />
             <Route path="/drivers/:id" element={<DriverDetailPage />} />
             <Route path="/approvals" element={<ApprovalsPage />} />
+            <Route path="/audit-log" element={<AuditLogPage />} />
+            <Route path="/companies" element={<CompaniesPage />} />
+            <Route path="/companies/:id" element={<CompanyDetailPage />} />
+            <Route path="/vehicles" element={<VehiclesPage />} />
+            <Route path="/vehicles/:id" element={<VehicleDetailPage />} />
+            <Route path="/documents" element={<DocumentsPage />} />
+            <Route path="/documents/:id" element={<DocumentDetailPage />} />
+            <Route path="/incidents" element={<IncidentsPage />} />
+            <Route path="/incidents/:id" element={<IncidentDetailPage />} />
+            <Route
+              path="/settings/privacy"
+              element={<PrivacySettingsPage />}
+            />
             <Route path="/transfers" element={<TransfersPage />} />
             <Route path="/payouts" element={<PayoutsPage />} />
             <Route path="/orders" element={<OrdersPage />} />
@@ -105,6 +131,18 @@ function App() {
             <Route
               path="/settings/feature-flags"
               element={<FeatureFlagsSettingsPage />}
+            />
+            <Route
+              path="/settings/storage"
+              element={<StorageSettingsPage />}
+            />
+            <Route
+              path="/settings/storage/migrations"
+              element={<StorageMigrationsPage />}
+            />
+            <Route
+              path="/settings/storage/migrations/:id"
+              element={<StorageMigrationDetailPage />}
             />
           </Route>
 
