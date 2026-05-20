@@ -34,6 +34,7 @@ import {
   DocumentDetailPage,
   IncidentsPage,
   IncidentDetailPage,
+  PrivacySettingsPage,
   ApprovalsPage,
   TrackPage,
   TransfersPage,
@@ -98,6 +99,10 @@ function App() {
             <Route path="/documents/:id" element={<DocumentDetailPage />} />
             <Route path="/incidents" element={<IncidentsPage />} />
             <Route path="/incidents/:id" element={<IncidentDetailPage />} />
+            <Route
+              path="/settings/privacy"
+              element={<PrivacySettingsPage />}
+            />
             <Route path="/transfers" element={<TransfersPage />} />
             <Route path="/payouts" element={<PayoutsPage />} />
             <Route path="/orders" element={<OrdersPage />} />

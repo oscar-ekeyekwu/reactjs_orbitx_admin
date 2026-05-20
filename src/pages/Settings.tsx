@@ -7,6 +7,7 @@ import {
   ChevronRight,
   ToggleLeft,
   HardDrive,
+  Lock,
 } from 'lucide-react';
 import { Header } from '@/components/layout';
 import { Card, CardContent } from '@/components/ui';
@@ -48,6 +49,13 @@ const settingsLinks = [
       'Add, test, and activate object-storage backends. Swap or onboard a new bucket without a code release.',
     href: '/settings/storage',
     icon: HardDrive,
+  },
+  {
+    name: 'Privacy',
+    description:
+      'NDPA data-subject rights — export your data or schedule account deletion.',
+    href: '/settings/privacy',
+    icon: Lock,
   },
 ];
 
