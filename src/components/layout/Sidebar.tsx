@@ -12,6 +12,10 @@ import {
   ShieldCheck,
   Banknote,
   Wallet,
+  Building2,
+  FileText,
+  Car,
+  History,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/authStore';
@@ -20,7 +24,11 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Drivers', href: '/drivers', icon: Truck },
+  { name: 'Companies', href: '/companies', icon: Building2 },
+  { name: 'Vehicles', href: '/vehicles', icon: Car },
+  { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Approvals', href: '/approvals', icon: ShieldCheck },
+  { name: 'Audit Log', href: '/audit-log', icon: History },
   { name: 'Transfers', href: '/transfers', icon: Banknote },
   { name: 'Disbursements', href: '/payouts', icon: Wallet },
   { name: 'Orders', href: '/orders', icon: Package },

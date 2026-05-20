@@ -6,6 +6,7 @@ import {
   Database,
   ChevronRight,
   ToggleLeft,
+  HardDrive,
 } from 'lucide-react';
 import { Header } from '@/components/layout';
 import { Card, CardContent } from '@/components/ui';
@@ -40,6 +41,13 @@ const settingsLinks = [
     description: 'Toggle product features without releasing a new app build',
     href: '/settings/feature-flags',
     icon: ToggleLeft,
+  },
+  {
+    name: 'Storage Providers',
+    description:
+      'Add, test, and activate object-storage backends. Swap or onboard a new bucket without a code release.',
+    href: '/settings/storage',
+    icon: HardDrive,
   },
 ];
 
