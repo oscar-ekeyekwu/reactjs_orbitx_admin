@@ -38,8 +38,29 @@ import {
   DialogTitle,
   DialogFooter,
   Label,
+  Select,
 } from '@/components/ui';
 import { usersApi, type CreateDriverDto } from '@/services/api';
+import type {
+  DriverAccountType,
+  DriverVerificationStatus,
+} from '@/services/api/users';
+
+const ACCOUNT_TYPES: DriverAccountType[] = [
+  'individual',
+  'company_owner',
+  'company_employee',
+];
+
+const VERIFICATION_STATUSES: DriverVerificationStatus[] = [
+  'setup_required',
+  'pending_approval',
+  'approved',
+  'active',
+  'rejected',
+  'suspended_docs_expired',
+  'suspended_admin',
+];
 
 const createDriverSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -54,14 +75,34 @@ type CreateDriverFormData = z.infer<typeof createDriverSchema>;
 export function DriversPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [accountType, setAccountType] = useState<DriverAccountType | ''>('');
+  const [verificationStatus, setVerificationStatus] = useState<
+    DriverVerificationStatus | ''
+  >('');
+  const [companyId, setCompanyId] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['drivers', page, search],
-    queryFn: () => usersApi.getDrivers({ page, limit: 10, search }),
+    queryKey: [
+      'drivers',
+      page,
+      search,
+      accountType,
+      verificationStatus,
+      companyId,
+    ],
+    queryFn: () =>
+      usersApi.getDrivers({
+        page,
+        limit: 10,
+        search,
+        ...(accountType ? { accountType } : {}),
+        ...(verificationStatus ? { verificationStatus } : {}),
+        ...(companyId ? { companyId } : {}),
+      }),
   });
 
   const createDriverMutation = useMutation({
@@ -107,7 +148,7 @@ export function DriversPage() {
       <div className="p-6 space-y-6">
         {/* Filters & Actions */}
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="space-y-3 p-4">
             <div className="flex items-center justify-between gap-4">
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -122,6 +163,63 @@ export function DriversPage() {
                 <Plus className="mr-2 h-4 w-4" />
                 Add Driver
               </Button>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="space-y-1">
+                <Label htmlFor="drivers-account-type">Account type</Label>
+                <Select
+                  id="drivers-account-type"
+                  data-testid="drivers-filter-account-type"
+                  value={accountType}
+                  onChange={(e) => {
+                    setAccountType(e.target.value as DriverAccountType | '');
+                    setPage(1);
+                  }}
+                >
+                  <option value="">All</option>
+                  {ACCOUNT_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t.replace('_', ' ')}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="drivers-verification">
+                  Verification status
+                </Label>
+                <Select
+                  id="drivers-verification"
+                  data-testid="drivers-filter-verification"
+                  value={verificationStatus}
+                  onChange={(e) => {
+                    setVerificationStatus(
+                      e.target.value as DriverVerificationStatus | '',
+                    );
+                    setPage(1);
+                  }}
+                >
+                  <option value="">All</option>
+                  {VERIFICATION_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="drivers-company">Company id</Label>
+                <Input
+                  id="drivers-company"
+                  data-testid="drivers-filter-company"
+                  placeholder="uuid (optional)"
+                  value={companyId}
+                  onChange={(e) => {
+                    setCompanyId(e.target.value);
+                    setPage(1);
+                  }}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
