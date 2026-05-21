@@ -93,6 +93,15 @@ export function DriverDetailPage() {
     enabled: !!id,
   });
 
+  // Driver_profile.id resolution — the audit log + approvals queue
+  // index by driver_profile.id, not user.id. Without this lookup the
+  // /audit-log?targetId=<user.id> filter would return zero rows.
+  const { data: driverProfile } = useQuery({
+    queryKey: ['driver-profile-by-user', id],
+    queryFn: () => usersApi.getDriverProfileByUser(id!),
+    enabled: !!id,
+  });
+
   const toggleActiveMutation = useMutation({
     mutationFn: (isActive: boolean) => usersApi.toggleActive(id!, isActive),
     onSuccess: () => {
@@ -308,8 +317,11 @@ export function DriverDetailPage() {
                 variant="outline"
                 size="sm"
                 className="gap-2"
+                disabled={!driverProfile?.id}
                 onClick={() =>
-                  navigate(`/audit-log?targetId=${driver.id}`)
+                  navigate(
+                    `/audit-log?targetType=driver&targetId=${driverProfile?.id}`,
+                  )
                 }
               >
                 <History className="h-4 w-4" />

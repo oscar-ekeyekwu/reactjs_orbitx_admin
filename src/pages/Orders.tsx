@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Search, Package, MapPin, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { Header } from "@/components/layout";
@@ -38,15 +38,24 @@ export function OrdersPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Cross-link entry: `/orders?driverId=<uuid>` from DriverDetail.
+  const driverIdFilter = searchParams.get("driverId") ?? "";
+  const clearDriverFilter = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete("driverId");
+    setSearchParams(next, { replace: true });
+  };
   const navigate = useNavigate();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["orders", page, search, statusFilter],
+    queryKey: ["orders", page, search, statusFilter, driverIdFilter],
     queryFn: () =>
       ordersApi.getAll({
         page,
         limit: 10,
         status: statusFilter as OrderStatus | undefined,
+        ...(driverIdFilter ? { driverId: driverIdFilter } : {}),
       }),
   });
 
@@ -58,6 +67,26 @@ export function OrdersPage() {
       <Header title="Orders" subtitle="View and manage all orders" />
 
       <div className="p-6 space-y-6">
+        {driverIdFilter ? (
+          <div
+            data-testid="orders-driver-filter-chip"
+            className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-sm"
+          >
+            <span className="text-muted-foreground">Filtered by driver:</span>
+            <code className="font-mono text-xs">
+              {driverIdFilter.slice(0, 8)}
+            </code>
+            <button
+              type="button"
+              data-testid="orders-driver-filter-clear"
+              onClick={clearDriverFilter}
+              className="ml-auto text-xs underline text-muted-foreground hover:text-foreground"
+            >
+              Clear
+            </button>
+          </div>
+        ) : null}
+
         {/* Filters */}
         <Card>
           <CardContent className="p-4">

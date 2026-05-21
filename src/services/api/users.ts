@@ -80,4 +80,23 @@ export const usersApi = {
   toggleActive: async (id: string, isActive: boolean): Promise<User> => {
     return usersApi.update(id, { isActive });
   },
+
+  // Admin-only — resolve a user.id to its driver_profile row so the
+  // DriverDetail page can pass the correct id to /audit-log filters.
+  // Returns null when the user has no driver profile (customers,
+  // admins, half-onboarded users).
+  getDriverProfileByUser: async (
+    userId: string,
+  ): Promise<{
+    id: string;
+    userId: string;
+    verificationStatus?: string;
+  } | null> => {
+    const response = await apiClient.get<{
+      id: string;
+      userId: string;
+      verificationStatus?: string;
+    } | null>(`/drivers/admin/by-user/${userId}`);
+    return response.data;
+  },
 };
