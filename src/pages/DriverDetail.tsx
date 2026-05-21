@@ -11,6 +11,9 @@ import {
   UserX,
   UserCheck,
   Truck,
+  FileText,
+  History,
+  ExternalLink,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
@@ -32,7 +35,7 @@ import {
   TableHead,
   TableCell,
 } from '@/components/ui';
-import { usersApi, ordersApi } from '@/services/api';
+import { usersApi, ordersApi, adminDocumentsApi } from '@/services/api';
 import type { OrderStatus } from '@/types';
 
 const statusColors: Record<
@@ -46,6 +49,23 @@ const statusColors: Record<
   delivered: 'success',
   cancelled: 'destructive',
 };
+
+function docStatusVariant(
+  status: string,
+): 'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'info' {
+  switch (status) {
+    case 'approved':
+      return 'success';
+    case 'pending':
+      return 'warning';
+    case 'rejected':
+      return 'destructive';
+    case 'expired':
+      return 'secondary';
+    default:
+      return 'default';
+  }
+}
 
 export function DriverDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -61,6 +81,24 @@ export function DriverDetailPage() {
   const { data: ordersData, isLoading: ordersLoading } = useQuery({
     queryKey: ['driver-orders', id],
     queryFn: () => ordersApi.getAll({ driverId: id, limit: 20 }),
+    enabled: !!id,
+  });
+
+  // Cross-linked records that admins routinely jump to from a driver
+  // detail page: their KYC documents.
+  const { data: docs, isLoading: docsLoading } = useQuery({
+    queryKey: ['driver-docs', id],
+    queryFn: () =>
+      adminDocumentsApi.list({ ownerType: 'user', ownerId: id! }),
+    enabled: !!id,
+  });
+
+  // Driver_profile.id resolution — the audit log + approvals queue
+  // index by driver_profile.id, not user.id. Without this lookup the
+  // /audit-log?targetId=<user.id> filter would return zero rows.
+  const { data: driverProfile } = useQuery({
+    queryKey: ['driver-profile-by-user', id],
+    queryFn: () => usersApi.getDriverProfileByUser(id!),
     enabled: !!id,
   });
 
@@ -240,6 +278,115 @@ export function DriverDetailPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Quick cross-links — for the records that don't fit inline. */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => navigate(`/documents?ownerId=${driver.id}`)}
+              >
+                <FileText className="h-4 w-4" />
+                All documents
+                <ExternalLink className="h-3 w-3 opacity-60" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => navigate(`/vehicles`)}
+              >
+                <Truck className="h-4 w-4" />
+                Vehicles
+                <ExternalLink className="h-3 w-3 opacity-60" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => navigate(`/orders?driverId=${driver.id}`)}
+              >
+                <Package className="h-4 w-4" />
+                All orders
+                <ExternalLink className="h-3 w-3 opacity-60" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                disabled={!driverProfile?.id}
+                onClick={() =>
+                  navigate(
+                    `/audit-log?targetType=driver&targetId=${driverProfile?.id}`,
+                  )
+                }
+              >
+                <History className="h-4 w-4" />
+                Audit log
+                <ExternalLink className="h-3 w-3 opacity-60" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* KYC documents — inline so an admin can scan status without a click-through. */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              KYC Documents
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {docsLoading ? (
+              <div className="flex justify-center py-8">
+                <Spinner />
+              </div>
+            ) : !docs || docs.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                No documents uploaded yet.
+              </p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Expiry</TableHead>
+                    <TableHead>Uploaded</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {docs.map((d) => (
+                    <TableRow
+                      key={d.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => navigate(`/documents/${d.id}`)}
+                    >
+                      <TableCell className="font-medium capitalize">
+                        {d.type.replace(/_/g, ' ')}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={docStatusVariant(d.status)}>
+                          {d.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {d.expiryDate ?? '—'}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {format(new Date(d.createdAt), 'MMM d, yyyy')}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Assigned orders */}
         <Card>

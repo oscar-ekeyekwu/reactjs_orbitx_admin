@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { Download, ShieldCheck } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
@@ -56,16 +57,26 @@ export function AuditLogPage() {
   const [action, setAction] = useState<ApprovalAction | ''>('');
   const [reviewerId, setReviewerId] = useState('');
   const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Cross-link entry: `/audit-log?targetId=<uuid>` from DriverDetail
+  // / CompanyDetail. The backend filter is exact-id; no fuzzy match.
+  const targetIdFilter = searchParams.get('targetId') ?? '';
+  const clearTargetFilter = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('targetId');
+    setSearchParams(next, { replace: true });
+  };
 
   const params = useMemo(
     () => ({
       ...(targetType ? { targetType } : {}),
+      ...(targetIdFilter ? { targetId: targetIdFilter } : {}),
       ...(action ? { action } : {}),
       ...(reviewerId ? { reviewerId } : {}),
       limit: PAGE_SIZE,
       offset: (page - 1) * PAGE_SIZE,
     }),
-    [targetType, action, reviewerId, page],
+    [targetType, targetIdFilter, action, reviewerId, page],
   );
 
   const auditQuery = useQuery({
@@ -99,6 +110,26 @@ export function AuditLogPage() {
       />
 
       <div className="p-6 space-y-4">
+        {targetIdFilter ? (
+          <div
+            data-testid="audit-target-filter-chip"
+            className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-sm"
+          >
+            <span className="text-muted-foreground">Filtered by target:</span>
+            <code className="font-mono text-xs">
+              {targetIdFilter.slice(0, 8)}
+            </code>
+            <button
+              type="button"
+              data-testid="audit-target-filter-clear"
+              onClick={clearTargetFilter}
+              className="ml-auto text-xs underline text-muted-foreground hover:text-foreground"
+            >
+              Clear
+            </button>
+          </div>
+        ) : null}
+
         <Card>
           <CardContent className="p-4">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">

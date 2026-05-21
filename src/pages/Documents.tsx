@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { FileText } from 'lucide-react';
 import { format } from 'date-fns';
@@ -37,17 +37,40 @@ const EXPIRY_WINDOWS = [
 
 export function DocumentsPage() {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<DocumentStatus | ''>('');
-  const [ownerType, setOwnerType] = useState<DocumentOwnerType | ''>('');
-  const [window, setWindow] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Cross-link entry: `/documents?ownerType=user&ownerId=<uuid>` from
+  // DriverDetail / CompanyDetail. Filters are URL-driven so an admin
+  // can bookmark / share a filtered view; pickers below mutate the
+  // URL through setSearchParams.
+  const ownerIdFilter = searchParams.get('ownerId') ?? '';
+  const ownerTypeFromUrl =
+    (searchParams.get('ownerType') as DocumentOwnerType | null) ?? '';
+  const statusFromUrl =
+    (searchParams.get('status') as DocumentStatus | null) ?? '';
+  const expiringFromUrl = searchParams.get('expiringInDays') ?? '';
+
+  const setUrlParam = (key: string, value: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    setSearchParams(next, { replace: true });
+  };
+
+  const clearOwnerFilter = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('ownerId');
+    next.delete('ownerType');
+    setSearchParams(next, { replace: true });
+  };
 
   const params = useMemo(
     () => ({
-      ...(status ? { status } : {}),
-      ...(ownerType ? { ownerType } : {}),
-      ...(window ? { expiringInDays: Number(window) } : {}),
+      ...(statusFromUrl ? { status: statusFromUrl } : {}),
+      ...(ownerTypeFromUrl ? { ownerType: ownerTypeFromUrl } : {}),
+      ...(ownerIdFilter ? { ownerId: ownerIdFilter } : {}),
+      ...(expiringFromUrl ? { expiringInDays: Number(expiringFromUrl) } : {}),
     }),
-    [status, ownerType, window],
+    [statusFromUrl, ownerTypeFromUrl, ownerIdFilter, expiringFromUrl],
   );
 
   const { data, isLoading } = useQuery({
@@ -65,6 +88,26 @@ export function DocumentsPage() {
       />
 
       <div className="p-6 space-y-4">
+        {ownerIdFilter ? (
+          <div
+            data-testid="documents-owner-filter-chip"
+            className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-sm"
+          >
+            <span className="text-muted-foreground">Filtered by owner:</span>
+            <code className="font-mono text-xs">
+              {ownerTypeFromUrl || 'any'}:{ownerIdFilter.slice(0, 8)}
+            </code>
+            <button
+              type="button"
+              data-testid="documents-owner-filter-clear"
+              onClick={clearOwnerFilter}
+              className="ml-auto text-xs underline text-muted-foreground hover:text-foreground"
+            >
+              Clear
+            </button>
+          </div>
+        ) : null}
+
         <Card>
           <CardContent className="p-4">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -73,10 +116,8 @@ export function DocumentsPage() {
                 <Select
                   id="doc-status"
                   data-testid="documents-filter-status"
-                  value={status}
-                  onChange={(e) =>
-                    setStatus(e.target.value as DocumentStatus | '')
-                  }
+                  value={statusFromUrl}
+                  onChange={(e) => setUrlParam('status', e.target.value)}
                 >
                   <option value="">All</option>
                   {STATUSES.map((s) => (
@@ -91,10 +132,8 @@ export function DocumentsPage() {
                 <Select
                   id="doc-owner-type"
                   data-testid="documents-filter-owner-type"
-                  value={ownerType}
-                  onChange={(e) =>
-                    setOwnerType(e.target.value as DocumentOwnerType | '')
-                  }
+                  value={ownerTypeFromUrl}
+                  onChange={(e) => setUrlParam('ownerType', e.target.value)}
                 >
                   <option value="">All</option>
                   {OWNER_TYPES.map((t) => (
@@ -109,8 +148,10 @@ export function DocumentsPage() {
                 <Select
                   id="doc-expiry"
                   data-testid="documents-filter-expiry"
-                  value={window}
-                  onChange={(e) => setWindow(e.target.value)}
+                  value={expiringFromUrl}
+                  onChange={(e) =>
+                    setUrlParam('expiringInDays', e.target.value)
+                  }
                 >
                   {EXPIRY_WINDOWS.map((w) => (
                     <option key={w.label} value={w.value}>

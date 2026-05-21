@@ -124,6 +124,10 @@ describe('ApprovalsPage (C5)', () => {
     expect(screen.getByText(/d1@example.com/i)).toBeInTheDocument();
 
     await user.click(screen.getByTestId('approvals-driver-approve-d1'));
+    // Click now opens a confirmation modal — admin must explicitly
+    // confirm so a misclick on Approve can't silently flip the driver.
+    const confirm = await screen.findByTestId('approvals-confirm-submit');
+    await user.click(confirm);
     await waitFor(() => {
       expect(mockApproveDriver).toHaveBeenCalledWith('d1');
     });
