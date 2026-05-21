@@ -51,10 +51,28 @@ const EMPTY_REJECT: RejectModalState = {
   reason: '',
 };
 
+interface ConfirmModalState {
+  open: boolean;
+  title: string;
+  description: string;
+  confirmLabel: string;
+  onConfirm: () => void;
+}
+
+const EMPTY_CONFIRM: ConfirmModalState = {
+  open: false,
+  title: '',
+  description: '',
+  confirmLabel: 'Confirm',
+  onConfirm: () => {},
+};
+
 export function ApprovalsPage() {
   const [params, setParams] = useSearchParams();
   const tab = (params.get('tab') as TabKey | null) ?? 'drivers';
   const [rejectModal, setRejectModal] = useState<RejectModalState>(EMPTY_REJECT);
+  const [confirmModal, setConfirmModal] =
+    useState<ConfirmModalState>(EMPTY_CONFIRM);
   const queryClient = useQueryClient();
 
   const driversQuery = useQuery({
@@ -139,6 +157,57 @@ export function ApprovalsPage() {
     setRejectModal({ open: true, kind, id, reason: '' });
   const closeReject = () => setRejectModal(EMPTY_REJECT);
 
+  const openConfirm = (input: Omit<ConfirmModalState, 'open'>) =>
+    setConfirmModal({ ...input, open: true });
+  const closeConfirm = () => setConfirmModal(EMPTY_CONFIRM);
+  const submitConfirm = () => {
+    const cb = confirmModal.onConfirm;
+    closeConfirm();
+    cb();
+  };
+
+  const confirmApproveDriver = (id: string, label: string) =>
+    openConfirm({
+      title: 'Approve driver?',
+      description: `${label} will be marked APPROVED. They can come online and start receiving orders.`,
+      confirmLabel: 'Approve driver',
+      onConfirm: () => approveDriver.mutate(id),
+    });
+  const confirmApproveVehicle = (id: string, label: string) =>
+    openConfirm({
+      title: 'Approve vehicle?',
+      description: `${label} will be marked APPROVED. The owner can assign it to a driver.`,
+      confirmLabel: 'Approve vehicle',
+      onConfirm: () => approveVehicle.mutate(id),
+    });
+  const confirmApproveCompany = (id: string, label: string) =>
+    openConfirm({
+      title: 'Approve company?',
+      description: `${label} will be marked APPROVED. The owner can onboard drivers and vehicles under it.`,
+      confirmLabel: 'Approve company',
+      onConfirm: () => approveCompany.mutate(id),
+    });
+  const confirmApproveDocument = (id: string, label: string) =>
+    openConfirm({
+      title: 'Approve document?',
+      description: `${label} will be marked APPROVED. If this clears the last expired/pending requirement, the owner moves to ACTIVE automatically.`,
+      confirmLabel: 'Approve document',
+      onConfirm: () => approveDocument.mutate(id),
+    });
+  const confirmApproveBucket = (
+    label: string,
+    docIds: string[],
+    bucketKey: string,
+  ) =>
+    openConfirm({
+      title: `Approve all ${docIds.length} documents?`,
+      description: `Every pending document for ${label} (${bucketKey.slice(0, 30)}) will be approved.`,
+      confirmLabel: `Approve ${docIds.length}`,
+      onConfirm: () => {
+        for (const id of docIds) approveDocument.mutate(id);
+      },
+    });
+
   const submitReject = () => {
     if (!rejectModal.reason.trim()) return;
     const arg = { id: rejectModal.id, reason: rejectModal.reason.trim() };
@@ -206,30 +275,50 @@ export function ApprovalsPage() {
       {tab === 'drivers' && (
         <DriversTab
           query={driversQuery}
-          onApprove={(id) => approveDriver.mutate(id)}
+          onApprove={confirmApproveDriver}
           onReject={(id) => openReject('drivers', id)}
+          pendingApproveId={
+            approveDriver.isPending ? (approveDriver.variables ?? null) : null
+          }
         />
       )}
       {tab === 'vehicles' && (
         <VehiclesTab
           query={vehiclesQuery}
-          onApprove={(id) => approveVehicle.mutate(id)}
+          onApprove={confirmApproveVehicle}
           onReject={(id) => openReject('vehicles', id)}
+          pendingApproveId={
+            approveVehicle.isPending
+              ? (approveVehicle.variables ?? null)
+              : null
+          }
         />
       )}
       {tab === 'companies' && (
         <CompaniesTab
           query={companiesQuery}
-          onApprove={(id) => approveCompany.mutate(id)}
+          onApprove={confirmApproveCompany}
           onReject={(id) => openReject('companies', id)}
+          pendingApproveId={
+            approveCompany.isPending
+              ? (approveCompany.variables ?? null)
+              : null
+          }
         />
       )}
       {tab === 'documents' && (
         <DocumentsTab
           query={documentsQuery}
-          onApprove={(id) => approveDocument.mutate(id)}
+          onApprove={confirmApproveDocument}
+          onApproveBucket={confirmApproveBucket}
           onReject={(id) => openReject('documents', id)}
           onView={openDocumentViewer}
+          pendingApproveId={
+            approveDocument.isPending
+              ? (approveDocument.variables ?? null)
+              : null
+          }
+          anyApprovePending={approveDocument.isPending}
         />
       )}
 
@@ -267,6 +356,31 @@ export function ApprovalsPage() {
               onClick={submitReject}
             >
               Confirm reject
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={confirmModal.open}
+        onOpenChange={(open) => (open ? null : closeConfirm())}
+      >
+        <DialogContent data-testid="approvals-confirm-modal">
+          <DialogHeader>
+            <DialogTitle>{confirmModal.title}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {confirmModal.description}
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeConfirm}>
+              Cancel
+            </Button>
+            <Button
+              data-testid="approvals-confirm-submit"
+              onClick={submitConfirm}
+            >
+              {confirmModal.confirmLabel}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -314,10 +428,12 @@ function DriversTab({
   query,
   onApprove,
   onReject,
+  pendingApproveId,
 }: {
   query: QueryResult<{ items: PendingDriver[]; total: number }>;
-  onApprove: (id: string) => void;
+  onApprove: (id: string, label: string) => void;
   onReject: (id: string) => void;
+  pendingApproveId: string | null;
 }) {
   const items = query.data?.items ?? [];
   return (
@@ -326,44 +442,48 @@ function DriversTab({
       isEmpty={items.length === 0}
       emptyMessage="No drivers waiting for approval."
     >
-      {items.map((d) => (
-        <Card
-          key={d.id}
-          data-testid={`approvals-driver-row-${d.id}`}
-        >
-          <CardContent className="p-4 flex items-center justify-between gap-4">
-            <div>
-              <p className="font-semibold">
-                {d.user?.first_name ?? ''} {d.user?.last_name ?? ''}{' '}
-                {!d.user?.first_name && !d.user?.last_name && '(unnamed)'}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {d.user?.email ?? '—'} · {d.user?.phone ?? '—'} ·{' '}
-                {d.accountType}
-                {d.company ? ` · ${d.company.legalName}` : ''}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Submitted {new Date(d.updatedAt).toLocaleString()}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                data-testid={`approvals-driver-approve-${d.id}`}
-                onClick={() => onApprove(d.id)}
-              >
-                Approve
-              </Button>
-              <Button
-                variant="outline"
-                data-testid={`approvals-driver-reject-${d.id}`}
-                onClick={() => onReject(d.id)}
-              >
-                Reject
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      {items.map((d) => {
+        const label =
+          `${d.user?.first_name ?? ''} ${d.user?.last_name ?? ''}`.trim() ||
+          'this driver';
+        const pending = pendingApproveId === d.id;
+        return (
+          <Card key={d.id} data-testid={`approvals-driver-row-${d.id}`}>
+            <CardContent className="p-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="font-semibold">
+                  {d.user?.first_name ?? ''} {d.user?.last_name ?? ''}{' '}
+                  {!d.user?.first_name && !d.user?.last_name && '(unnamed)'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {d.user?.email ?? '—'} · {d.user?.phone ?? '—'} ·{' '}
+                  {d.accountType}
+                  {d.company ? ` · ${d.company.legalName}` : ''}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Submitted {new Date(d.updatedAt).toLocaleString()}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  data-testid={`approvals-driver-approve-${d.id}`}
+                  disabled={pending}
+                  onClick={() => onApprove(d.id, label)}
+                >
+                  {pending ? 'Approving…' : 'Approve'}
+                </Button>
+                <Button
+                  variant="outline"
+                  data-testid={`approvals-driver-reject-${d.id}`}
+                  onClick={() => onReject(d.id)}
+                >
+                  Reject
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </QueueShell>
   );
 }
@@ -372,10 +492,12 @@ function VehiclesTab({
   query,
   onApprove,
   onReject,
+  pendingApproveId,
 }: {
   query: QueryResult<{ items: PendingVehicle[]; total: number }>;
-  onApprove: (id: string) => void;
+  onApprove: (id: string, label: string) => void;
   onReject: (id: string) => void;
+  pendingApproveId: string | null;
 }) {
   const items = query.data?.items ?? [];
   return (
@@ -384,39 +506,44 @@ function VehiclesTab({
       isEmpty={items.length === 0}
       emptyMessage="No vehicles waiting for approval."
     >
-      {items.map((v) => (
-        <Card key={v.id} data-testid={`approvals-vehicle-row-${v.id}`}>
-          <CardContent className="p-4 flex items-center justify-between gap-4">
-            <div>
-              <p className="font-semibold">
-                {v.plate} · {v.type}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Owner {v.owner.type} {v.owner.id.slice(0, 8)} ·{' '}
-                {v.color ?? 'no color'}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Submitted {new Date(v.updatedAt).toLocaleString()}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                data-testid={`approvals-vehicle-approve-${v.id}`}
-                onClick={() => onApprove(v.id)}
-              >
-                Approve
-              </Button>
-              <Button
-                variant="outline"
-                data-testid={`approvals-vehicle-reject-${v.id}`}
-                onClick={() => onReject(v.id)}
-              >
-                Reject
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      {items.map((v) => {
+        const label = `${v.plate} (${v.type})`;
+        const pending = pendingApproveId === v.id;
+        return (
+          <Card key={v.id} data-testid={`approvals-vehicle-row-${v.id}`}>
+            <CardContent className="p-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="font-semibold">
+                  {v.plate} · {v.type}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Owner {v.owner.type} {v.owner.id.slice(0, 8)} ·{' '}
+                  {v.color ?? 'no color'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Submitted {new Date(v.updatedAt).toLocaleString()}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  data-testid={`approvals-vehicle-approve-${v.id}`}
+                  disabled={pending}
+                  onClick={() => onApprove(v.id, label)}
+                >
+                  {pending ? 'Approving…' : 'Approve'}
+                </Button>
+                <Button
+                  variant="outline"
+                  data-testid={`approvals-vehicle-reject-${v.id}`}
+                  onClick={() => onReject(v.id)}
+                >
+                  Reject
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </QueueShell>
   );
 }
@@ -425,10 +552,12 @@ function CompaniesTab({
   query,
   onApprove,
   onReject,
+  pendingApproveId,
 }: {
   query: QueryResult<{ items: PendingCompany[]; total: number }>;
-  onApprove: (id: string) => void;
+  onApprove: (id: string, label: string) => void;
   onReject: (id: string) => void;
+  pendingApproveId: string | null;
 }) {
   const items = query.data?.items ?? [];
   return (
@@ -437,36 +566,40 @@ function CompaniesTab({
       isEmpty={items.length === 0}
       emptyMessage="No companies waiting for approval."
     >
-      {items.map((c) => (
-        <Card key={c.id} data-testid={`approvals-company-row-${c.id}`}>
-          <CardContent className="p-4 flex items-center justify-between gap-4">
-            <div>
-              <p className="font-semibold">{c.legalName}</p>
-              <p className="text-sm text-muted-foreground">
-                CAC {c.cacNumber ?? '—'} · TIN {c.tin ?? '—'}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Submitted {new Date(c.createdAt).toLocaleString()}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                data-testid={`approvals-company-approve-${c.id}`}
-                onClick={() => onApprove(c.id)}
-              >
-                Approve
-              </Button>
-              <Button
-                variant="outline"
-                data-testid={`approvals-company-reject-${c.id}`}
-                onClick={() => onReject(c.id)}
-              >
-                Suspend
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      {items.map((c) => {
+        const pending = pendingApproveId === c.id;
+        return (
+          <Card key={c.id} data-testid={`approvals-company-row-${c.id}`}>
+            <CardContent className="p-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="font-semibold">{c.legalName}</p>
+                <p className="text-sm text-muted-foreground">
+                  CAC {c.cacNumber ?? '—'} · TIN {c.tin ?? '—'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Submitted {new Date(c.createdAt).toLocaleString()}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  data-testid={`approvals-company-approve-${c.id}`}
+                  disabled={pending}
+                  onClick={() => onApprove(c.id, c.legalName)}
+                >
+                  {pending ? 'Approving…' : 'Approve'}
+                </Button>
+                <Button
+                  variant="outline"
+                  data-testid={`approvals-company-reject-${c.id}`}
+                  onClick={() => onReject(c.id)}
+                >
+                  Suspend
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </QueueShell>
   );
 }
@@ -501,13 +634,19 @@ function groupDocsByOwner(docs: PendingDocument[]): DocumentBucket[] {
 function DocumentsTab({
   query,
   onApprove,
+  onApproveBucket,
   onReject,
   onView,
+  pendingApproveId,
+  anyApprovePending,
 }: {
   query: QueryResult<PendingDocument[]>;
-  onApprove: (id: string) => void;
+  onApprove: (id: string, label: string) => void;
+  onApproveBucket: (label: string, docIds: string[], bucketKey: string) => void;
   onReject: (id: string) => void;
   onView: (doc: PendingDocument) => void;
+  pendingApproveId: string | null;
+  anyApprovePending: boolean;
 }) {
   const items = query.data ?? [];
   const buckets = useMemo(() => groupDocsByOwner(items), [items]);
@@ -520,6 +659,7 @@ function DocumentsTab({
     >
       {buckets.map((bucket) => {
         const bucketKey = `${bucket.ownerType}:${bucket.ownerId}`;
+        const bucketLabel = `${bucket.ownerType} ${bucket.ownerId.slice(0, 8)}`;
         return (
           <Card
             key={bucketKey}
@@ -544,52 +684,63 @@ function DocumentsTab({
                 <Button
                   variant="outline"
                   data-testid={`approvals-document-approve-all-${bucketKey}`}
-                  onClick={() => bucket.docs.forEach((d) => onApprove(d.id))}
+                  disabled={anyApprovePending}
+                  onClick={() =>
+                    onApproveBucket(
+                      bucketLabel,
+                      bucket.docs.map((d) => d.id),
+                      bucketKey,
+                    )
+                  }
                 >
-                  Approve all
+                  {anyApprovePending ? 'Approving…' : 'Approve all'}
                 </Button>
               </div>
               <div className="border-t pt-3 space-y-2">
-                {bucket.docs.map((d) => (
-                  <div
-                    key={d.id}
-                    data-testid={`approvals-document-row-${d.id}`}
-                    className="flex items-center justify-between gap-3"
-                  >
-                    <div className="min-w-0">
-                      <p className="font-medium truncate">{d.type}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Uploaded {new Date(d.createdAt).toLocaleString()}
-                        {d.expiryDate ? ` · expires ${d.expiryDate}` : ''}
-                      </p>
+                {bucket.docs.map((d) => {
+                  const pending = pendingApproveId === d.id;
+                  return (
+                    <div
+                      key={d.id}
+                      data-testid={`approvals-document-row-${d.id}`}
+                      className="flex items-center justify-between gap-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{d.type}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Uploaded {new Date(d.createdAt).toLocaleString()}
+                          {d.expiryDate ? ` · expires ${d.expiryDate}` : ''}
+                        </p>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          data-testid={`approvals-document-view-${d.id}`}
+                          onClick={() => void onView(d)}
+                        >
+                          View
+                        </Button>
+                        <Button
+                          size="sm"
+                          data-testid={`approvals-document-approve-${d.id}`}
+                          disabled={pending}
+                          onClick={() => onApprove(d.id, d.type)}
+                        >
+                          {pending ? 'Approving…' : 'Approve'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          data-testid={`approvals-document-reject-${d.id}`}
+                          onClick={() => onReject(d.id)}
+                        >
+                          Reject
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-2 shrink-0">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        data-testid={`approvals-document-view-${d.id}`}
-                        onClick={() => void onView(d)}
-                      >
-                        View
-                      </Button>
-                      <Button
-                        size="sm"
-                        data-testid={`approvals-document-approve-${d.id}`}
-                        onClick={() => onApprove(d.id)}
-                      >
-                        Approve
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        data-testid={`approvals-document-reject-${d.id}`}
-                        onClick={() => onReject(d.id)}
-                      >
-                        Reject
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
