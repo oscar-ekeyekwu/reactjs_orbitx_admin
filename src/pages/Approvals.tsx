@@ -471,6 +471,33 @@ function CompaniesTab({
   );
 }
 
+interface DocumentBucket {
+  ownerType: PendingDocument['ownerType'];
+  ownerId: string;
+  docs: PendingDocument[];
+}
+
+function groupDocsByOwner(docs: PendingDocument[]): DocumentBucket[] {
+  const buckets = new Map<string, DocumentBucket>();
+  for (const d of docs) {
+    const key = `${d.ownerType}:${d.ownerId}`;
+    let bucket = buckets.get(key);
+    if (!bucket) {
+      bucket = { ownerType: d.ownerType, ownerId: d.ownerId, docs: [] };
+      buckets.set(key, bucket);
+    }
+    bucket.docs.push(d);
+  }
+  // Stable order: oldest-upload-first per bucket, buckets sorted by
+  // earliest pending doc so the most-overdue review surfaces at the top.
+  for (const bucket of buckets.values()) {
+    bucket.docs.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  }
+  return Array.from(buckets.values()).sort(
+    (a, b) => a.docs[0].createdAt.localeCompare(b.docs[0].createdAt),
+  );
+}
+
 function DocumentsTab({
   query,
   onApprove,
@@ -483,50 +510,91 @@ function DocumentsTab({
   onView: (doc: PendingDocument) => void;
 }) {
   const items = query.data ?? [];
+  const buckets = useMemo(() => groupDocsByOwner(items), [items]);
+
   return (
     <QueueShell
       isLoading={query.isLoading}
       isEmpty={items.length === 0}
       emptyMessage="No documents waiting for approval."
     >
-      {items.map((d) => (
-        <Card key={d.id} data-testid={`approvals-document-row-${d.id}`}>
-          <CardContent className="p-4 flex items-center justify-between gap-4">
-            <div>
-              <p className="font-semibold">{d.type}</p>
-              <p className="text-sm text-muted-foreground">
-                Owner {d.ownerType} {d.ownerId.slice(0, 8)} ·{' '}
-                {d.expiryDate ? `expires ${d.expiryDate}` : 'no expiry'}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Uploaded {new Date(d.createdAt).toLocaleString()}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                data-testid={`approvals-document-view-${d.id}`}
-                onClick={() => void onView(d)}
-              >
-                View
-              </Button>
-              <Button
-                data-testid={`approvals-document-approve-${d.id}`}
-                onClick={() => onApprove(d.id)}
-              >
-                Approve
-              </Button>
-              <Button
-                variant="outline"
-                data-testid={`approvals-document-reject-${d.id}`}
-                onClick={() => onReject(d.id)}
-              >
-                Reject
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      {buckets.map((bucket) => {
+        const bucketKey = `${bucket.ownerType}:${bucket.ownerId}`;
+        return (
+          <Card
+            key={bucketKey}
+            data-testid={`approvals-document-bucket-${bucketKey}`}
+          >
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="capitalize">
+                      {bucket.ownerType}
+                    </Badge>
+                    <span className="font-semibold">
+                      {bucket.ownerId.slice(0, 8)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {bucket.docs.length} document
+                    {bucket.docs.length === 1 ? '' : 's'} pending review
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  data-testid={`approvals-document-approve-all-${bucketKey}`}
+                  onClick={() => bucket.docs.forEach((d) => onApprove(d.id))}
+                >
+                  Approve all
+                </Button>
+              </div>
+              <div className="border-t pt-3 space-y-2">
+                {bucket.docs.map((d) => (
+                  <div
+                    key={d.id}
+                    data-testid={`approvals-document-row-${d.id}`}
+                    className="flex items-center justify-between gap-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{d.type}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Uploaded {new Date(d.createdAt).toLocaleString()}
+                        {d.expiryDate ? ` · expires ${d.expiryDate}` : ''}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        data-testid={`approvals-document-view-${d.id}`}
+                        onClick={() => void onView(d)}
+                      >
+                        View
+                      </Button>
+                      <Button
+                        size="sm"
+                        data-testid={`approvals-document-approve-${d.id}`}
+                        onClick={() => onApprove(d.id)}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        data-testid={`approvals-document-reject-${d.id}`}
+                        onClick={() => onReject(d.id)}
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </QueueShell>
   );
 }
