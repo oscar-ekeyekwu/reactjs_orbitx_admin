@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -17,6 +18,7 @@ import {
   Car,
   History,
   AlertOctagon,
+  ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/authStore';
@@ -82,8 +84,76 @@ const navigation: NavSection[] = [
   },
 ];
 
+const COLLAPSE_STORAGE_KEY = 'orbit:sidebar:collapsed-sections:v1';
+
+function loadCollapsedSections(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = window.localStorage.getItem(COLLAPSE_STORAGE_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.filter((v): v is string => typeof v === 'string'));
+  } catch {
+    return new Set();
+  }
+}
+
+function persistCollapsedSections(sections: Set<string>): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(
+      COLLAPSE_STORAGE_KEY,
+      JSON.stringify(Array.from(sections)),
+    );
+  } catch {
+    // Quota / private-mode storage failures are non-fatal — the sidebar
+    // still renders, it just won't remember collapsed state next reload.
+  }
+}
+
+function sectionContainsActiveRoute(
+  section: NavSection,
+  pathname: string,
+): boolean {
+  return section.items.some(
+    (item) => item.href === pathname || pathname.startsWith(item.href + '/'),
+  );
+}
+
 export function Sidebar() {
   const { logout, user } = useAuthStore();
+  const location = useLocation();
+  const [collapsed, setCollapsed] = useState<Set<string>>(() =>
+    loadCollapsedSections(),
+  );
+
+  // Auto-expand whichever section owns the current route so the active
+  // link is always visible. Persisted user preference still wins for
+  // other sections.
+  useEffect(() => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      for (const section of navigation) {
+        if (sectionContainsActiveRoute(section, location.pathname)) {
+          next.delete(section.label);
+        }
+      }
+      if (next.size === prev.size) return prev;
+      persistCollapsedSections(next);
+      return next;
+    });
+  }, [location.pathname]);
+
+  const toggle = (label: string) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      persistCollapsedSections(next);
+      return next;
+    });
+  };
 
   return (
     <div className="flex h-full w-64 flex-col bg-gray-900">
@@ -98,43 +168,63 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Navigation — sections give the admin a mental map of where
-          things live. Section headers are non-interactive labels; the
-          list scrolls vertically if it overflows on shorter viewports. */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
-        {navigation.map((section, idx) => (
-          <div
-            key={section.label}
-            className={cn('space-y-1', idx > 0 && 'mt-6')}
-          >
-            <p
-              data-testid={`sidebar-section-${section.label
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, '-')}`}
-              className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-500"
+      {/* Navigation — section labels are clickable headers that toggle
+          their items. Collapsed state persists in localStorage; the
+          section owning the active route is auto-expanded on every
+          navigation so the highlight is never hidden. The scrollbar is
+          hidden visually but the nav still scrolls if a tall display
+          mode pushes content past the viewport. */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 sidebar-nav">
+        {navigation.map((section, idx) => {
+          const isCollapsed = collapsed.has(section.label);
+          const headingId = `sidebar-section-${section.label
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')}`;
+          return (
+            <div
+              key={section.label}
+              className={cn('space-y-1', idx > 0 && 'mt-4')}
             >
-              {section.label}
-            </p>
-            {section.items.map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.href}
-                end={item.href === '/'}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                    isActive
-                      ? 'bg-primary text-black'
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-white',
-                  )
-                }
+              <button
+                type="button"
+                data-testid={headingId}
+                aria-expanded={!isCollapsed}
+                onClick={() => toggle(section.label)}
+                className="flex w-full items-center justify-between px-3 pb-1 pt-1 text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-gray-300 transition-colors"
               >
-                <item.icon className="h-5 w-5" />
-                {item.name}
-              </NavLink>
-            ))}
-          </div>
-        ))}
+                <span>{section.label}</span>
+                <ChevronDown
+                  className={cn(
+                    'h-3.5 w-3.5 transition-transform',
+                    isCollapsed ? '-rotate-90' : 'rotate-0',
+                  )}
+                />
+              </button>
+              {!isCollapsed && (
+                <div className="space-y-1">
+                  {section.items.map((item) => (
+                    <NavLink
+                      key={item.name}
+                      to={item.href}
+                      end={item.href === '/'}
+                      className={({ isActive }) =>
+                        cn(
+                          'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                          isActive
+                            ? 'bg-primary text-black'
+                            : 'text-gray-300 hover:bg-gray-800 hover:text-white',
+                        )
+                      }
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.name}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </nav>
 
       {/* User section */}
