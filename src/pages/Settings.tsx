@@ -8,6 +8,7 @@ import {
   ToggleLeft,
   HardDrive,
   Lock,
+  CreditCard,
 } from 'lucide-react';
 import { Header } from '@/components/layout';
 import { Card, CardContent } from '@/components/ui';
@@ -49,6 +50,13 @@ const settingsLinks = [
       'Add, test, and activate object-storage backends. Swap or onboard a new bucket without a code release.',
     href: '/settings/storage',
     icon: HardDrive,
+  },
+  {
+    name: 'Payment Providers',
+    description:
+      'Add, test, and activate payment gateways. Rotate Paystack credentials or onboard a new gateway without a redeploy.',
+    href: '/settings/payment-providers',
+    icon: CreditCard,
   },
   {
     name: 'Privacy',

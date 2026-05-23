@@ -25,6 +25,7 @@ import {
   StorageSettingsPage,
   StorageMigrationsPage,
   StorageMigrationDetailPage,
+  PaymentProvidersPage,
   AuditLogPage,
   CompaniesPage,
   CompanyDetailPage,
@@ -143,6 +144,10 @@ function App() {
             <Route
               path="/settings/storage/migrations/:id"
               element={<StorageMigrationDetailPage />}
+            />
+            <Route
+              path="/settings/payment-providers"
+              element={<PaymentProvidersPage />}
             />
           </Route>
 
