@@ -21,23 +21,65 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/authStore';
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Customers', href: '/customers', icon: Users },
-  { name: 'Drivers', href: '/drivers', icon: Truck },
-  { name: 'Companies', href: '/companies', icon: Building2 },
-  { name: 'Vehicles', href: '/vehicles', icon: Car },
-  { name: 'Documents', href: '/documents', icon: FileText },
-  { name: 'Approvals', href: '/approvals', icon: ShieldCheck },
-  { name: 'Incidents', href: '/incidents', icon: AlertOctagon },
-  { name: 'Audit Log', href: '/audit-log', icon: History },
-  { name: 'Transfers', href: '/transfers', icon: Banknote },
-  { name: 'Disbursements', href: '/payouts', icon: Wallet },
-  { name: 'Orders', href: '/orders', icon: Package },
-  { name: 'Price Settings', href: '/price-settings', icon: DollarSign },
-  { name: 'FAQs', href: '/faqs', icon: HelpCircle },
-  { name: 'Support', href: '/support', icon: MessageSquare },
-  { name: 'Settings', href: '/settings', icon: Settings },
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+interface NavSection {
+  label: string;
+  items: NavItem[];
+}
+
+const navigation: NavSection[] = [
+  {
+    label: 'Overview',
+    items: [{ name: 'Dashboard', href: '/', icon: LayoutDashboard }],
+  },
+  {
+    label: 'People',
+    items: [
+      { name: 'Customers', href: '/customers', icon: Users },
+      { name: 'Drivers', href: '/drivers', icon: Truck },
+      { name: 'Companies', href: '/companies', icon: Building2 },
+    ],
+  },
+  {
+    label: 'Operations',
+    items: [
+      { name: 'Orders', href: '/orders', icon: Package },
+      { name: 'Vehicles', href: '/vehicles', icon: Car },
+      { name: 'Documents', href: '/documents', icon: FileText },
+      { name: 'Approvals', href: '/approvals', icon: ShieldCheck },
+    ],
+  },
+  {
+    label: 'Trust & Safety',
+    items: [
+      { name: 'Incidents', href: '/incidents', icon: AlertOctagon },
+      { name: 'Audit Log', href: '/audit-log', icon: History },
+    ],
+  },
+  {
+    label: 'Finance',
+    items: [
+      { name: 'Transfers', href: '/transfers', icon: Banknote },
+      { name: 'Disbursements', href: '/payouts', icon: Wallet },
+      { name: 'Price Settings', href: '/price-settings', icon: DollarSign },
+    ],
+  },
+  {
+    label: 'Help',
+    items: [
+      { name: 'FAQs', href: '/faqs', icon: HelpCircle },
+      { name: 'Support', href: '/support', icon: MessageSquare },
+    ],
+  },
+  {
+    label: 'System',
+    items: [{ name: 'Settings', href: '/settings', icon: Settings }],
+  },
 ];
 
 export function Sidebar() {
@@ -56,24 +98,42 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-4">
-        {navigation.map((item) => (
-          <NavLink
-            key={item.name}
-            to={item.href}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-primary text-black'
-                  : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-              )
-            }
+      {/* Navigation — sections give the admin a mental map of where
+          things live. Section headers are non-interactive labels; the
+          list scrolls vertically if it overflows on shorter viewports. */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
+        {navigation.map((section, idx) => (
+          <div
+            key={section.label}
+            className={cn('space-y-1', idx > 0 && 'mt-6')}
           >
-            <item.icon className="h-5 w-5" />
-            {item.name}
-          </NavLink>
+            <p
+              data-testid={`sidebar-section-${section.label
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')}`}
+              className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-500"
+            >
+              {section.label}
+            </p>
+            {section.items.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                end={item.href === '/'}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-primary text-black'
+                      : 'text-gray-300 hover:bg-gray-800 hover:text-white',
+                  )
+                }
+              >
+                <item.icon className="h-5 w-5" />
+                {item.name}
+              </NavLink>
+            ))}
+          </div>
         ))}
       </nav>
 
