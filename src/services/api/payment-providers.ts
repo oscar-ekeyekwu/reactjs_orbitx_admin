@@ -9,6 +9,7 @@ export interface PaymentProvider {
   displayName: string;
   baseUrl: string;
   publicKey: string | null;
+  preferredBank: string | null;
   secretKeyMasked: string;
   hasDedicatedWebhookSecret: boolean;
   enabled: boolean;
@@ -23,6 +24,7 @@ export interface CreatePaymentProviderDto {
   displayName: string;
   baseUrl: string;
   publicKey?: string;
+  preferredBank?: string;
   secretKey: string;
   webhookSecret?: string;
   enabled?: boolean;
@@ -32,6 +34,7 @@ export interface UpdatePaymentProviderDto {
   displayName?: string;
   baseUrl?: string;
   publicKey?: string | null;
+  preferredBank?: string | null;
   secretKey?: string;
   webhookSecret?: string;
   enabled?: boolean;

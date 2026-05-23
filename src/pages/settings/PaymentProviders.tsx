@@ -50,6 +50,7 @@ interface ProviderFormDraft {
   displayName: string;
   baseUrl: string;
   publicKey: string;
+  preferredBank: string;
   secretKey: string;
   webhookSecret: string;
   enabled: boolean;
@@ -61,10 +62,22 @@ const EMPTY_DRAFT: ProviderFormDraft = {
   displayName: '',
   baseUrl: 'https://api.paystack.co',
   publicKey: '',
+  preferredBank: '',
   secretKey: '',
   webhookSecret: '',
   enabled: true,
 };
+
+// Paystack-supported DVA banks. Test mode only honours test-bank; live
+// mode rejects test-bank. The empty option lets the backend auto-pick
+// based on the secret-key prefix.
+const PAYSTACK_BANKS: { value: string; label: string }[] = [
+  { value: '', label: 'Auto (recommended)' },
+  { value: 'test-bank', label: 'Test Bank (test mode only)' },
+  { value: 'wema-bank', label: 'Wema Bank' },
+  { value: 'access-bank', label: 'Access Bank' },
+  { value: 'titan-paystack', label: 'Titan Bank (via Paystack)' },
+];
 
 export function PaymentProvidersPage() {
   const queryClient = useQueryClient();
@@ -143,6 +156,7 @@ export function PaymentProvidersPage() {
       displayName: row.displayName,
       baseUrl: row.baseUrl,
       publicKey: row.publicKey ?? '',
+      preferredBank: row.preferredBank ?? '',
       secretKey: '',
       webhookSecret: '',
       enabled: row.enabled,
@@ -164,6 +178,7 @@ export function PaymentProvidersPage() {
         // null clears the field; empty string is meaningful for webhookSecret
         // (clears the dedicated secret), so we forward it as-is.
         publicKey: draft.publicKey === '' ? null : draft.publicKey,
+        preferredBank: draft.preferredBank === '' ? null : draft.preferredBank,
         enabled: draft.enabled,
       };
       if (draft.secretKey) patch.secretKey = draft.secretKey;
@@ -180,6 +195,7 @@ export function PaymentProvidersPage() {
       enabled: draft.enabled,
     };
     if (draft.publicKey) create.publicKey = draft.publicKey.trim();
+    if (draft.preferredBank) create.preferredBank = draft.preferredBank;
     if (draft.webhookSecret) create.webhookSecret = draft.webhookSecret;
     createMutation.mutate(create);
   };
@@ -345,6 +361,36 @@ export function PaymentProvidersPage() {
                 }
               />
             </div>
+            {draft.kind === 'paystack' && (
+              <div className="space-y-1">
+                <Label htmlFor="pp-preferred-bank">
+                  Preferred bank (Paystack DVA)
+                </Label>
+                <select
+                  id="pp-preferred-bank"
+                  data-testid="payment-provider-preferred-bank"
+                  className="flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm"
+                  value={draft.preferredBank}
+                  onChange={(e) =>
+                    setDraft((d) => ({
+                      ...d,
+                      preferredBank: e.target.value,
+                    }))
+                  }
+                >
+                  {PAYSTACK_BANKS.map((b) => (
+                    <option key={b.value} value={b.value}>
+                      {b.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  Auto picks test-bank for sk_test_ keys, wema-bank for
+                  sk_live_. Override here when going live with a different
+                  bank.
+                </p>
+              </div>
+            )}
             <div className="space-y-1">
               <Label htmlFor="pp-secret">
                 Secret key {editingId ? '(blank = keep existing)' : ''}
@@ -512,6 +558,12 @@ function ProviderCard({
                 Falls back to secret key
               </span>
             )}
+          </div>
+          <div>
+            <span className="text-muted-foreground">Preferred bank</span>{' '}
+            <span className="font-mono">
+              {row.preferredBank ?? 'auto'}
+            </span>
           </div>
           <div>
             <span className="text-muted-foreground">Updated</span>{' '}
