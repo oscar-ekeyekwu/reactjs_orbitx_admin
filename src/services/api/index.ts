@@ -62,3 +62,11 @@ export {
   type StorageMigrationDeletionStatus,
   type QueueStorageMigrationDto,
 } from './storage';
+export {
+  paymentProvidersApi,
+  type PaymentProvider,
+  type PaymentProviderKind,
+  type CreatePaymentProviderDto,
+  type UpdatePaymentProviderDto,
+  type PaymentProviderTestResult,
+} from './payment-providers';

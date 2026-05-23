@@ -16,6 +16,7 @@ export { AppearanceSettingsPage } from './settings/AppearanceSettings';
 export { DataSettingsPage } from './settings/DataSettings';
 export { FeatureFlagsSettingsPage } from './settings/FeatureFlagsSettings';
 export { StorageSettingsPage } from './settings/StorageSettings';
+export { PaymentProvidersPage } from './settings/PaymentProviders';
 export { StorageMigrationsPage } from './settings/StorageMigrations';
 export { StorageMigrationDetailPage } from './settings/StorageMigrationDetail';
 export { AuditLogPage } from './AuditLog';
