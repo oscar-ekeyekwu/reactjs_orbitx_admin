@@ -9,6 +9,7 @@ import {
   HardDrive,
   Lock,
   CreditCard,
+  MessageSquare,
 } from 'lucide-react';
 import { Header } from '@/components/layout';
 import { Card, CardContent } from '@/components/ui';
@@ -64,6 +65,13 @@ const settingsLinks = [
       'NDPA data-subject rights — export your data or schedule account deletion.',
     href: '/settings/privacy',
     icon: Lock,
+  },
+  {
+    name: 'Support Contact Info',
+    description:
+      'Phone, email, WhatsApp, and hours shown to drivers and customers in the mobile apps.',
+    href: '/settings/support-info',
+    icon: MessageSquare,
   },
 ];
 
