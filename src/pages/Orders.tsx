@@ -90,8 +90,8 @@ export function OrdersPage() {
         {/* Filters */}
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1 max-w-sm">
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <div className="relative w-full sm:max-w-sm sm:flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <Input
                   placeholder="Search by order ID or recipient..."
@@ -103,7 +103,7 @@ export function OrdersPage() {
               <Select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-40"
+                className="w-full sm:w-40"
               >
                 <option value="">All Status</option>
                 <option value="pending">Pending</option>

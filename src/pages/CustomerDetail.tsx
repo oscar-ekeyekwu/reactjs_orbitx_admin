@@ -101,7 +101,7 @@ export function CustomerDetailPage() {
         {/* Profile header card */}
         <Card>
           <CardContent className="p-6">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16 text-xl">
                   {customer.avatar ? (
@@ -135,7 +135,7 @@ export function CustomerDetailPage() {
                 variant="outline"
                 onClick={() => toggleActiveMutation.mutate(!customer.isActive)}
                 disabled={toggleActiveMutation.isPending}
-                className="gap-2"
+                className="w-full gap-2 sm:w-auto"
               >
                 {customer.isActive ? (
                   <>

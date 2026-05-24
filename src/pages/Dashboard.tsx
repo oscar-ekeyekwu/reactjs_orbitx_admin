@@ -54,7 +54,7 @@ function StatCard({ title, value, icon, trend }: StatCardProps) {
               </p>
             )}
           </div>
-          <div className="rounded-full bg-primary/10 p-3">{icon}</div>
+          <div className="rounded-md bg-primary/10 p-2.5">{icon}</div>
         </div>
       </CardContent>
     </Card>
@@ -152,6 +152,8 @@ export function DashboardPage() {
                         `₦${Number(value ?? 0).toLocaleString()}`,
                         'Revenue',
                       ]}
+                      wrapperStyle={{ maxWidth: '90vw', zIndex: 20 }}
+                      allowEscapeViewBox={{ x: false, y: false }}
                     />
                     <Area
                       type="monotone"
@@ -187,6 +189,8 @@ export function DashboardPage() {
                     <YAxis allowDecimals={false} />
                     <Tooltip
                       formatter={(value) => [Number(value ?? 0), 'Orders']}
+                      wrapperStyle={{ maxWidth: '90vw', zIndex: 20 }}
+                      allowEscapeViewBox={{ x: false, y: false }}
                     />
                     <Bar dataKey="value" fill="#61F62A" radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -200,8 +204,8 @@ export function DashboardPage() {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-full bg-yellow-100 p-3">
-                <Clock className="h-6 w-6 text-yellow-600" />
+              <div className="rounded-md bg-yellow-100 p-2.5">
+                <Clock className="h-5 w-5 text-yellow-600" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Pending Orders</p>
@@ -212,8 +216,8 @@ export function DashboardPage() {
 
           <Card>
             <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-full bg-green-100 p-3">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+              <div className="rounded-md bg-green-100 p-2.5">
+                <CheckCircle className="h-5 w-5 text-green-600" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Orders Today</p>
@@ -224,8 +228,8 @@ export function DashboardPage() {
 
           <Card>
             <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-full bg-primary/10 p-3">
-                <DollarSign className="h-6 w-6 text-primary" />
+              <div className="rounded-md bg-primary/10 p-2.5">
+                <DollarSign className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Today's Revenue</p>

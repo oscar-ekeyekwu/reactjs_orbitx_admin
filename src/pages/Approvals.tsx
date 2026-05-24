@@ -449,7 +449,7 @@ function DriversTab({
         const pending = pendingApproveId === d.id;
         return (
           <Card key={d.id} data-testid={`approvals-driver-row-${d.id}`}>
-            <CardContent className="p-4 flex items-center justify-between gap-4">
+            <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div>
                 <p className="font-semibold">
                   {d.user?.first_name ?? ''} {d.user?.last_name ?? ''}{' '}
@@ -511,7 +511,7 @@ function VehiclesTab({
         const pending = pendingApproveId === v.id;
         return (
           <Card key={v.id} data-testid={`approvals-vehicle-row-${v.id}`}>
-            <CardContent className="p-4 flex items-center justify-between gap-4">
+            <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div>
                 <p className="font-semibold">
                   {v.plate} · {v.type}
@@ -570,7 +570,7 @@ function CompaniesTab({
         const pending = pendingApproveId === c.id;
         return (
           <Card key={c.id} data-testid={`approvals-company-row-${c.id}`}>
-            <CardContent className="p-4 flex items-center justify-between gap-4">
+            <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div>
                 <p className="font-semibold">{c.legalName}</p>
                 <p className="text-sm text-muted-foreground">
@@ -666,7 +666,7 @@ function DocumentsTab({
             data-testid={`approvals-document-bucket-${bucketKey}`}
           >
             <CardContent className="p-4 space-y-3">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="capitalize">

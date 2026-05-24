@@ -186,7 +186,7 @@ export function FAQsPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="rounded-full bg-blue-100 p-2">
+              <div className="rounded-md bg-blue-100 p-2">
                 <HelpCircle className="h-5 w-5 text-blue-600" />
               </div>
               <div>
@@ -197,7 +197,7 @@ export function FAQsPage() {
           </Card>
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="rounded-full bg-green-100 p-2">
+              <div className="rounded-md bg-green-100 p-2">
                 <CheckCircle className="h-5 w-5 text-green-600" />
               </div>
               <div>
@@ -208,7 +208,7 @@ export function FAQsPage() {
           </Card>
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="rounded-full bg-gray-100 p-2">
+              <div className="rounded-md bg-gray-100 p-2">
                 <XCircle className="h-5 w-5 text-gray-500" />
               </div>
               <div>

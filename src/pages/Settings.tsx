@@ -88,23 +88,29 @@ export function SettingsPage() {
     <div>
       <Header title="Settings" subtitle="Manage your application settings" />
 
-      <div className="p-6">
-        <div className="max-w-2xl space-y-4">
+      <div className="p-4 md:p-6">
+        <div className="max-w-2xl space-y-2">
           {settingsLinks.map((item) => (
-            <Link key={item.name} to={item.href}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <Link
+              key={item.name}
+              to={item.href}
+              className="group block"
+            >
+              <Card className="border-transparent bg-white shadow-none transition-all hover:border-border hover:bg-gray-50 focus-within:border-border focus-within:ring-2 focus-within:ring-ring/40">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
-                    <div className="rounded-lg bg-primary/10 p-3">
-                      <item.icon className="h-5 w-5 text-primary" />
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                      <item.icon className="h-4 w-4" />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium">{item.name}</h3>
-                      <p className="text-sm text-muted-foreground">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-medium leading-tight">
+                        {item.name}
+                      </h3>
+                      <p className="mt-0.5 text-sm text-muted-foreground">
                         {item.description}
                       </p>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
                   </div>
                 </CardContent>
               </Card>

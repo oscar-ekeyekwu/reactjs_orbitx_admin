@@ -149,8 +149,8 @@ export function DriversPage() {
         {/* Filters & Actions */}
         <Card>
           <CardContent className="space-y-3 p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="relative flex-1 max-w-sm">
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div className="relative w-full sm:max-w-sm">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <Input
                   placeholder="Search drivers..."
@@ -159,7 +159,10 @@ export function DriversPage() {
                   className="pl-9"
                 />
               </div>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Button
+                onClick={() => setIsCreateDialogOpen(true)}
+                className="w-full sm:w-auto"
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Driver
               </Button>

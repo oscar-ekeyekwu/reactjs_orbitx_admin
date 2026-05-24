@@ -89,13 +89,14 @@ export function OrderDetailPage() {
       />
 
       <div className="p-6 space-y-6">
-        {/* Top bar */}
-        <div className="flex items-center justify-between">
+        {/* Top bar — wraps cleanly on narrow viewports instead of
+            pushing the status select off the right edge. */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2">
             <ArrowLeft className="h-4 w-4" />
             Back to Orders
           </Button>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Badge variant={statusColors[order.status]} className="px-3 py-1 text-sm">
               {order.status.replace(/_/g, ' ')}
             </Badge>
@@ -108,7 +109,7 @@ export function OrderDetailPage() {
                     e.target.value = '';
                   }
                 }}
-                className="w-44"
+                className="w-full sm:w-44"
                 disabled={updateStatusMutation.isPending}
               >
                 <option value="">Update status…</option>
