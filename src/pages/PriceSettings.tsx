@@ -171,7 +171,7 @@ export function PriceSettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="baseFare">Base Fare (₦)</Label>
                   <Input
@@ -216,7 +216,7 @@ export function PriceSettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="smallPackageMultiplier">Small Package</Label>
                   <Input
@@ -300,7 +300,7 @@ export function PriceSettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="driverMinBalance">
                     Minimum Balance Required (₦)

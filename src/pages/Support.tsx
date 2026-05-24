@@ -140,7 +140,7 @@ export function SupportPage() {
         </Card>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
               <div className="rounded-full bg-yellow-100 p-2">
@@ -299,7 +299,7 @@ export function SupportPage() {
                 <p className="mt-1">{selectedTicket.description}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                 <div>
                   <p className="font-medium text-muted-foreground">User</p>
                   <p>{selectedTicket.user?.name || 'Unknown'}</p>

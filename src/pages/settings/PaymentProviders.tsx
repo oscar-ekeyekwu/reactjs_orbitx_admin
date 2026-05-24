@@ -291,7 +291,7 @@ export function PaymentProvidersPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1">
                 <Label htmlFor="pp-slug">Slug</Label>
                 <Input
@@ -540,7 +540,7 @@ function ProviderCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
           <div>
             <span className="text-muted-foreground">Public key</span>{' '}
             <span className="font-mono">{row.publicKey ?? '—'}</span>

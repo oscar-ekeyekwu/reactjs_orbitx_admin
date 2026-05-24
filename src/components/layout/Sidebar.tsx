@@ -19,9 +19,11 @@ import {
   History,
   AlertOctagon,
   ChevronDown,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/authStore';
+import { useUIStore } from '@/stores/uiStore';
 
 interface NavItem {
   name: string;
@@ -124,6 +126,7 @@ function sectionContainsActiveRoute(
 export function Sidebar() {
   const { logout, user } = useAuthStore();
   const location = useLocation();
+  const { sidebarOpen, closeSidebar } = useUIStore();
   const [collapsed, setCollapsed] = useState<Set<string>>(() =>
     loadCollapsedSections(),
   );
@@ -156,9 +159,20 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex h-full w-64 flex-col bg-gray-900">
+    <aside
+      aria-label="Primary navigation"
+      className={cn(
+        // Desktop (md+): always in flow, fixed-width column. Mobile:
+        // fixed off-canvas drawer that slides in when sidebarOpen is
+        // true. The transform-based animation keeps the sidebar in
+        // the DOM so screen readers can still find the nav items.
+        'flex h-full w-64 flex-col bg-gray-900',
+        'fixed inset-y-0 left-0 z-40 transition-transform duration-200 ease-out md:static md:translate-x-0',
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+      )}
+    >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-center border-b border-gray-800">
+      <div className="flex h-16 items-center justify-between border-b border-gray-800 px-4">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <Package className="h-5 w-5 text-black" />
@@ -166,6 +180,16 @@ export function Sidebar() {
           <span className="text-xl font-bold text-white">OrbitX</span>
           <span className="text-xs text-gray-400">Admin</span>
         </div>
+        {/* Mobile-only close button — desktop relies on always-visible
+            sidebar, no need for a chrome button there. */}
+        <button
+          type="button"
+          aria-label="Close menu"
+          onClick={closeSidebar}
+          className="rounded-md p-1.5 text-gray-300 hover:bg-gray-800 hover:text-white md:hidden"
+        >
+          <X className="h-5 w-5" />
+        </button>
       </div>
 
       {/* Navigation — section labels are clickable headers that toggle
@@ -249,6 +273,6 @@ export function Sidebar() {
           Sign out
         </button>
       </div>
-    </div>
+    </aside>
   );
 }

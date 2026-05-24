@@ -167,7 +167,7 @@ export function OrderDetailPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                <dl className="grid grid-cols-1 gap-x-4 gap-y-3 text-sm sm:grid-cols-2">
                   <div>
                     <dt className="text-muted-foreground">Description</dt>
                     <dd className="font-medium mt-0.5">{order.packageDescription || '—'}</dd>
@@ -199,7 +199,7 @@ export function OrderDetailPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                <dl className="grid grid-cols-1 gap-x-4 gap-y-3 text-sm sm:grid-cols-2">
                   <div>
                     <dt className="text-muted-foreground">Name</dt>
                     <dd className="font-medium mt-0.5">{order.recipientName}</dd>

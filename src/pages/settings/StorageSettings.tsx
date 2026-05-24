@@ -501,7 +501,7 @@ export function StorageSettingsPage() {
             className="space-y-3"
             data-testid="storage-editor-form"
           >
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1">
                 <Label htmlFor="prov-slug">
                   Slug{editingId ? ' (immutable)' : ''}
@@ -547,7 +547,7 @@ export function StorageSettingsPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1">
                 <Label htmlFor="prov-region">Region</Label>
                 <Input
@@ -800,7 +800,7 @@ export function StorageSettingsPage() {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1">
                 <Label htmlFor="migrate-batch">Batch size (1–200)</Label>
                 <Input
