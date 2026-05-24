@@ -1,11 +1,9 @@
-import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
-  ArrowLeft,
   Shield,
   Key,
   Monitor,
@@ -15,6 +13,7 @@ import {
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
 import {
+  Breadcrumb,
   Card,
   CardContent,
   CardDescription,
@@ -57,13 +56,13 @@ export function SecuritySettingsPage() {
       />
 
       <div className="p-6">
-        <Link
-          to="/settings"
-          className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Settings
-        </Link>
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: 'Settings', href: '/settings' },
+            { label: 'Security' },
+          ]}
+        />
 
         <div className="max-w-2xl space-y-6">
           <ChangePasswordCard />

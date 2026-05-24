@@ -1,7 +1,7 @@
+import * as React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeft,
   Mail,
   Phone,
   Calendar,
@@ -23,6 +23,8 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
+  Breadcrumb,
+  ConfirmDialog,
   Spinner,
   Table,
   TableHeader,
@@ -50,6 +52,7 @@ export function CustomerDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [confirmDeactivateOpen, setConfirmDeactivateOpen] = React.useState(false);
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ['customer', id],
@@ -91,12 +94,13 @@ export function CustomerDetailPage() {
     <div>
       <Header title="Customer Detail" subtitle={customer.name} />
 
-      <div className="p-6 space-y-6">
-        {/* Back */}
-        <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Customers
-        </Button>
+      <div className="p-4 space-y-6 md:p-6">
+        <Breadcrumb
+          items={[
+            { label: 'Customers', href: '/customers' },
+            { label: customer.name },
+          ]}
+        />
 
         {/* Profile header card */}
         <Card>
@@ -131,27 +135,45 @@ export function CustomerDetailPage() {
                   </div>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => toggleActiveMutation.mutate(!customer.isActive)}
-                disabled={toggleActiveMutation.isPending}
-                className="w-full gap-2 sm:w-auto"
-              >
-                {customer.isActive ? (
-                  <>
-                    <UserX className="h-4 w-4 text-red-500" />
-                    Deactivate
-                  </>
-                ) : (
-                  <>
-                    <UserCheck className="h-4 w-4 text-green-500" />
-                    Activate
-                  </>
-                )}
-              </Button>
+              {customer.isActive ? (
+                <Button
+                  variant="destructive"
+                  onClick={() => setConfirmDeactivateOpen(true)}
+                  disabled={toggleActiveMutation.isPending}
+                  className="w-full gap-2 sm:w-auto"
+                >
+                  <UserX className="h-4 w-4" />
+                  Deactivate
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  onClick={() => toggleActiveMutation.mutate(true)}
+                  disabled={toggleActiveMutation.isPending}
+                  className="w-full gap-2 sm:w-auto"
+                >
+                  <UserCheck className="h-4 w-4 text-green-500" />
+                  Activate
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
+
+        <ConfirmDialog
+          open={confirmDeactivateOpen}
+          onOpenChange={setConfirmDeactivateOpen}
+          destructive
+          title={`Deactivate ${customer.name}?`}
+          description="The customer will be signed out of the mobile app and won't be able to place new orders. Existing orders aren't affected."
+          confirmLabel="Deactivate"
+          isPending={toggleActiveMutation.isPending}
+          onConfirm={() => {
+            toggleActiveMutation.mutate(false, {
+              onSettled: () => setConfirmDeactivateOpen(false),
+            });
+          }}
+        />
 
         {/* Info grid */}
         <div className="grid gap-6 lg:grid-cols-3">

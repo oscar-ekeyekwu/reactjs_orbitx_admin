@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, AlertOctagon, CheckCircle2 } from 'lucide-react';
+import { AlertOctagon, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
 import {
   Badge,
+  Breadcrumb,
   Button,
   Card,
   CardContent,
@@ -81,14 +82,13 @@ export function IncidentDetailPage() {
         subtitle={incident ? `Order ${incident.orderId.slice(0, 8)}` : 'Loading…'}
       />
 
-      <div className="p-6 space-y-4">
-        <Link
-          to="/incidents"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Incidents
-        </Link>
+      <div className="p-4 space-y-4 md:p-6">
+        <Breadcrumb
+          items={[
+            { label: 'Incidents', href: '/incidents' },
+            { label: incident ? `Order ${incident.orderId.slice(0, 8)}` : 'Incident' },
+          ]}
+        />
 
         {isLoading || !incident ? (
           <div className="flex justify-center py-12">

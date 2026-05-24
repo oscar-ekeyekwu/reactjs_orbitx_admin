@@ -16,7 +16,8 @@ import {
   TableHead,
   TableCell,
   Badge,
-  Spinner,
+  EmptyState,
+  TableSkeleton,
   Select,
 } from "@/components/ui";
 import { ordersApi } from "@/services/api";
@@ -121,12 +122,20 @@ export function OrdersPage() {
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="flex justify-center py-12">
-                <Spinner size="lg" />
+              <div className="p-4">
+                <TableSkeleton rows={6} columns={5} />
               </div>
             ) : orders.length === 0 ? (
-              <div className="py-12 text-center text-muted-foreground">
-                No orders found
+              <div className="p-4">
+                <EmptyState
+                  icon={Package}
+                  title="No orders found"
+                  description={
+                    search || statusFilter || driverIdFilter
+                      ? 'No orders match the current filters. Try clearing them or widening the date range.'
+                      : 'Orders placed by customers in the mobile app will appear here as they come in.'
+                  }
+                />
               </div>
             ) : (
               <Table>

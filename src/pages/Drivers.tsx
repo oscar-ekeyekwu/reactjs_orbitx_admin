@@ -13,6 +13,7 @@ import {
   UserCheck,
   UserX,
   ChevronRight,
+  Truck,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
@@ -31,7 +32,8 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-  Spinner,
+  EmptyState,
+  TableSkeleton,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -231,12 +233,20 @@ export function DriversPage() {
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="flex justify-center py-12">
-                <Spinner size="lg" />
+              <div className="p-4">
+                <TableSkeleton rows={6} columns={5} />
               </div>
             ) : drivers.length === 0 ? (
-              <div className="py-12 text-center text-muted-foreground">
-                No drivers found
+              <div className="p-4">
+                <EmptyState
+                  icon={Truck}
+                  title="No drivers found"
+                  description={
+                    search || accountType || verificationStatus
+                      ? 'No drivers match the current filters. Try clearing them or searching with a different term.'
+                      : 'Add your first driver to start accepting orders. They’ll get an onboarding link via email.'
+                  }
+                />
               </div>
             ) : (
               <Table>

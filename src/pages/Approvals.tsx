@@ -5,6 +5,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
+import { CheckCircle2 } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
   Badge,
@@ -16,8 +17,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EmptyState,
   Label,
-  Spinner,
+  Skeleton,
   Textarea,
 } from '@/components/ui';
 import {
@@ -392,28 +394,32 @@ export function ApprovalsPage() {
 function QueueShell({
   isLoading,
   isEmpty,
-  emptyMessage,
+  emptyTitle,
+  emptyDescription,
   children,
 }: {
   isLoading: boolean;
   isEmpty: boolean;
-  emptyMessage: string;
+  emptyTitle: string;
+  emptyDescription: string;
   children: React.ReactNode;
 }) {
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-12">
-        <Spinner />
+      <div className="space-y-2" role="status" aria-label="Loading queue">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-20 w-full" />
+        ))}
       </div>
     );
   }
   if (isEmpty) {
     return (
-      <Card>
-        <CardContent className="p-8 text-center text-muted-foreground">
-          {emptyMessage}
-        </CardContent>
-      </Card>
+      <EmptyState
+        icon={CheckCircle2}
+        title={emptyTitle}
+        description={emptyDescription}
+      />
     );
   }
   return <div className="space-y-2">{children}</div>;
@@ -440,7 +446,8 @@ function DriversTab({
     <QueueShell
       isLoading={query.isLoading}
       isEmpty={items.length === 0}
-      emptyMessage="No drivers waiting for approval."
+      emptyTitle="No drivers waiting"
+      emptyDescription="Every driver who's submitted their setup is approved. Newcomers will land here after they finish onboarding in the mobile app."
     >
       {items.map((d) => {
         const label =
@@ -504,7 +511,8 @@ function VehiclesTab({
     <QueueShell
       isLoading={query.isLoading}
       isEmpty={items.length === 0}
-      emptyMessage="No vehicles waiting for approval."
+      emptyTitle="No vehicles waiting"
+      emptyDescription="No vehicles are pending review. Submitted vehicles from drivers and companies show up here."
     >
       {items.map((v) => {
         const label = `${v.plate} (${v.type})`;
@@ -564,7 +572,8 @@ function CompaniesTab({
     <QueueShell
       isLoading={query.isLoading}
       isEmpty={items.length === 0}
-      emptyMessage="No companies waiting for approval."
+      emptyTitle="No companies waiting"
+      emptyDescription="No companies are pending review. Company sign-ups appear here once they submit their CAC and ownership details."
     >
       {items.map((c) => {
         const pending = pendingApproveId === c.id;
@@ -655,7 +664,8 @@ function DocumentsTab({
     <QueueShell
       isLoading={query.isLoading}
       isEmpty={items.length === 0}
-      emptyMessage="No documents waiting for approval."
+      emptyTitle="No documents waiting"
+      emptyDescription="No documents are pending review. Drivers' KYC uploads appear here grouped by owner."
     >
       {buckets.map((bucket) => {
         const bucketKey = `${bucket.ownerType}:${bucket.ownerId}`;

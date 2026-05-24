@@ -1,10 +1,11 @@
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
 import {
   Badge,
+  Breadcrumb,
   Button,
   Card,
   CardContent,
@@ -55,14 +56,13 @@ export function DocumentDetailPage() {
         }
       />
 
-      <div className="p-6 space-y-4">
-        <Link
-          to="/documents"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Documents
-        </Link>
+      <div className="p-4 space-y-4 md:p-6">
+        <Breadcrumb
+          items={[
+            { label: 'Documents', href: '/documents' },
+            { label: doc ? doc.type : 'Document' },
+          ]}
+        />
 
         {docQuery.isLoading || !doc ? (
           <div className="flex justify-center py-12">

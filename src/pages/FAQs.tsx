@@ -26,7 +26,8 @@ import {
   Label,
   Textarea,
   Badge,
-  Spinner,
+  EmptyState,
+  Skeleton,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -270,17 +271,31 @@ export function FAQsPage() {
 
         {/* FAQs List */}
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Spinner size="lg" />
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 w-full" />
+            ))}
           </div>
         ) : !filteredFaqs?.length ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              {search || categoryFilter !== 'All'
-                ? 'No FAQs match your filters.'
-                : 'No FAQs found. Create your first FAQ to get started.'}
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={HelpCircle}
+            title={
+              search || categoryFilter !== 'All' ? 'No FAQs match' : 'No FAQs yet'
+            }
+            description={
+              search || categoryFilter !== 'All'
+                ? 'Try clearing the search or category filter.'
+                : 'Create your first FAQ to publish a help article for customers and drivers.'
+            }
+            action={
+              !search && categoryFilter === 'All' ? (
+                <Button onClick={() => setIsDialogOpen(true)} size="sm">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create FAQ
+                </Button>
+              ) : undefined
+            }
+          />
         ) : (
           <div className="space-y-4">
             {Object.entries(groupedFaqs || {}).map(([category, categoryFaqs]) => (

@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Ban, CheckCircle2 } from 'lucide-react';
+import { Ban, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
 import {
   Badge,
+  Breadcrumb,
   Button,
   Card,
   CardContent,
@@ -78,14 +79,13 @@ export function VehicleDetailPage() {
         subtitle={vehicle ? `${vehicle.type} · ${vehicle.color ?? 'No color'}` : 'Loading…'}
       />
 
-      <div className="p-6 space-y-4">
-        <Link
-          to="/vehicles"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Vehicles
-        </Link>
+      <div className="p-4 space-y-4 md:p-6">
+        <Breadcrumb
+          items={[
+            { label: 'Vehicles', href: '/vehicles' },
+            { label: vehicle ? vehicle.plate : 'Vehicle' },
+          ]}
+        />
 
         {vehicleQuery.isLoading || !vehicle ? (
           <div className="flex justify-center py-12">

@@ -1,7 +1,7 @@
+import * as React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeft,
   Mail,
   Phone,
   Calendar,
@@ -27,6 +27,8 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
+  Breadcrumb,
+  ConfirmDialog,
   Spinner,
   Table,
   TableHeader,
@@ -71,6 +73,7 @@ export function DriverDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [confirmDeactivateOpen, setConfirmDeactivateOpen] = React.useState(false);
 
   const { data: driver, isLoading } = useQuery({
     queryKey: ['driver', id],
@@ -130,12 +133,13 @@ export function DriverDetailPage() {
     <div>
       <Header title="Driver Detail" subtitle={driver.name} />
 
-      <div className="p-6 space-y-6">
-        {/* Back */}
-        <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Drivers
-        </Button>
+      <div className="p-4 space-y-6 md:p-6">
+        <Breadcrumb
+          items={[
+            { label: 'Drivers', href: '/drivers' },
+            { label: driver.name },
+          ]}
+        />
 
         {/* Profile header card */}
         <Card>
@@ -170,27 +174,51 @@ export function DriverDetailPage() {
                   </div>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => toggleActiveMutation.mutate(!driver.isActive)}
-                disabled={toggleActiveMutation.isPending}
-                className="w-full gap-2 sm:w-auto"
-              >
-                {driver.isActive ? (
-                  <>
-                    <UserX className="h-4 w-4 text-red-500" />
-                    Deactivate
-                  </>
-                ) : (
-                  <>
-                    <UserCheck className="h-4 w-4 text-green-500" />
-                    Activate
-                  </>
-                )}
-              </Button>
+              {driver.isActive ? (
+                <Button
+                  variant="destructive"
+                  onClick={() => setConfirmDeactivateOpen(true)}
+                  disabled={toggleActiveMutation.isPending}
+                  className="w-full gap-2 sm:w-auto"
+                >
+                  <UserX className="h-4 w-4" />
+                  Deactivate
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  onClick={() => toggleActiveMutation.mutate(true)}
+                  disabled={toggleActiveMutation.isPending}
+                  className="w-full gap-2 sm:w-auto"
+                >
+                  <UserCheck className="h-4 w-4 text-green-500" />
+                  Activate
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
+
+        <ConfirmDialog
+          open={confirmDeactivateOpen}
+          onOpenChange={setConfirmDeactivateOpen}
+          destructive
+          title={`Deactivate ${driver.name}?`}
+          description={
+            <>
+              The driver will be signed out of the mobile app and won't be
+              able to accept new orders. Existing assigned orders are
+              unaffected. You can reactivate them later from this page.
+            </>
+          }
+          confirmLabel="Deactivate"
+          isPending={toggleActiveMutation.isPending}
+          onConfirm={() => {
+            toggleActiveMutation.mutate(false, {
+              onSettled: () => setConfirmDeactivateOpen(false),
+            });
+          }}
+        />
 
         {/* Info grid */}
         <div className="grid gap-6 lg:grid-cols-3">

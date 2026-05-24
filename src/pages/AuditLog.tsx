@@ -1,17 +1,18 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
-import { Download, ShieldCheck } from 'lucide-react';
+import { Download, ShieldCheck, History } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
   Badge,
   Button,
   Card,
   CardContent,
+  EmptyState,
   Input,
   Label,
   Select,
-  Spinner,
+  TableSkeleton,
   Table,
   TableBody,
   TableCell,
@@ -203,15 +204,16 @@ export function AuditLogPage() {
         <Card>
           <CardContent className="p-0">
             {auditQuery.isLoading ? (
-              <div className="flex justify-center py-12">
-                <Spinner size="lg" />
+              <div className="p-4">
+                <TableSkeleton rows={8} columns={5} />
               </div>
             ) : rows.length === 0 ? (
-              <div
-                data-testid="audit-empty"
-                className="py-12 text-center text-sm text-muted-foreground"
-              >
-                No audit rows match the current filters.
+              <div className="p-4" data-testid="audit-empty">
+                <EmptyState
+                  icon={History}
+                  title="No audit rows"
+                  description="No approval decisions match the current filters. Try changing the target type, action, or date range."
+                />
               </div>
             ) : (
               <Table>

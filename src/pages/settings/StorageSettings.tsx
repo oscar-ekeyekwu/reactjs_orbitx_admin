@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
 import {
-  ArrowLeft,
   HardDrive,
   PlusCircle,
   CheckCircle2,
@@ -17,6 +15,7 @@ import {
 import { Header } from '@/components/layout';
 import {
   Badge,
+  Breadcrumb,
   Button,
   Card,
   CardContent,
@@ -253,14 +252,13 @@ export function StorageSettingsPage() {
         subtitle="Pluggable buckets for KYC documents + receipts. Swap or onboard a new provider without a code release."
       />
 
-      <div className="p-6 space-y-4">
-        <Link
-          to="/settings"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Settings
-        </Link>
+      <div className="p-4 space-y-4 md:p-6">
+        <Breadcrumb
+          items={[
+            { label: 'Settings', href: '/settings' },
+            { label: 'Storage Providers' },
+          ]}
+        />
 
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">

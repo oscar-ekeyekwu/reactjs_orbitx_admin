@@ -17,6 +17,8 @@ import {
   Input,
   Button,
   Badge,
+  EmptyState,
+  Skeleton,
   Spinner,
   Select,
   Textarea,
@@ -195,15 +197,21 @@ export function SupportPage() {
 
         {/* Tickets List */}
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Spinner size="lg" />
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 w-full" />
+            ))}
           </div>
         ) : tickets.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              No support tickets found
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={MessageSquare}
+            title="No support tickets"
+            description={
+              search || statusFilter !== 'all'
+                ? 'No tickets match the current filters. Clear them to see the full queue.'
+                : 'Users haven’t opened any tickets yet. New tickets land here when customers or drivers submit one in the mobile app.'
+            }
+          />
         ) : (
           <div className="space-y-4">
             {tickets.map((ticket) => (

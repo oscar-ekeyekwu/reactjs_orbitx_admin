@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft } from 'lucide-react';
+import { HardDrive } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
   Badge,
+  Breadcrumb,
   Card,
   CardContent,
-  Spinner,
+  EmptyState,
+  TableSkeleton,
   Table,
   TableBody,
   TableCell,
@@ -44,28 +46,29 @@ export function StorageMigrationsPage() {
         subtitle="Cross-provider document copy jobs. Anchored at queue time — uploads during a run stay on the source until a later migration moves them."
       />
 
-      <div className="p-6 space-y-4">
-        <Link
-          to="/settings/storage"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Storage
-        </Link>
+      <div className="p-4 space-y-4 md:p-6">
+        <Breadcrumb
+          items={[
+            { label: 'Settings', href: '/settings' },
+            { label: 'Storage', href: '/settings/storage' },
+            { label: 'Migrations' },
+          ]}
+        />
 
         {migrationsQuery.isLoading ? (
-          <div className="flex justify-center py-12">
-            <Spinner size="lg" />
-          </div>
-        ) : (migrationsQuery.data ?? []).length === 0 ? (
           <Card>
-            <CardContent
-              data-testid="storage-migrations-empty"
-              className="py-12 text-center text-muted-foreground text-sm"
-            >
-              No migrations queued or completed yet.
+            <CardContent className="p-4">
+              <TableSkeleton rows={4} columns={5} />
             </CardContent>
           </Card>
+        ) : (migrationsQuery.data ?? []).length === 0 ? (
+          <div data-testid="storage-migrations-empty">
+            <EmptyState
+              icon={HardDrive}
+              title="No migrations yet"
+              description="Queued bucket migrations and their progress show up here. Start one from the Storage Providers settings page."
+            />
+          </div>
         ) : (
           <Card>
             <Table>

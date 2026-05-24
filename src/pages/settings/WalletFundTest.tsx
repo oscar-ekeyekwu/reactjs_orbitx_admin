@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, AlertTriangle, CheckCircle2, Wallet } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Wallet } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
+  Breadcrumb,
   Button,
   Card,
   CardContent,
@@ -85,14 +85,14 @@ export function WalletFundTestPage() {
         subtitle="Credit a driver wallet by virtual account number — rehearses the Paystack funding flow without a real bank transfer."
       />
 
-      <div className="p-6">
-        <Link
-          to="/settings"
-          className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Settings
-        </Link>
+      <div className="p-4 md:p-6">
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: 'Settings', href: '/settings' },
+            { label: 'Fund by Account (Test)' },
+          ]}
+        />
 
         <div className="max-w-2xl space-y-6">
           <div className="flex items-start gap-3 rounded-lg border border-yellow-300 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/30">

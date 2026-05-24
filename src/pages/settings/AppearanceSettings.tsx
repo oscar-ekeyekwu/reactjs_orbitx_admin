@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Palette, Check, Sun, Moon, Monitor } from 'lucide-react';
+import { Palette, Check, Sun, Moon, Monitor } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
+  Breadcrumb,
   Card,
   CardContent,
   CardDescription,
@@ -35,13 +35,13 @@ export function AppearanceSettingsPage() {
       />
 
       <div className="p-6">
-        <Link
-          to="/settings"
-          className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Settings
-        </Link>
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: 'Settings', href: '/settings' },
+            { label: 'Appearance' },
+          ]}
+        />
 
         <div className="max-w-2xl space-y-6">
           <Card>

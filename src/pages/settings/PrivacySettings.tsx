@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowLeft, Download, Trash2, Undo2 } from 'lucide-react';
+import { Download, Trash2, Undo2 } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
+  Breadcrumb,
   Button,
   Card,
   CardContent,
@@ -66,13 +66,12 @@ export function PrivacySettingsPage() {
       />
 
       <div className="p-6 space-y-4">
-        <Link
-          to="/settings"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Settings
-        </Link>
+        <Breadcrumb
+          items={[
+            { label: 'Settings', href: '/settings' },
+            { label: 'Privacy' },
+          ]}
+        />
 
         <Card>
           <CardHeader>

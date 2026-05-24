@@ -9,7 +9,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  Spinner,
+  EmptyState,
+  Skeleton,
 } from '@/components/ui';
 import { transfersApi, type PendingTransfer } from '@/services/api';
 
@@ -72,8 +73,15 @@ export function TransfersPage() {
           </CardHeader>
           <CardContent>
             {isLoading && (
-              <div className="py-10 flex justify-center" data-testid="transfers-loading">
-                <Spinner size="lg" />
+              <div
+                className="space-y-2"
+                data-testid="transfers-loading"
+                role="status"
+                aria-label="Loading pending transfers"
+              >
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
               </div>
             )}
 
@@ -84,12 +92,13 @@ export function TransfersPage() {
             )}
 
             {!isLoading && !error && items.length === 0 && (
-              <p
-                className="text-sm text-muted-foreground py-8 text-center"
-                data-testid="transfers-empty"
-              >
-                No pending bank transfers. ✓
-              </p>
+              <div data-testid="transfers-empty">
+                <EmptyState
+                  icon={CheckCircle2}
+                  title="All caught up"
+                  description="No pending bank transfers right now. Manually-reconciled orders show up here when a customer pays by bank transfer."
+                />
+              </div>
             )}
 
             {items.length > 0 && (

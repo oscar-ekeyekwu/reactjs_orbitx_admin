@@ -9,8 +9,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  EmptyState,
   Input,
-  Spinner,
+  Skeleton,
 } from '@/components/ui';
 import { payoutsApi, type PendingPayout } from '@/services/api';
 
@@ -58,8 +59,15 @@ export function PayoutsPage() {
           </CardHeader>
           <CardContent>
             {isLoading && (
-              <div className="py-10 flex justify-center" data-testid="payouts-loading">
-                <Spinner size="lg" />
+              <div
+                className="space-y-2"
+                data-testid="payouts-loading"
+                role="status"
+                aria-label="Loading pending disbursements"
+              >
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
               </div>
             )}
 
@@ -70,12 +78,13 @@ export function PayoutsPage() {
             )}
 
             {!isLoading && !error && items.length === 0 && (
-              <p
-                className="text-sm text-muted-foreground py-8 text-center"
-                data-testid="payouts-empty"
-              >
-                No pending disbursements. ✓
-              </p>
+              <div data-testid="payouts-empty">
+                <EmptyState
+                  icon={CheckCircle2}
+                  title="All caught up"
+                  description="No pending manual disbursements. Recipients without a Paystack subaccount land here when their orders deliver."
+                />
+              </div>
             )}
 
             {items.length > 0 && (
