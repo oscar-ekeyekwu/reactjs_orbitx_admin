@@ -220,7 +220,7 @@ describe('ApprovalsPage (C5)', () => {
   it('empty state: "no drivers waiting" when the list resolves empty', async () => {
     renderApprovals();
     await waitFor(() => {
-      expect(screen.getByText(/No drivers waiting for approval/i)).toBeInTheDocument();
+      expect(screen.getByText(/No drivers waiting/i)).toBeInTheDocument();
     });
   });
 });

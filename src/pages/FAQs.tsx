@@ -26,7 +26,8 @@ import {
   Label,
   Textarea,
   Badge,
-  Spinner,
+  EmptyState,
+  Skeleton,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -186,7 +187,7 @@ export function FAQsPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="rounded-full bg-blue-100 p-2">
+              <div className="rounded-md bg-blue-100 p-2">
                 <HelpCircle className="h-5 w-5 text-blue-600" />
               </div>
               <div>
@@ -197,7 +198,7 @@ export function FAQsPage() {
           </Card>
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="rounded-full bg-green-100 p-2">
+              <div className="rounded-md bg-green-100 p-2">
                 <CheckCircle className="h-5 w-5 text-green-600" />
               </div>
               <div>
@@ -208,7 +209,7 @@ export function FAQsPage() {
           </Card>
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="rounded-full bg-gray-100 p-2">
+              <div className="rounded-md bg-gray-100 p-2">
                 <XCircle className="h-5 w-5 text-gray-500" />
               </div>
               <div>
@@ -270,17 +271,31 @@ export function FAQsPage() {
 
         {/* FAQs List */}
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Spinner size="lg" />
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 w-full" />
+            ))}
           </div>
         ) : !filteredFaqs?.length ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              {search || categoryFilter !== 'All'
-                ? 'No FAQs match your filters.'
-                : 'No FAQs found. Create your first FAQ to get started.'}
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={HelpCircle}
+            title={
+              search || categoryFilter !== 'All' ? 'No FAQs match' : 'No FAQs yet'
+            }
+            description={
+              search || categoryFilter !== 'All'
+                ? 'Try clearing the search or category filter.'
+                : 'Create your first FAQ to publish a help article for customers and drivers.'
+            }
+            action={
+              !search && categoryFilter === 'All' ? (
+                <Button onClick={() => setIsDialogOpen(true)} size="sm">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create FAQ
+                </Button>
+              ) : undefined
+            }
+          />
         ) : (
           <div className="space-y-4">
             {Object.entries(groupedFaqs || {}).map(([category, categoryFaqs]) => (

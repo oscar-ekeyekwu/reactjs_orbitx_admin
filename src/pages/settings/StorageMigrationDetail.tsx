@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeft,
   AlertCircle,
   CheckCircle2,
   ShieldCheck,
@@ -11,6 +10,7 @@ import {
 import { Header } from '@/components/layout';
 import {
   Badge,
+  Breadcrumb,
   Button,
   Card,
   CardContent,
@@ -156,14 +156,15 @@ export function StorageMigrationDetailPage() {
         }
       />
 
-      <div className="p-6 space-y-4">
-        <Link
-          to="/settings/storage/migrations"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to migrations
-        </Link>
+      <div className="p-4 space-y-4 md:p-6">
+        <Breadcrumb
+          items={[
+            { label: 'Settings', href: '/settings' },
+            { label: 'Storage', href: '/settings/storage' },
+            { label: 'Migrations', href: '/settings/storage/migrations' },
+            { label: id ? id.slice(0, 8) : 'Migration' },
+          ]}
+        />
 
         {migrationQuery.isLoading || !migration ? (
           <div className="flex justify-center py-12">

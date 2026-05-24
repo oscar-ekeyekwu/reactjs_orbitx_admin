@@ -13,6 +13,7 @@ import {
   UserCheck,
   UserX,
   ChevronRight,
+  Truck,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
@@ -31,7 +32,8 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-  Spinner,
+  EmptyState,
+  TableSkeleton,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -149,8 +151,8 @@ export function DriversPage() {
         {/* Filters & Actions */}
         <Card>
           <CardContent className="space-y-3 p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="relative flex-1 max-w-sm">
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div className="relative w-full sm:max-w-sm">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <Input
                   placeholder="Search drivers..."
@@ -159,7 +161,10 @@ export function DriversPage() {
                   className="pl-9"
                 />
               </div>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Button
+                onClick={() => setIsCreateDialogOpen(true)}
+                className="w-full sm:w-auto"
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Driver
               </Button>
@@ -228,12 +233,20 @@ export function DriversPage() {
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="flex justify-center py-12">
-                <Spinner size="lg" />
+              <div className="p-4">
+                <TableSkeleton rows={6} columns={5} />
               </div>
             ) : drivers.length === 0 ? (
-              <div className="py-12 text-center text-muted-foreground">
-                No drivers found
+              <div className="p-4">
+                <EmptyState
+                  icon={Truck}
+                  title="No drivers found"
+                  description={
+                    search || accountType || verificationStatus
+                      ? 'No drivers match the current filters. Try clearing them or searching with a different term.'
+                      : 'Add your first driver to start accepting orders. They’ll get an onboarding link via email.'
+                  }
+                />
               </div>
             ) : (
               <Table>

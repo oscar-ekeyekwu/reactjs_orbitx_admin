@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Bell, Save } from 'lucide-react';
+import { Bell, Save } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
+  Breadcrumb,
   Card,
   CardContent,
   CardDescription,
@@ -49,13 +49,13 @@ export function NotificationSettingsPage() {
       />
 
       <div className="p-6">
-        <Link
-          to="/settings"
-          className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Settings
-        </Link>
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: 'Settings', href: '/settings' },
+            { label: 'Notifications' },
+          ]}
+        />
 
         <div className="max-w-3xl">
           <Card className="mb-6 border-amber-200 bg-amber-50">

@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Ban, CheckCircle2 } from 'lucide-react';
+import { Ban, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
 import {
   Badge,
+  Breadcrumb,
   Button,
   Card,
   CardContent,
@@ -73,14 +74,13 @@ export function CompanyDetailPage() {
         subtitle={company ? `CAC ${company.cacNumber ?? '—'} · TIN ${company.tin ?? '—'}` : 'Loading…'}
       />
 
-      <div className="p-6 space-y-4">
-        <Link
-          to="/companies"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Companies
-        </Link>
+      <div className="p-4 space-y-4 md:p-6">
+        <Breadcrumb
+          items={[
+            { label: 'Companies', href: '/companies' },
+            { label: company?.legalName ?? 'Company' },
+          ]}
+        />
 
         {companyQuery.isLoading || !company ? (
           <div className="flex justify-center py-12">

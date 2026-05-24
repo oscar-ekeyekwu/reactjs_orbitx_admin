@@ -9,10 +9,11 @@ import {
   Button,
   Card,
   CardContent,
+  EmptyState,
   Input,
   Label,
   Select,
-  Spinner,
+  TableSkeleton,
   Table,
   TableBody,
   TableCell,
@@ -107,15 +108,16 @@ export function CompaniesPage() {
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="flex justify-center py-12">
-                <Spinner size="lg" />
+              <div className="p-4">
+                <TableSkeleton rows={6} columns={6} />
               </div>
             ) : filtered.length === 0 ? (
-              <div
-                data-testid="companies-empty"
-                className="py-12 text-center text-sm text-muted-foreground"
-              >
-                No companies match the current filters.
+              <div className="p-4" data-testid="companies-empty">
+                <EmptyState
+                  icon={Building2}
+                  title="No companies found"
+                  description="No companies match the current filters. Adjust the status, search, or page to widen the view."
+                />
               </div>
             ) : (
               <Table>

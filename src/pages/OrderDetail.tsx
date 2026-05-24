@@ -1,7 +1,6 @@
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeft,
   Package,
   MapPin,
   User,
@@ -16,11 +15,11 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Button,
   Badge,
   Avatar,
   AvatarFallback,
   AvatarImage,
+  Breadcrumb,
   Spinner,
   Select,
 } from '@/components/ui';
@@ -41,7 +40,6 @@ const statusColors: Record<
 
 export function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { data: order, isLoading } = useQuery({
@@ -88,14 +86,16 @@ export function OrderDetailPage() {
         subtitle={`#${order.id.slice(0, 8).toUpperCase()}`}
       />
 
-      <div className="p-6 space-y-6">
-        {/* Top bar */}
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Orders
-          </Button>
-          <div className="flex items-center gap-3">
+      <div className="p-4 space-y-6 md:p-6">
+        <Breadcrumb
+          items={[
+            { label: 'Orders', href: '/orders' },
+            { label: `#${order.id.slice(0, 8).toUpperCase()}` },
+          ]}
+        />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div />
+          <div className="flex flex-wrap items-center gap-3">
             <Badge variant={statusColors[order.status]} className="px-3 py-1 text-sm">
               {order.status.replace(/_/g, ' ')}
             </Badge>
@@ -108,7 +108,7 @@ export function OrderDetailPage() {
                     e.target.value = '';
                   }
                 }}
-                className="w-44"
+                className="w-full sm:w-44"
                 disabled={updateStatusMutation.isPending}
               >
                 <option value="">Update status…</option>

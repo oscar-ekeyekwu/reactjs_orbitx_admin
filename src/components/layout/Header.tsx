@@ -1,5 +1,4 @@
-import { Bell, Menu, Search } from 'lucide-react';
-import { Input } from '@/components/ui';
+import { Menu } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
 
 interface HeaderProps {
@@ -7,13 +6,19 @@ interface HeaderProps {
   subtitle?: string;
 }
 
+/**
+ * Page chrome — left-aligned hamburger (mobile only), title, optional
+ * subtitle. Previously also rendered a global Search input and a
+ * Notifications bell, both of which were decorative (no wiring); they
+ * triggered "is this broken?" reactions from admins and were removed.
+ * Wire-up replacements should reintroduce them as real surfaces, not
+ * placeholders.
+ */
 export function Header({ title, subtitle }: HeaderProps) {
   const openSidebar = useUIStore((s) => s.openSidebar);
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b bg-white px-4 md:px-6">
-      {/* Mobile hamburger — only visible below md where the sidebar
-          drawer is off-canvas. */}
+    <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b bg-white px-4 md:h-16 md:px-6">
       <button
         type="button"
         aria-label="Open menu"
@@ -24,7 +29,7 @@ export function Header({ title, subtitle }: HeaderProps) {
       </button>
 
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-lg font-semibold text-gray-900 md:text-xl">
+        <h1 className="truncate text-base font-semibold text-gray-900 md:text-xl">
           {title}
         </h1>
         {subtitle && (
@@ -32,25 +37,6 @@ export function Header({ title, subtitle }: HeaderProps) {
             {subtitle}
           </p>
         )}
-      </div>
-
-      <div className="flex items-center gap-2 md:gap-4">
-        {/* Search — hidden on small screens. The mobile UX uses
-            per-page filter inputs instead of this global chrome. */}
-        <div className="relative hidden lg:block">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <Input
-            type="search"
-            placeholder="Search..."
-            className="w-64 pl-9"
-          />
-        </div>
-
-        {/* Notifications */}
-        <button className="relative rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500" />
-        </button>
       </div>
     </header>
   );

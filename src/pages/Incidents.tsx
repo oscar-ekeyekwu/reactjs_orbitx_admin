@@ -8,9 +8,10 @@ import {
   Badge,
   Card,
   CardContent,
+  EmptyState,
   Label,
   Select,
-  Spinner,
+  TableSkeleton,
   Table,
   TableBody,
   TableCell,
@@ -71,15 +72,16 @@ export function IncidentsPage() {
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="flex justify-center py-12">
-                <Spinner size="lg" />
+              <div className="p-4">
+                <TableSkeleton rows={6} columns={5} />
               </div>
             ) : rows.length === 0 ? (
-              <div
-                data-testid="incidents-empty"
-                className="py-12 text-center text-sm text-muted-foreground"
-              >
-                No incidents recorded yet.
+              <div className="p-4" data-testid="incidents-empty">
+                <EmptyState
+                  icon={AlertOctagon}
+                  title="No incidents"
+                  description="Drivers can raise an SOS from inside an active delivery; nothing has been raised under the current filters."
+                />
               </div>
             ) : (
               <Table>

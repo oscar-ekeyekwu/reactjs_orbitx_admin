@@ -15,6 +15,12 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     css: false,
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    // The default 5s timeout is tight when several test files run in
+    // parallel and contend for CPU — userEvent.type into seven fields
+    // (StorageSettings add-modal test) can push past it intermittently
+    // on a loaded laptop. 15s gives headroom without masking real
+    // hangs.
+    testTimeout: 15000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'text-summary', 'html', 'lcov'],

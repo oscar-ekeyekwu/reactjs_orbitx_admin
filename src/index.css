@@ -46,7 +46,11 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 110 95% 56%;
-    --radius: 0.5rem;
+    /* Global corner radius. Cut from 0.5rem (8px) to 0.375rem (6px) so
+       cards / inputs / dialogs sit on the page instead of looking like
+       puffy AI-template chrome. Tokens derive from this: lg=6px,
+       md=4px, sm=2px. */
+    --radius: 0.375rem;
   }
 
   .dark {

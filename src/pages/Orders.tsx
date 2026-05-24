@@ -16,7 +16,8 @@ import {
   TableHead,
   TableCell,
   Badge,
-  Spinner,
+  EmptyState,
+  TableSkeleton,
   Select,
 } from "@/components/ui";
 import { ordersApi } from "@/services/api";
@@ -90,8 +91,8 @@ export function OrdersPage() {
         {/* Filters */}
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1 max-w-sm">
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <div className="relative w-full sm:max-w-sm sm:flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <Input
                   placeholder="Search by order ID or recipient..."
@@ -103,7 +104,7 @@ export function OrdersPage() {
               <Select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-40"
+                className="w-full sm:w-40"
               >
                 <option value="">All Status</option>
                 <option value="pending">Pending</option>
@@ -121,12 +122,20 @@ export function OrdersPage() {
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="flex justify-center py-12">
-                <Spinner size="lg" />
+              <div className="p-4">
+                <TableSkeleton rows={6} columns={5} />
               </div>
             ) : orders.length === 0 ? (
-              <div className="py-12 text-center text-muted-foreground">
-                No orders found
+              <div className="p-4">
+                <EmptyState
+                  icon={Package}
+                  title="No orders found"
+                  description={
+                    search || statusFilter || driverIdFilter
+                      ? 'No orders match the current filters. Try clearing them or widening the date range.'
+                      : 'Orders placed by customers in the mobile app will appear here as they come in.'
+                  }
+                />
               </div>
             ) : (
               <Table>

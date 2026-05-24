@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
 import {
-  ArrowLeft,
   CheckCircle2,
   AlertCircle,
   CreditCard,
@@ -15,6 +13,7 @@ import {
 import { Header } from '@/components/layout';
 import {
   Badge,
+  Breadcrumb,
   Button,
   Card,
   CardContent,
@@ -224,18 +223,15 @@ export function PaymentProvidersPage() {
         subtitle="Pluggable gateway registry. Swap or rotate credentials without a redeploy."
       />
 
-      <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between gap-4">
-          <Button
-            variant="ghost"
-            asChild
-            className="gap-2 text-muted-foreground"
-          >
-            <Link to="/settings">
-              <ArrowLeft className="h-4 w-4" /> Back to Settings
-            </Link>
-          </Button>
-          <Button onClick={openCreate} className="gap-2">
+      <div className="p-4 space-y-6 md:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Breadcrumb
+            items={[
+              { label: 'Settings', href: '/settings' },
+              { label: 'Payment Providers' },
+            ]}
+          />
+          <Button onClick={openCreate} className="w-full gap-2 sm:w-auto">
             <PlusCircle className="h-4 w-4" /> Add provider
           </Button>
         </div>

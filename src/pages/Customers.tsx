@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Search, Mail, Phone, Calendar } from 'lucide-react';
+import { Search, Mail, Phone, Calendar, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
 import {
@@ -19,7 +19,8 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-  Spinner,
+  EmptyState,
+  TableSkeleton,
 } from '@/components/ui';
 import { usersApi } from '@/services/api';
 
@@ -65,12 +66,20 @@ export function CustomersPage() {
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="flex justify-center py-12">
-                <Spinner size="lg" />
+              <div className="p-4">
+                <TableSkeleton rows={6} columns={5} />
               </div>
             ) : customers.length === 0 ? (
-              <div className="py-12 text-center text-muted-foreground">
-                No customers found
+              <div className="p-4">
+                <EmptyState
+                  icon={Users}
+                  title="No customers found"
+                  description={
+                    search
+                      ? 'No customers match this search. Try a different name, email, or phone.'
+                      : 'Customers who sign up in the mobile app will appear here.'
+                  }
+                />
               </div>
             ) : (
               <Table>

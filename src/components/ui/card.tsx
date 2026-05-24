@@ -8,7 +8,10 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-xl border bg-card text-card-foreground shadow",
+      // Token-driven radius (was hardcoded rounded-xl / 12px). Now
+      // reads from --radius-lg so cards align with inputs / buttons /
+      // dialogs visually.
+      "rounded-lg border bg-card text-card-foreground shadow-sm",
       className
     )}
     {...props}

@@ -17,6 +17,8 @@ import {
   Input,
   Button,
   Badge,
+  EmptyState,
+  Skeleton,
   Spinner,
   Select,
   Textarea,
@@ -143,7 +145,7 @@ export function SupportPage() {
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="rounded-full bg-yellow-100 p-2">
+              <div className="rounded-md bg-yellow-100 p-2">
                 <AlertCircle className="h-5 w-5 text-yellow-600" />
               </div>
               <div>
@@ -156,7 +158,7 @@ export function SupportPage() {
           </Card>
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="rounded-full bg-blue-100 p-2">
+              <div className="rounded-md bg-blue-100 p-2">
                 <Clock className="h-5 w-5 text-blue-600" />
               </div>
               <div>
@@ -169,7 +171,7 @@ export function SupportPage() {
           </Card>
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="rounded-full bg-green-100 p-2">
+              <div className="rounded-md bg-green-100 p-2">
                 <CheckCircle className="h-5 w-5 text-green-600" />
               </div>
               <div>
@@ -182,7 +184,7 @@ export function SupportPage() {
           </Card>
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="rounded-full bg-gray-100 p-2">
+              <div className="rounded-md bg-gray-100 p-2">
                 <MessageSquare className="h-5 w-5 text-gray-600" />
               </div>
               <div>
@@ -195,15 +197,21 @@ export function SupportPage() {
 
         {/* Tickets List */}
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Spinner size="lg" />
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 w-full" />
+            ))}
           </div>
         ) : tickets.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              No support tickets found
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={MessageSquare}
+            title="No support tickets"
+            description={
+              search || statusFilter !== 'all'
+                ? 'No tickets match the current filters. Clear them to see the full queue.'
+                : 'Users haven’t opened any tickets yet. New tickets land here when customers or drivers submit one in the mobile app.'
+            }
+          />
         ) : (
           <div className="space-y-4">
             {tickets.map((ticket) => (

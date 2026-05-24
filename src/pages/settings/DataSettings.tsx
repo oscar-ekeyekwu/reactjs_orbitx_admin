@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
-  ArrowLeft,
   Database,
   Users,
   Package,
@@ -10,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
+  Breadcrumb,
   Card,
   CardContent,
   CardDescription,
@@ -69,13 +68,13 @@ export function DataSettingsPage() {
       <Header title="Data Management" subtitle="Export data as CSV" />
 
       <div className="p-6">
-        <Link
-          to="/settings"
-          className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Settings
-        </Link>
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: 'Settings', href: '/settings' },
+            { label: 'Data Management' },
+          ]}
+        />
 
         <Card className="max-w-2xl">
           <CardHeader>

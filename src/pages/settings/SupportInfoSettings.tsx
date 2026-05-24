@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, MessageSquare, Save } from 'lucide-react';
+import { MessageSquare, Save } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
+  Breadcrumb,
   Button,
   Card,
   CardContent,
@@ -92,13 +92,13 @@ export function SupportInfoSettingsPage() {
       />
 
       <div className="p-6">
-        <Link
-          to="/settings"
-          className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Settings
-        </Link>
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: 'Settings', href: '/settings' },
+            { label: 'Support Contact Info' },
+          ]}
+        />
 
         {isLoading ? (
           <div className="flex justify-center py-12">
