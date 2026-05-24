@@ -30,6 +30,7 @@ export { IncidentsPage } from './Incidents';
 export { IncidentDetailPage } from './IncidentDetail';
 export { PrivacySettingsPage } from './settings/PrivacySettings';
 export { SupportInfoSettingsPage } from './settings/SupportInfoSettings';
+export { WalletFundTestPage } from './settings/WalletFundTest';
 export { ApprovalsPage } from './Approvals';
 export { TrackPage } from './Track';
 export { TransfersPage } from './Transfers';

@@ -70,3 +70,8 @@ export {
   type UpdatePaymentProviderDto,
   type PaymentProviderTestResult,
 } from './payment-providers';
+export {
+  walletTestApi,
+  type FundByAccountDto,
+  type FundByAccountResult,
+} from './wallet-test';
