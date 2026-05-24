@@ -19,28 +19,22 @@ import {
 } from '@/components/ui';
 import { supportInfoApi } from '@/services/api';
 
+// Empty defaults are supplied by `DEFAULTS` + `form.reset()`; using
+// `.default('')` here would make the schema's INPUT type optional
+// (`phone?: string`) while the OUTPUT stays required, which breaks
+// react-hook-form's Resolver<TFieldValues> typing under newer
+// @hookform/resolvers/zod versions.
 const supportInfoSchema = z.object({
-  phone: z
-    .string()
-    .trim()
-    .max(40, 'Keep phone under 40 characters')
-    .default(''),
-  email: z
-    .union([
-      z.string().trim().email('Enter a valid email address'),
-      z.literal(''),
-    ])
-    .default(''),
+  phone: z.string().trim().max(40, 'Keep phone under 40 characters'),
+  email: z.union([
+    z.string().trim().email('Enter a valid email address'),
+    z.literal(''),
+  ]),
   whatsapp: z
     .string()
     .trim()
-    .max(40, 'Keep WhatsApp number under 40 characters')
-    .default(''),
-  hours: z
-    .string()
-    .trim()
-    .max(120, 'Keep hours under 120 characters')
-    .default(''),
+    .max(40, 'Keep WhatsApp number under 40 characters'),
+  hours: z.string().trim().max(120, 'Keep hours under 120 characters'),
 });
 
 type SupportInfoFormData = z.infer<typeof supportInfoSchema>;
