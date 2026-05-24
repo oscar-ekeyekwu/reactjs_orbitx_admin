@@ -37,6 +37,7 @@ import {
   IncidentDetailPage,
   PrivacySettingsPage,
   SupportInfoSettingsPage,
+  WalletFundTestPage,
   ApprovalsPage,
   TrackPage,
   TransfersPage,
@@ -153,6 +154,10 @@ function App() {
             <Route
               path="/settings/support-info"
               element={<SupportInfoSettingsPage />}
+            />
+            <Route
+              path="/settings/wallet-fund-test"
+              element={<WalletFundTestPage />}
             />
           </Route>
 

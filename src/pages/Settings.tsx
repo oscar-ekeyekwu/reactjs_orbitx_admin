@@ -10,6 +10,7 @@ import {
   Lock,
   CreditCard,
   MessageSquare,
+  Wallet,
 } from 'lucide-react';
 import { Header } from '@/components/layout';
 import { Card, CardContent } from '@/components/ui';
@@ -72,6 +73,13 @@ const settingsLinks = [
       'Phone, email, WhatsApp, and hours shown to drivers and customers in the mobile apps.',
     href: '/settings/support-info',
     icon: MessageSquare,
+  },
+  {
+    name: 'Fund by Account (Test)',
+    description:
+      'Non-production tool — credit a driver wallet by virtual account number to rehearse the Paystack DVA funding flow end to end.',
+    href: '/settings/wallet-fund-test',
+    icon: Wallet,
   },
 ];
 
