@@ -385,7 +385,7 @@ export function DriversPage() {
             <DialogTitle>Onboard New Driver</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit(onCreateDriver)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="first_name">First Name</Label>
                 <Input id="first_name" {...register('first_name')} />
