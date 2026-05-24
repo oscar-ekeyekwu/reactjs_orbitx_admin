@@ -36,6 +36,7 @@ import {
   IncidentsPage,
   IncidentDetailPage,
   PrivacySettingsPage,
+  SupportInfoSettingsPage,
   ApprovalsPage,
   TrackPage,
   TransfersPage,
@@ -148,6 +149,10 @@ function App() {
             <Route
               path="/settings/payment-providers"
               element={<PaymentProvidersPage />}
+            />
+            <Route
+              path="/settings/support-info"
+              element={<SupportInfoSettingsPage />}
             />
           </Route>
 

@@ -143,6 +143,35 @@ export const faqApi = {
   },
 };
 
+// Support Contact Info — public-facing values shown in the customer
+// Contact Us screen and the driver Support screen. Read by any
+// authenticated user; updates restricted to admins by the backend.
+export interface SupportContactInfo {
+  phone: string;
+  email: string;
+  whatsapp: string;
+  hours: string;
+}
+
+export type UpdateSupportInfoDto = Partial<SupportContactInfo>;
+
+export const supportInfoApi = {
+  get: async (): Promise<SupportContactInfo> => {
+    const response = await apiClient.get<SupportContactInfo>(
+      '/config/support-info',
+    );
+    return response.data;
+  },
+
+  update: async (data: UpdateSupportInfoDto): Promise<SupportContactInfo> => {
+    const response = await apiClient.put<SupportContactInfo>(
+      '/config/support-info',
+      data,
+    );
+    return response.data;
+  },
+};
+
 // Driver & Order Settings
 export interface DriverSettingsDto {
   driverMinBalance?: number;
