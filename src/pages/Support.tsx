@@ -242,7 +242,7 @@ export function SupportPage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {format(new Date(ticket.createdAt), 'MMM d, HH:mm')}
+                          {format(new Date(ticket.createdAt), 'MMM d, h:mm a')}
                         </div>
                         {ticket.orderId && (
                           <div>Order: #{ticket.orderId.slice(0, 8)}</div>
@@ -315,7 +315,7 @@ export function SupportPage() {
                 </div>
                 <div>
                   <p className="font-medium text-muted-foreground">Created</p>
-                  <p>{format(new Date(selectedTicket.createdAt), 'MMM d, yyyy HH:mm')}</p>
+                  <p>{format(new Date(selectedTicket.createdAt), 'MMM d, yyyy h:mm a')}</p>
                 </div>
               </div>
 

@@ -563,7 +563,7 @@ function ProviderCard({
           </div>
           <div>
             <span className="text-muted-foreground">Updated</span>{' '}
-            {new Date(row.updatedAt).toLocaleString()}
+            {new Date(row.updatedAt).toLocaleString(undefined, { hour12: true })}
           </div>
         </div>
 

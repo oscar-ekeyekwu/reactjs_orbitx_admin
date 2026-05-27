@@ -269,7 +269,7 @@ function AuditRow({ row }: { row: AuditDecision }) {
   return (
     <TableRow data-testid={`audit-row-${row.id}`}>
       <TableCell className="whitespace-nowrap text-xs">
-        {new Date(row.decidedAt).toLocaleString()}
+        {new Date(row.decidedAt).toLocaleString(undefined, { hour12: true })}
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-2">

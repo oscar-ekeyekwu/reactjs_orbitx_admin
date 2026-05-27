@@ -239,7 +239,7 @@ function SessionsCard() {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {session.ipAddress ?? 'Unknown IP'} · Signed in{' '}
-                      {format(new Date(session.createdAt), 'MMM d, yyyy HH:mm')}
+                      {format(new Date(session.createdAt), 'MMM d, yyyy h:mm a')}
                     </p>
                   </div>
                   <Button

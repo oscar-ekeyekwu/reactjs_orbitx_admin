@@ -184,11 +184,11 @@ export function StorageMigrationDetailPage() {
                   </span>
                 </CardTitle>
                 <CardDescription>
-                  Queued {new Date(migration.queuedAt).toLocaleString()} ·
+                  Queued {new Date(migration.queuedAt).toLocaleString(undefined, { hour12: true })} ·
                   Anchored at{' '}
                   {new Date(
                     migration.queuedUntilCreatedAt,
-                  ).toLocaleString()}{' '}
+                  ).toLocaleString(undefined, { hour12: true })}{' '}
                   · Batch size {migration.batchSize}
                 </CardDescription>
               </CardHeader>
@@ -299,7 +299,7 @@ export function StorageMigrationDetailPage() {
                             {f.errorMessage}
                           </TableCell>
                           <TableCell className="text-xs whitespace-nowrap">
-                            {new Date(f.createdAt).toLocaleString()}
+                            {new Date(f.createdAt).toLocaleString(undefined, { hour12: true })}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -361,7 +361,7 @@ export function StorageMigrationDetailPage() {
                             {d.errorMessage ?? ''}
                           </TableCell>
                           <TableCell className="text-xs whitespace-nowrap">
-                            {new Date(d.deletedAt).toLocaleString()}
+                            {new Date(d.deletedAt).toLocaleString(undefined, { hour12: true })}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -521,7 +521,7 @@ function VerifyAndDeleteCard({
                 Deleted at{' '}
                 {new Date(
                   migration.sourceDeletedAt as string,
-                ).toLocaleString()}{' '}
+                ).toLocaleString(undefined, { hour12: true })}{' '}
                 · {deletionsCount} per-document rows
               </span>
             ) : verifyHasGaps ? (

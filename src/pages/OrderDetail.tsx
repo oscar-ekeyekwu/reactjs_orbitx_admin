@@ -228,7 +228,7 @@ export function OrderDetailPage() {
                         <div className="text-muted-foreground shrink-0">{event.icon}</div>
                         <span className="w-24 shrink-0 text-muted-foreground">{event.label}</span>
                         <span className="font-medium">
-                          {format(new Date(event.time!), 'MMM d, yyyy HH:mm')}
+                          {format(new Date(event.time!), 'MMM d, yyyy h:mm a')}
                         </span>
                       </div>
                     ))}
