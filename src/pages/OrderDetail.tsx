@@ -252,6 +252,19 @@ export function OrderDetailPage() {
                     ₦{Number(order.estimatedPrice).toLocaleString()}
                   </span>
                 </div>
+                {order.insuranceFee != null && Number(order.insuranceFee) > 0 && (
+                  <div className="flex justify-between">
+                    <span
+                      className="text-muted-foreground"
+                      title="Debited from the rider's wallet at settlement"
+                    >
+                      Rider insurance
+                    </span>
+                    <span className="font-medium">
+                      ₦{Number(order.insuranceFee).toLocaleString()}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between border-t pt-3">
                   <span className="text-muted-foreground">Final</span>
                   <span className="font-semibold text-base">

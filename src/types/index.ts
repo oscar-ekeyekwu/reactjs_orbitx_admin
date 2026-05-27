@@ -59,6 +59,9 @@ export interface Order {
   deliveryNotes?: string;
   estimatedPrice: string | number;
   finalPrice?: string | number | null;
+  /** Per-delivery insurance fee debited from the rider on settlement.
+   *  Null when insurance is disabled for the order. */
+  insuranceFee?: string | number | null;
   acceptedAt?: string;
   pickedUpAt?: string;
   deliveredAt?: string;
@@ -102,6 +105,11 @@ export interface PriceSettings {
   smallPackageMultiplier: number;
   mediumPackageMultiplier: number;
   largePackageMultiplier: number;
+  // Insurance fee debited to the rider per completed delivery.
+  // Percent (0–100) takes precedence when > 0, otherwise fixed
+  // applies. Both 0 = insurance disabled.
+  insuranceFeeFixed: number;
+  insuranceFeePercent: number;
 }
 
 // FAQ types
