@@ -468,7 +468,7 @@ function DriversTab({
                   {d.company ? ` · ${d.company.legalName}` : ''}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Submitted {new Date(d.updatedAt).toLocaleString()}
+                  Submitted {new Date(d.updatedAt).toLocaleString(undefined, { hour12: true })}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -529,7 +529,7 @@ function VehiclesTab({
                   {v.color ?? 'no color'}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Submitted {new Date(v.updatedAt).toLocaleString()}
+                  Submitted {new Date(v.updatedAt).toLocaleString(undefined, { hour12: true })}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -586,7 +586,7 @@ function CompaniesTab({
                   CAC {c.cacNumber ?? '—'} · TIN {c.tin ?? '—'}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Submitted {new Date(c.createdAt).toLocaleString()}
+                  Submitted {new Date(c.createdAt).toLocaleString(undefined, { hour12: true })}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -718,7 +718,7 @@ function DocumentsTab({
                       <div className="min-w-0">
                         <p className="font-medium truncate">{d.type}</p>
                         <p className="text-xs text-muted-foreground">
-                          Uploaded {new Date(d.createdAt).toLocaleString()}
+                          Uploaded {new Date(d.createdAt).toLocaleString(undefined, { hour12: true })}
                           {d.expiryDate ? ` · expires ${d.expiryDate}` : ''}
                         </p>
                       </div>

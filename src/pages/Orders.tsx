@@ -201,7 +201,7 @@ export function OrdersPage() {
                       <TableCell>
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <Clock className="h-3 w-3" />
-                          {format(new Date(order.createdAt), "MMM d, HH:mm")}
+                          {format(new Date(order.createdAt), "MMM d, h:mm a")}
                         </div>
                       </TableCell>
                     </TableRow>

@@ -228,7 +228,7 @@ export function OrderDetailPage() {
                         <div className="text-muted-foreground shrink-0">{event.icon}</div>
                         <span className="w-24 shrink-0 text-muted-foreground">{event.label}</span>
                         <span className="font-medium">
-                          {format(new Date(event.time!), 'MMM d, yyyy HH:mm')}
+                          {format(new Date(event.time!), 'MMM d, yyyy h:mm a')}
                         </span>
                       </div>
                     ))}
@@ -252,6 +252,19 @@ export function OrderDetailPage() {
                     ₦{Number(order.estimatedPrice).toLocaleString()}
                   </span>
                 </div>
+                {order.insuranceFee != null && Number(order.insuranceFee) > 0 && (
+                  <div className="flex justify-between">
+                    <span
+                      className="text-muted-foreground"
+                      title="Debited from the rider's wallet at settlement"
+                    >
+                      Rider insurance
+                    </span>
+                    <span className="font-medium">
+                      ₦{Number(order.insuranceFee).toLocaleString()}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between border-t pt-3">
                   <span className="text-muted-foreground">Final</span>
                   <span className="font-semibold text-base">

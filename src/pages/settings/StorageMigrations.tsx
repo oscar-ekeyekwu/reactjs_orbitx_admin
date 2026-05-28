@@ -107,7 +107,7 @@ export function StorageMigrationsPage() {
                       {m.failedCount}
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-xs">
-                      {new Date(m.queuedAt).toLocaleString()}
+                      {new Date(m.queuedAt).toLocaleString(undefined, { hour12: true })}
                     </TableCell>
                     <TableCell>
                       <Link

@@ -114,7 +114,7 @@ export function PrivacySettingsPage() {
                 <p>
                   Deletion scheduled at{' '}
                   <strong>
-                    {new Date(deletionScheduledAt).toLocaleString()}
+                    {new Date(deletionScheduledAt).toLocaleString(undefined, { hour12: true })}
                   </strong>
                   . You can cancel within 30 days.
                 </p>

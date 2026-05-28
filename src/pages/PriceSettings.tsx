@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Save, DollarSign, Package, Truck } from 'lucide-react';
+import { Save, DollarSign, Package, Truck, ShieldCheck } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
   Card,
@@ -34,6 +34,12 @@ const priceSettingsSchema = z.object({
   largePackageMultiplier: nonNeg.refine((v) => v >= 0, {
     message: 'Must be 0 or greater',
   }),
+  insuranceFeeFixed: nonNeg.refine((v) => v >= 0, {
+    message: 'Must be 0 or greater',
+  }),
+  insuranceFeePercent: nonNeg.refine((v) => v >= 0 && v <= 100, {
+    message: 'Must be between 0 and 100',
+  }),
 });
 
 type PriceSettingsFormData = z.infer<typeof priceSettingsSchema>;
@@ -44,6 +50,8 @@ const PRICE_DEFAULTS: PriceSettingsFormData = {
   smallPackageMultiplier: 0,
   mediumPackageMultiplier: 0,
   largePackageMultiplier: 0,
+  insuranceFeeFixed: 0,
+  insuranceFeePercent: 0,
 };
 
 const driverSettingsSchema = z.object({
@@ -96,6 +104,8 @@ export function PriceSettingsPage() {
         smallPackageMultiplier: settings.smallPackageMultiplier,
         mediumPackageMultiplier: settings.mediumPackageMultiplier,
         largePackageMultiplier: settings.largePackageMultiplier,
+        insuranceFeeFixed: settings.insuranceFeeFixed,
+        insuranceFeePercent: settings.insuranceFeePercent,
       });
     }
   }, [settings, priceForm]);
@@ -262,6 +272,66 @@ export function PriceSettingsPage() {
                   {priceErrors.largePackageMultiplier && (
                     <p className="text-sm text-red-500">
                       {priceErrors.largePackageMultiplier.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Rider insurance fee */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5" />
+                Rider Insurance Fee
+              </CardTitle>
+              <CardDescription>
+                Per-delivery insurance fee debited from the rider's wallet at
+                settlement. Percent takes precedence when &gt; 0, otherwise the
+                fixed amount applies. Leave both at 0 to disable.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="insuranceFeeFixed">Fixed Amount (₦)</Label>
+                  <Input
+                    id="insuranceFeeFixed"
+                    type="number"
+                    step="1"
+                    min="0"
+                    {...priceForm.register('insuranceFeeFixed', {
+                      valueAsNumber: true,
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Flat fee per completed delivery.
+                  </p>
+                  {priceErrors.insuranceFeeFixed && (
+                    <p className="text-sm text-red-500">
+                      {priceErrors.insuranceFeeFixed.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="insuranceFeePercent">Percent of Order (%)</Label>
+                  <Input
+                    id="insuranceFeePercent"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    {...priceForm.register('insuranceFeePercent', {
+                      valueAsNumber: true,
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Percentage of estimated order price. Wins over fixed when &gt; 0.
+                  </p>
+                  {priceErrors.insuranceFeePercent && (
+                    <p className="text-sm text-red-500">
+                      {priceErrors.insuranceFeePercent.message}
                     </p>
                   )}
                 </div>

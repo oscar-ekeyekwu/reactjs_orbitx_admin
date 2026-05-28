@@ -55,6 +55,8 @@ export interface UpdatePriceSettingsDto {
   smallPackageMultiplier?: number;
   mediumPackageMultiplier?: number;
   largePackageMultiplier?: number;
+  insuranceFeeFixed?: number;
+  insuranceFeePercent?: number;
 }
 
 export const priceSettingsApi = {

@@ -898,7 +898,7 @@ export function StorageSettingsPage() {
 
 function formatDate(iso: string): string {
   try {
-    return new Date(iso).toLocaleString();
+    return new Date(iso).toLocaleString(undefined, { hour12: true });
   } catch {
     return iso;
   }
