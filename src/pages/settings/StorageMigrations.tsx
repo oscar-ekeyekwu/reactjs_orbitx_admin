@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { HardDrive } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
-  Badge,
   Breadcrumb,
   Card,
   CardContent,
@@ -19,8 +18,8 @@ import {
 import {
   storageMigrationsApi,
   storageProvidersApi,
-  type StorageMigrationStatus,
 } from '@/services/api';
+import { StatusBadge } from './storage/StatusBadge';
 
 export function StorageMigrationsPage() {
   const migrationsQuery = useQuery({
@@ -107,7 +106,9 @@ export function StorageMigrationsPage() {
                       {m.failedCount}
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-xs">
-                      {new Date(m.queuedAt).toLocaleString(undefined, { hour12: true })}
+                      {new Date(m.queuedAt).toLocaleString(undefined, {
+                        hour12: true,
+                      })}
                     </TableCell>
                     <TableCell>
                       <Link
@@ -127,33 +128,3 @@ export function StorageMigrationsPage() {
     </div>
   );
 }
-
-function StatusBadge({
-  status,
-  dryRun,
-}: {
-  status: StorageMigrationStatus;
-  dryRun: boolean;
-}) {
-  const palette: Record<
-    StorageMigrationStatus,
-    { label: string; variant: 'default' | 'secondary' | 'destructive' }
-  > = {
-    queued: { label: 'Queued', variant: 'secondary' },
-    running: { label: 'Running', variant: 'default' },
-    paused: { label: 'Paused', variant: 'secondary' },
-    completed: { label: 'Completed', variant: 'default' },
-    completed_with_errors: {
-      label: 'Completed (errors)',
-      variant: 'destructive',
-    },
-  };
-  const p = palette[status];
-  return (
-    <span className="inline-flex items-center gap-1">
-      <Badge variant={p.variant}>{p.label}</Badge>
-      {dryRun && <Badge variant="secondary">dry run</Badge>}
-    </span>
-  );
-}
-
