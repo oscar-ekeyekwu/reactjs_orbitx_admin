@@ -10,14 +10,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui';
 import { meApi } from '@/services/api/me';
+import { DeleteAccountDialog } from './privacy/DeleteAccountDialog';
 
 export function PrivacySettingsPage() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -146,40 +141,12 @@ export function PrivacySettingsPage() {
         </Card>
       </div>
 
-      <Dialog
+      <DeleteAccountDialog
         open={deleteConfirmOpen}
         onOpenChange={setDeleteConfirmOpen}
-      >
-        <DialogContent data-testid="privacy-delete-confirm">
-          <DialogHeader>
-            <DialogTitle>Request account deletion?</DialogTitle>
-            <DialogDescription>
-              Your account will be marked for deletion. You have 30 days to
-              cancel from the Privacy page before the row is anonymised.
-              Past orders stay in our records but are stripped of personally
-              identifying fields.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteConfirmOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              data-testid="privacy-delete-confirm-submit"
-              onClick={() => deleteMutation.mutate()}
-              disabled={deleteMutation.isPending}
-            >
-              {deleteMutation.isPending
-                ? 'Scheduling…'
-                : 'Yes, schedule deletion'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onConfirm={() => deleteMutation.mutate()}
+        pending={deleteMutation.isPending}
+      />
     </div>
   );
 }

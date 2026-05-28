@@ -8,7 +8,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  Label,
   Spinner,
 } from '@/components/ui';
 import {
@@ -16,6 +15,8 @@ import {
   type FeatureFlags,
   type VehicleEditGraceMode,
 } from '@/services/api';
+import { FeatureToggle } from './feature-flags/FeatureToggle';
+import { GraceModeOption } from './feature-flags/GraceModeOption';
 
 export function FeatureFlagsSettingsPage() {
   const queryClient = useQueryClient();
@@ -150,109 +151,5 @@ export function FeatureFlagsSettingsPage() {
         </div>
       </div>
     </div>
-  );
-}
-
-interface FeatureToggleProps {
-  id: string;
-  label: string;
-  description: string;
-  checked: boolean;
-  pending: boolean;
-  error: boolean;
-  success: boolean;
-  onToggle: () => void;
-}
-
-function FeatureToggle({
-  id,
-  label,
-  description,
-  checked,
-  pending,
-  error,
-  success,
-  onToggle,
-}: FeatureToggleProps) {
-  return (
-    <div className="flex items-start justify-between gap-4 py-2">
-      <div className="space-y-1">
-        <Label htmlFor={id}>{label}</Label>
-        <p className="text-xs text-muted-foreground">{description}</p>
-        {success && <p className="text-xs text-green-600">Saved</p>}
-        {error && (
-          <p className="text-xs text-red-500">
-            Could not save. Please try again.
-          </p>
-        )}
-      </div>
-      <button
-        id={id}
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label={`Toggle ${label}`}
-        onClick={onToggle}
-        disabled={pending}
-        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-          checked ? 'bg-green-500' : 'bg-gray-300'
-        }`}
-      >
-        <span
-          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-            checked ? 'translate-x-5' : 'translate-x-0.5'
-          }`}
-        />
-      </button>
-    </div>
-  );
-}
-
-interface GraceModeOptionProps {
-  id: string;
-  value: VehicleEditGraceMode;
-  label: string;
-  description: string;
-  checked: boolean;
-  disabled: boolean;
-  onChange: () => void;
-}
-
-function GraceModeOption({
-  id,
-  value,
-  label,
-  description,
-  checked,
-  disabled,
-  onChange,
-}: GraceModeOptionProps) {
-  return (
-    <label
-      htmlFor={id}
-      data-testid={id}
-      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
-        checked
-          ? 'border-primary bg-primary/5'
-          : 'border-border hover:bg-muted/50'
-      } ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
-    >
-      <input
-        id={id}
-        type="radio"
-        name="vehicleEditGraceMode"
-        value={value}
-        checked={checked}
-        disabled={disabled}
-        onChange={onChange}
-        className="mt-1 h-4 w-4"
-      />
-      <div className="space-y-0.5">
-        <Label htmlFor={id} className="cursor-pointer">
-          {label}
-        </Label>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </div>
-    </label>
   );
 }
