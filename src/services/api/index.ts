@@ -75,3 +75,8 @@ export {
   type FundByAccountDto,
   type FundByAccountResult,
 } from './wallet-test';
+export {
+  mapsSettingsApi,
+  type MapsSettings,
+  type UpdateMapsSettingsDto,
+} from './maps-settings';

@@ -9,6 +9,7 @@ import {
   HardDrive,
   Lock,
   CreditCard,
+  Map,
   MessageSquare,
   Wallet,
 } from 'lucide-react';
@@ -80,6 +81,13 @@ const settingsLinks = [
       'Non-production tool — credit a driver wallet by virtual account number to rehearse the Paystack DVA funding flow end to end.',
     href: '/settings/wallet-fund-test',
     icon: Wallet,
+  },
+  {
+    name: 'Maps API Key',
+    description:
+      'Google Maps Platform key used by the customer address autocomplete + geocoding proxy. Rotate any time without an APK rebuild.',
+    href: '/settings/maps',
+    icon: Map,
   },
 ];
 

@@ -38,6 +38,7 @@ import {
   PrivacySettingsPage,
   SupportInfoSettingsPage,
   WalletFundTestPage,
+  MapsSettingsPage,
   ApprovalsPage,
   TrackPage,
   TransfersPage,
@@ -158,6 +159,10 @@ function App() {
             <Route
               path="/settings/wallet-fund-test"
               element={<WalletFundTestPage />}
+            />
+            <Route
+              path="/settings/maps"
+              element={<MapsSettingsPage />}
             />
           </Route>
 
