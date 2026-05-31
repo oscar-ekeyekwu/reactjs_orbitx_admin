@@ -181,12 +181,23 @@ export interface DriverSettingsDto {
   // G5 — platform commission percentage. Range [0, 100]; the backend
   // enforces the bounds + the wallet split helper double-checks them.
   driverCommissionPct?: number;
+  // Per-order platform charge held from the driver's prepaid wallet on
+  // accept. Mode picks which inputs apply: 'flat' uses driverChargeFlat;
+  // 'percentage' uses driverChargePercentage capped by driverChargeCap.
+  driverChargeMode?: 'flat' | 'percentage';
+  driverChargeFlat?: number;
+  driverChargePercentage?: number;
+  driverChargeCap?: number;
 }
 
 export interface DriverSettings {
   driverMinBalance: number;
   orderDeliveryRadiusKm: number;
   driverCommissionPct: number;
+  driverChargeMode: 'flat' | 'percentage';
+  driverChargeFlat: number;
+  driverChargePercentage: number;
+  driverChargeCap: number;
 }
 
 export const driverSettingsApi = {

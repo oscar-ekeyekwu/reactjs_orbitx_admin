@@ -657,7 +657,7 @@ function DocumentsTab({
   pendingApproveId: string | null;
   anyApprovePending: boolean;
 }) {
-  const items = query.data ?? [];
+  const items = useMemo(() => query.data ?? [], [query.data]);
   const buckets = useMemo(() => groupDocsByOwner(items), [items]);
 
   return (

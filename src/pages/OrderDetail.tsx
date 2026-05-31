@@ -265,6 +265,20 @@ export function OrderDetailPage() {
                     </span>
                   </div>
                 )}
+                {order.platformCharge != null &&
+                  Number(order.platformCharge) > 0 && (
+                    <div className="flex justify-between">
+                      <span
+                        className="text-muted-foreground"
+                        title="Held from the driver's prepaid wallet on accept"
+                      >
+                        Driver charge (held)
+                      </span>
+                      <span className="font-medium">
+                        ₦{Number(order.platformCharge).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
                 <div className="flex justify-between border-t pt-3">
                   <span className="text-muted-foreground">Final</span>
                   <span className="font-semibold text-base">

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ShieldCheck, Save } from 'lucide-react';
 import { Header } from '@/components/layout';
@@ -35,10 +35,18 @@ export function IdDocumentTypesSettingsPage() {
     queryFn: idTypesApi.list,
   });
 
+  // Seed the editable draft from server data, re-seeding whenever the
+  // server value changes identity. Adjusting state during render (React's
+  // documented pattern) avoids the cascading re-render an effect would
+  // cause — https://react.dev/learn/you-might-not-need-an-effect
   const [draft, setDraft] = useState<DocumentType[]>([]);
-  useEffect(() => {
-    if (data?.allowed) setDraft(data.allowed);
-  }, [data]);
+  const [seededFrom, setSeededFrom] = useState<DocumentType[] | undefined>(
+    undefined,
+  );
+  if (data?.allowed && data.allowed !== seededFrom) {
+    setSeededFrom(data.allowed);
+    setDraft(data.allowed);
+  }
 
   const mutation = useMutation({
     mutationFn: (allowed: DocumentType[]) => idTypesApi.update(allowed),

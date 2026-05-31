@@ -66,6 +66,9 @@ export interface Order {
   /** Per-delivery insurance fee debited from the rider on settlement.
    *  Null when insurance is disabled for the order. */
   insuranceFee?: string | number | null;
+  /** Per-order platform charge held from the driver's prepaid wallet on
+   *  accept. Null on pre-migration orders. */
+  platformCharge?: string | number | null;
   acceptedAt?: string;
   pickedUpAt?: string;
   deliveredAt?: string;
