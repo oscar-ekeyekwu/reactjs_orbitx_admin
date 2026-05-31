@@ -16,6 +16,10 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   name: string;
+  // DR-NEW — last 4 digits of the driver's BVN, surfaced for masked
+  // admin display. Null until the driver has saved one via PUT /me/bvn.
+  bvnLast4?: string | null;
+  bvnUpdatedAt?: string | null;
 }
 
 export interface AuthResponse {

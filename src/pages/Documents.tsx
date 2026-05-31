@@ -21,14 +21,25 @@ import {
 } from '@/components/ui';
 import {
   adminDocumentsApi,
+  documentTypeLabel,
   expiryBand,
+  DOCUMENT_TYPE_LABEL,
   type DocumentOwnerType,
   type DocumentStatus,
+  type DocumentType,
   type ExpiryBand,
 } from '@/services/api/documents';
 
 const STATUSES: DocumentStatus[] = ['pending', 'approved', 'rejected', 'expired'];
 const OWNER_TYPES: DocumentOwnerType[] = ['user', 'vehicle', 'company'];
+// All catalogued types, surfaced in the filter dropdown. Sorted by
+// label so the picker reads naturally; the slug stays as the option
+// value so the URL ?type=… matches the backend.
+const DOC_TYPE_OPTIONS = (Object.keys(DOCUMENT_TYPE_LABEL) as DocumentType[])
+  .slice()
+  .sort((a, b) =>
+    DOCUMENT_TYPE_LABEL[a].localeCompare(DOCUMENT_TYPE_LABEL[b]),
+  );
 const EXPIRY_WINDOWS = [
   { label: 'Any', value: '' },
   { label: 'Next 7 days', value: '7' },
@@ -48,6 +59,8 @@ export function DocumentsPage() {
     (searchParams.get('ownerType') as DocumentOwnerType | null) ?? '';
   const statusFromUrl =
     (searchParams.get('status') as DocumentStatus | null) ?? '';
+  const typeFromUrl =
+    (searchParams.get('type') as DocumentType | null) ?? '';
   const expiringFromUrl = searchParams.get('expiringInDays') ?? '';
 
   const setUrlParam = (key: string, value: string) => {
@@ -69,9 +82,16 @@ export function DocumentsPage() {
       ...(statusFromUrl ? { status: statusFromUrl } : {}),
       ...(ownerTypeFromUrl ? { ownerType: ownerTypeFromUrl } : {}),
       ...(ownerIdFilter ? { ownerId: ownerIdFilter } : {}),
+      ...(typeFromUrl ? { type: typeFromUrl } : {}),
       ...(expiringFromUrl ? { expiringInDays: Number(expiringFromUrl) } : {}),
     }),
-    [statusFromUrl, ownerTypeFromUrl, ownerIdFilter, expiringFromUrl],
+    [
+      statusFromUrl,
+      ownerTypeFromUrl,
+      ownerIdFilter,
+      typeFromUrl,
+      expiringFromUrl,
+    ],
   );
 
   const { data, isLoading } = useQuery({
@@ -111,7 +131,7 @@ export function DocumentsPage() {
 
         <Card>
           <CardContent className="p-4">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-1">
                 <Label htmlFor="doc-status">Status</Label>
                 <Select
@@ -140,6 +160,22 @@ export function DocumentsPage() {
                   {OWNER_TYPES.map((t) => (
                     <option key={t} value={t}>
                       {t}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="doc-type">Document type</Label>
+                <Select
+                  id="doc-type"
+                  data-testid="documents-filter-type"
+                  value={typeFromUrl}
+                  onChange={(e) => setUrlParam('type', e.target.value)}
+                >
+                  <option value="">All</option>
+                  {DOC_TYPE_OPTIONS.map((t) => (
+                    <option key={t} value={t}>
+                      {DOCUMENT_TYPE_LABEL[t]}
                     </option>
                   ))}
                 </Select>
@@ -201,7 +237,9 @@ export function DocumentsPage() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <FileText className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{d.type}</span>
+                          <span className="font-medium">
+                            {documentTypeLabel(d.type)}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell className="text-xs">

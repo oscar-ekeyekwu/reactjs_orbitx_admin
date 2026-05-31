@@ -7,10 +7,16 @@ export type DocumentStatus = 'pending' | 'approved' | 'rejected' | 'expired';
 export type DocumentType =
   | 'drivers_license'
   | 'nin'
+  | 'passport'
+  | 'voters_card'
   | 'proof_of_address'
   | 'vehicle_registration'
+  | 'vehicle_license'
+  | 'vehicle_photo'
   | 'roadworthy'
   | 'insurance'
+  // LASDRI / Rider's Card. Slug stays for back-compat; admin UI
+  // labels it "Rider's Card (LASDRI)."
   | 'lasaa_permit'
   | 'nipost_license'
   | 'cac_certificate'
@@ -18,6 +24,32 @@ export type DocumentType =
   | 'gov_id'
   | 'director_id'
   | 'selfie';
+
+/** Friendly labels shared across admin pages so the same slug
+ *  renders identically everywhere. */
+export const DOCUMENT_TYPE_LABEL: Record<DocumentType, string> = {
+  drivers_license: "Driver's License",
+  nin: 'NIN',
+  passport: 'International Passport',
+  voters_card: "Voter's Card",
+  proof_of_address: 'Proof of Address',
+  vehicle_registration: 'Vehicle Registration',
+  vehicle_license: 'Vehicle License',
+  vehicle_photo: 'Vehicle Photo',
+  roadworthy: 'Road Worthiness',
+  insurance: 'Insurance',
+  lasaa_permit: "Rider's Card (LASDRI)",
+  nipost_license: 'NIPOST License',
+  cac_certificate: 'CAC Certificate',
+  tin_certificate: 'TIN Certificate',
+  gov_id: 'Government ID',
+  director_id: 'Director ID',
+  selfie: 'Selfie',
+};
+
+export function documentTypeLabel(type: DocumentType | string): string {
+  return DOCUMENT_TYPE_LABEL[type as DocumentType] ?? type;
+}
 
 export interface AdminDocument {
   id: string;

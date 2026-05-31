@@ -70,6 +70,13 @@ const settingsGroups: SettingsGroup[] = [
         href: '/settings/support-info',
         icon: MessageSquare,
       },
+      {
+        name: 'ID Document Types',
+        description:
+          'Which identity documents the driver setup wizard offers in the ID picker (NIN, Driver’s License, Passport, Voter’s Card).',
+        href: '/settings/id-document-types',
+        icon: Shield,
+      },
     ],
   },
   {
