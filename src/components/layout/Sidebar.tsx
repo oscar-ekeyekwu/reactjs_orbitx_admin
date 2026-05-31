@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -133,8 +133,12 @@ export function Sidebar() {
 
   // Auto-expand whichever section owns the current route so the active
   // link is always visible. Persisted user preference still wins for
-  // other sections.
-  useEffect(() => {
+  // other sections. Done by adjusting state during render (keyed on the
+  // pathname) rather than in an effect, which avoids the cascading
+  // re-render — https://react.dev/learn/you-might-not-need-an-effect
+  const [autoExpandedFor, setAutoExpandedFor] = useState<string | null>(null);
+  if (location.pathname !== autoExpandedFor) {
+    setAutoExpandedFor(location.pathname);
     setCollapsed((prev) => {
       const next = new Set(prev);
       for (const section of navigation) {
@@ -146,7 +150,7 @@ export function Sidebar() {
       persistCollapsedSections(next);
       return next;
     });
-  }, [location.pathname]);
+  }
 
   const toggle = (label: string) => {
     setCollapsed((prev) => {

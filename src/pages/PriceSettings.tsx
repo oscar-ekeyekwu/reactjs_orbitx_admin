@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Save, DollarSign, Package, Truck, ShieldCheck } from 'lucide-react';
@@ -54,19 +54,51 @@ const PRICE_DEFAULTS: PriceSettingsFormData = {
   insuranceFeePercent: 0,
 };
 
-const driverSettingsSchema = z.object({
-  driverMinBalance: nonNeg.refine((v) => v >= 0, {
-    message: 'Must be 0 or greater',
-  }),
-  orderDeliveryRadiusKm: nonNeg.refine((v) => v >= 1, {
-    message: 'Must be at least 1',
-  }),
-  // G5 — platform commission percentage. Backend rejects anything
-  // outside [0, 100]; the form mirrors the same bounds.
-  driverCommissionPct: nonNeg.refine((v) => v >= 0 && v <= 100, {
-    message: 'Must be between 0 and 100',
-  }),
-});
+const driverSettingsSchema = z
+  .object({
+    driverMinBalance: nonNeg.refine((v) => v >= 0, {
+      message: 'Must be 0 or greater',
+    }),
+    orderDeliveryRadiusKm: nonNeg.refine((v) => v >= 1, {
+      message: 'Must be at least 1',
+    }),
+    // G5 — platform commission percentage. Backend rejects anything
+    // outside [0, 100]; the form mirrors the same bounds.
+    driverCommissionPct: nonNeg.refine((v) => v >= 0 && v <= 100, {
+      message: 'Must be between 0 and 100',
+    }),
+    // Per-order platform charge. Mode selects which inputs apply.
+    driverChargeMode: z.enum(['flat', 'percentage']),
+    driverChargeFlat: nonNeg.refine((v) => v >= 0, {
+      message: 'Must be 0 or greater',
+    }),
+    driverChargePercentage: nonNeg.refine((v) => v >= 0 && v <= 100, {
+      message: 'Must be between 0 and 100',
+    }),
+    driverChargeCap: nonNeg.refine((v) => v >= 0, {
+      message: 'Must be 0 or greater',
+    }),
+  })
+  .superRefine((data, ctx) => {
+    // Require a meaningful value for the active mode.
+    if (data.driverChargeMode === 'flat' && data.driverChargeFlat <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['driverChargeFlat'],
+        message: 'Enter a flat charge greater than 0',
+      });
+    }
+    if (
+      data.driverChargeMode === 'percentage' &&
+      data.driverChargePercentage <= 0
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['driverChargePercentage'],
+        message: 'Enter a percentage greater than 0',
+      });
+    }
+  });
 
 type DriverSettingsFormData = z.infer<typeof driverSettingsSchema>;
 
@@ -74,6 +106,10 @@ const DRIVER_DEFAULTS: DriverSettingsFormData = {
   driverMinBalance: 0,
   orderDeliveryRadiusKm: 1,
   driverCommissionPct: 15,
+  driverChargeMode: 'flat',
+  driverChargeFlat: 0,
+  driverChargePercentage: 0,
+  driverChargeCap: 0,
 };
 
 export function PriceSettingsPage() {
@@ -131,12 +167,23 @@ export function PriceSettingsPage() {
     defaultValues: DRIVER_DEFAULTS,
   });
 
+  // useWatch (vs driverForm.watch) so the React Compiler can memoize this
+  // component — watch() returns a fresh function each render.
+  const chargeMode = useWatch({
+    control: driverForm.control,
+    name: 'driverChargeMode',
+  });
+
   useEffect(() => {
     if (driverSettings) {
       driverForm.reset({
         driverMinBalance: driverSettings.driverMinBalance,
         orderDeliveryRadiusKm: driverSettings.orderDeliveryRadiusKm,
         driverCommissionPct: driverSettings.driverCommissionPct,
+        driverChargeMode: driverSettings.driverChargeMode ?? 'flat',
+        driverChargeFlat: driverSettings.driverChargeFlat ?? 0,
+        driverChargePercentage: driverSettings.driverChargePercentage ?? 0,
+        driverChargeCap: driverSettings.driverChargeCap ?? 0,
       });
     }
   }, [driverSettings, driverForm]);
@@ -435,6 +482,109 @@ export function PriceSettingsPage() {
                     </p>
                   )}
                 </div>
+              </div>
+
+              <div className="space-y-4 border-t pt-4">
+                <div className="space-y-1">
+                  <Label htmlFor="driverChargeMode">
+                    Per-order charge (held from driver wallet on accept)
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Customers pay the driver in cash; the platform deducts
+                    this charge from the driver&apos;s prepaid balance when
+                    they accept an order. Drivers below an order&apos;s charge
+                    can&apos;t see or accept it.
+                  </p>
+                  <select
+                    id="driverChargeMode"
+                    data-testid="driver-charge-mode-select"
+                    className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    {...driverForm.register('driverChargeMode')}
+                  >
+                    <option value="flat">Flat amount (₦)</option>
+                    <option value="percentage">
+                      Percentage of order price (with cap)
+                    </option>
+                  </select>
+                </div>
+
+                {chargeMode === 'flat' ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="driverChargeFlat">Flat charge (₦)</Label>
+                    <Input
+                      id="driverChargeFlat"
+                      data-testid="driver-charge-flat-input"
+                      type="number"
+                      step="1"
+                      min="0"
+                      {...driverForm.register('driverChargeFlat', {
+                        valueAsNumber: true,
+                      })}
+                    />
+                    {driverForm.formState.errors.driverChargeFlat && (
+                      <p
+                        data-testid="driver-charge-flat-error"
+                        className="text-xs text-red-600"
+                      >
+                        {driverForm.formState.errors.driverChargeFlat.message}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="driverChargePercentage">
+                        Charge percentage (%)
+                      </Label>
+                      <Input
+                        id="driverChargePercentage"
+                        data-testid="driver-charge-percentage-input"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        {...driverForm.register('driverChargePercentage', {
+                          valueAsNumber: true,
+                        })}
+                      />
+                      {driverForm.formState.errors.driverChargePercentage && (
+                        <p
+                          data-testid="driver-charge-percentage-error"
+                          className="text-xs text-red-600"
+                        >
+                          {
+                            driverForm.formState.errors.driverChargePercentage
+                              .message
+                          }
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="driverChargeCap">Charge cap (₦)</Label>
+                      <Input
+                        id="driverChargeCap"
+                        data-testid="driver-charge-cap-input"
+                        type="number"
+                        step="1"
+                        min="0"
+                        {...driverForm.register('driverChargeCap', {
+                          valueAsNumber: true,
+                        })}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Maximum charge per order. 0 = no cap.
+                      </p>
+                      {driverForm.formState.errors.driverChargeCap && (
+                        <p
+                          data-testid="driver-charge-cap-error"
+                          className="text-xs text-red-600"
+                        >
+                          {driverForm.formState.errors.driverChargeCap.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
