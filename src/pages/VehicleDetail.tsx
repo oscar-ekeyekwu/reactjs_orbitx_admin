@@ -34,6 +34,7 @@ import {
   type VehicleStatus,
 } from '@/services/api/vehicles';
 import { auditLogApi } from '@/services/api/audit-log';
+import { adminDocumentsApi, documentTypeLabel } from '@/services/api/documents';
 import { VehicleStatusBadge } from './Vehicles';
 
 export function VehicleDetailPage() {
@@ -50,6 +51,12 @@ export function VehicleDetailPage() {
   const auditQuery = useQuery({
     queryKey: ['admin-vehicle-audit', id],
     queryFn: () => auditLogApi.findByTarget('vehicle', id),
+    enabled: !!id,
+  });
+  const docsQuery = useQuery({
+    queryKey: ['admin-vehicle-docs', id],
+    queryFn: () =>
+      adminDocumentsApi.list({ ownerType: 'vehicle', ownerId: id }),
     enabled: !!id,
   });
   const transitionMutation = useMutation({
@@ -161,6 +168,73 @@ export function VehicleDetailPage() {
                   label="Updated"
                   value={format(new Date(vehicle.updatedAt), 'PPp')}
                 />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Vehicle documents</CardTitle>
+                <CardDescription>
+                  Vehicle license, insurance, road worthiness, and the
+                  registration-plate photo uploaded by the driver.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                {docsQuery.isLoading ? (
+                  <div className="flex justify-center py-6">
+                    <Spinner size="sm" />
+                  </div>
+                ) : (docsQuery.data ?? []).length === 0 ? (
+                  <p
+                    data-testid="vehicle-docs-empty"
+                    className="px-6 py-4 text-sm text-muted-foreground"
+                  >
+                    No documents uploaded for this vehicle yet.
+                  </p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Expiry</TableHead>
+                        <TableHead>Uploaded</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(docsQuery.data ?? []).map((d) => (
+                        <TableRow
+                          key={d.id}
+                          data-testid={`vehicle-doc-row-${d.id}`}
+                        >
+                          <TableCell className="font-medium">
+                            {documentTypeLabel(d.type)}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                d.status === 'approved'
+                                  ? 'success'
+                                  : d.status === 'rejected' ||
+                                      d.status === 'expired'
+                                    ? 'destructive'
+                                    : 'secondary'
+                              }
+                            >
+                              {d.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {d.expiryDate ?? '—'}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {format(new Date(d.createdAt), 'MMM d, yyyy')}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
 

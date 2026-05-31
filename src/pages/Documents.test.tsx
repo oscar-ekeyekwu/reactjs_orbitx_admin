@@ -72,7 +72,8 @@ describe('DocumentsPage (H5)', () => {
     listMock.mockResolvedValueOnce([doc()]);
     renderPage();
     const row = await screen.findByTestId('documents-row-d-1');
-    expect(row.textContent).toMatch(/drivers_license/);
+    // Friendly label replaces the slug per documentTypeLabel().
+    expect(row.textContent).toMatch(/Driver's License/);
     // Far-future expiry → green pill.
     expect(
       row.querySelector('[data-testid="expiry-pill-green"]'),

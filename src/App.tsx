@@ -37,6 +37,7 @@ import {
   IncidentDetailPage,
   PrivacySettingsPage,
   SupportInfoSettingsPage,
+  IdDocumentTypesSettingsPage,
   WalletFundTestPage,
   MapsSettingsPage,
   ApprovalsPage,
@@ -163,6 +164,10 @@ function App() {
             <Route
               path="/settings/maps"
               element={<MapsSettingsPage />}
+            />
+            <Route
+              path="/settings/id-document-types"
+              element={<IdDocumentTypesSettingsPage />}
             />
           </Route>
 

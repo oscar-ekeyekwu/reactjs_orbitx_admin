@@ -38,6 +38,7 @@ import {
   TableCell,
 } from '@/components/ui';
 import { usersApi, ordersApi, adminDocumentsApi } from '@/services/api';
+import { documentTypeLabel } from '@/services/api/documents';
 import type { OrderStatus } from '@/types';
 
 const statusColors: Record<
@@ -360,7 +361,40 @@ export function DriverDetailPage() {
           </CardContent>
         </Card>
 
-        {/* KYC documents — inline so an admin can scan status without a click-through. */}
+        {/* BVN — last 4 digits + when the driver last updated it. */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              Bank Verification Number (BVN)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {driver.bvnLast4 ? (
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-mono text-base">
+                    •••••••{driver.bvnLast4}
+                  </p>
+                  {driver.bvnUpdatedAt && (
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Updated{' '}
+                      {format(new Date(driver.bvnUpdatedAt), 'MMM d, yyyy h:mm a')}
+                    </p>
+                  )}
+                </div>
+                <Badge variant="success">On file</Badge>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Driver hasn’t provided a BVN yet.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* KYC documents grouped by purpose so an admin can scan
+            Identity, Rider's Card and Selfie sections at a glance. */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
@@ -378,40 +412,87 @@ export function DriverDetailPage() {
                 No documents uploaded yet.
               </p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Expiry</TableHead>
-                    <TableHead>Uploaded</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {docs.map((d) => (
-                    <TableRow
-                      key={d.id}
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => navigate(`/documents/${d.id}`)}
-                    >
-                      <TableCell className="font-medium capitalize">
-                        {d.type.replace(/_/g, ' ')}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={docStatusVariant(d.status)}>
-                          {d.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {d.expiryDate ?? '—'}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {format(new Date(d.createdAt), 'MMM d, yyyy')}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              (() => {
+                const ID_TYPES = new Set([
+                  'nin',
+                  'drivers_license',
+                  'passport',
+                  'voters_card',
+                  'gov_id',
+                ]);
+                const groups: Array<{
+                  label: string;
+                  docs: typeof docs;
+                }> = [
+                  {
+                    label: 'Identity',
+                    docs: docs.filter((d) => ID_TYPES.has(d.type)),
+                  },
+                  {
+                    label: 'Selfie',
+                    docs: docs.filter((d) => d.type === 'selfie'),
+                  },
+                  {
+                    label: "Rider's Card (LASDRI)",
+                    docs: docs.filter((d) => d.type === 'lasaa_permit'),
+                  },
+                  {
+                    label: 'Other',
+                    docs: docs.filter(
+                      (d) =>
+                        !ID_TYPES.has(d.type) &&
+                        d.type !== 'selfie' &&
+                        d.type !== 'lasaa_permit',
+                    ),
+                  },
+                ].filter((g) => g.docs.length > 0);
+
+                return (
+                  <div className="divide-y">
+                    {groups.map((g) => (
+                      <div key={g.label} className="p-4">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          {g.label}
+                        </p>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Type</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Expiry</TableHead>
+                              <TableHead>Uploaded</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {g.docs.map((d) => (
+                              <TableRow
+                                key={d.id}
+                                className="cursor-pointer hover:bg-muted/50"
+                                onClick={() => navigate(`/documents/${d.id}`)}
+                              >
+                                <TableCell className="font-medium">
+                                  {documentTypeLabel(d.type)}
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={docStatusVariant(d.status)}>
+                                    {d.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {d.expiryDate ?? '—'}
+                                </TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {format(new Date(d.createdAt), 'MMM d, yyyy')}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()
             )}
           </CardContent>
         </Card>
