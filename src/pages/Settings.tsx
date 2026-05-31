@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Bell,
   Shield,
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Header } from '@/components/layout';
 import { Card, CardContent } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 type SettingsLink = {
   name: string;
@@ -25,6 +26,7 @@ type SettingsLink = {
 };
 
 type SettingsGroup = {
+  id: string;
   title: string;
   description: string;
   links: SettingsLink[];
@@ -32,6 +34,7 @@ type SettingsGroup = {
 
 const settingsGroups: SettingsGroup[] = [
   {
+    id: 'general',
     title: 'General',
     description: 'Dashboard appearance and notification templates.',
     links: [
@@ -50,6 +53,7 @@ const settingsGroups: SettingsGroup[] = [
     ],
   },
   {
+    id: 'product',
     title: 'Product',
     description: 'Configuration that affects the customer and driver apps.',
     links: [
@@ -69,6 +73,7 @@ const settingsGroups: SettingsGroup[] = [
     ],
   },
   {
+    id: 'integrations',
     title: 'Integrations',
     description: 'Third-party providers and API keys. Rotate without a redeploy.',
     links: [
@@ -96,6 +101,7 @@ const settingsGroups: SettingsGroup[] = [
     ],
   },
   {
+    id: 'security-data',
     title: 'Security & Data',
     description: 'Access controls, compliance, and data lifecycle.',
     links: [
@@ -121,6 +127,7 @@ const settingsGroups: SettingsGroup[] = [
     ],
   },
   {
+    id: 'developer-tools',
     title: 'Developer Tools',
     description: 'Non-production utilities for rehearsing integrations.',
     links: [
@@ -136,51 +143,86 @@ const settingsGroups: SettingsGroup[] = [
 ];
 
 export function SettingsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const activeGroup =
+    settingsGroups.find((g) => g.id === tabParam) ?? settingsGroups[0];
+
+  const selectTab = (id: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('tab', id);
+    setSearchParams(next, { replace: true });
+  };
+
   return (
     <div>
       <Header title="Settings" subtitle="Manage your application settings" />
 
       <div className="p-4 md:p-6">
-        <div className="max-w-2xl space-y-8">
-          {settingsGroups.map((group) => (
-            <section key={group.title} aria-labelledby={`settings-${group.title}`}>
-              <div className="mb-2 px-1">
-                <h2
-                  id={`settings-${group.title}`}
-                  className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+        <div className="max-w-2xl">
+          <div
+            role="tablist"
+            aria-label="Settings categories"
+            className="-mx-1 mb-4 flex gap-1 overflow-x-auto border-b border-border px-1"
+          >
+            {settingsGroups.map((group) => {
+              const isActive = group.id === activeGroup.id;
+              return (
+                <button
+                  key={group.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-controls={`settings-panel-${group.id}`}
+                  id={`settings-tab-${group.id}`}
+                  onClick={() => selectTab(group.id)}
+                  className={cn(
+                    'whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium transition-colors -mb-px',
+                    isActive
+                      ? 'border-primary text-foreground'
+                      : 'border-transparent text-muted-foreground hover:text-foreground',
+                  )}
                 >
                   {group.title}
-                </h2>
-                <p className="mt-0.5 text-sm text-muted-foreground/80">
-                  {group.description}
-                </p>
-              </div>
-              <div className="space-y-2">
-                {group.links.map((item) => (
-                  <Link key={item.name} to={item.href} className="group block">
-                    <Card className="border-transparent bg-white shadow-none transition-all hover:border-border hover:bg-gray-50 focus-within:border-border focus-within:ring-2 focus-within:ring-ring/40">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-4">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">
-                            <item.icon className="h-4 w-4" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <h3 className="font-medium leading-tight">
-                              {item.name}
-                            </h3>
-                            <p className="mt-0.5 text-sm text-muted-foreground">
-                              {item.description}
-                            </p>
-                          </div>
-                          <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+                </button>
+              );
+            })}
+          </div>
+
+          <section
+            key={activeGroup.id}
+            role="tabpanel"
+            id={`settings-panel-${activeGroup.id}`}
+            aria-labelledby={`settings-tab-${activeGroup.id}`}
+          >
+            <p className="mb-3 px-1 text-sm text-muted-foreground">
+              {activeGroup.description}
+            </p>
+            <div className="space-y-2">
+              {activeGroup.links.map((item) => (
+                <Link key={item.name} to={item.href} className="group block">
+                  <Card className="border-transparent bg-white shadow-none transition-all hover:border-border hover:bg-gray-50 focus-within:border-border focus-within:ring-2 focus-within:ring-ring/40">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                          <item.icon className="h-4 w-4" />
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          ))}
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-medium leading-tight">
+                            {item.name}
+                          </h3>
+                          <p className="mt-0.5 text-sm text-muted-foreground">
+                            {item.description}
+                          </p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </section>
         </div>
       </div>
     </div>
