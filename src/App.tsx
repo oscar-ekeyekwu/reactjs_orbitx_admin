@@ -10,6 +10,7 @@ import {
   CustomersPage,
   CustomerDetailPage,
   DriversPage,
+  LiveDriversPage,
   DriverDetailPage,
   OrdersPage,
   OrderDetailPage,
@@ -93,6 +94,7 @@ function App() {
             <Route path="/customers" element={<CustomersPage />} />
             <Route path="/customers/:id" element={<CustomerDetailPage />} />
             <Route path="/drivers" element={<DriversPage />} />
+            <Route path="/drivers/live" element={<LiveDriversPage />} />
             <Route path="/drivers/:id" element={<DriverDetailPage />} />
             <Route path="/approvals" element={<ApprovalsPage />} />
             <Route path="/audit-log" element={<AuditLogPage />} />

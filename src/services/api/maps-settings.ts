@@ -28,4 +28,17 @@ export const mapsSettingsApi = {
     );
     return res.data;
   },
+
+  /**
+   * Plaintext key for admin browser surfaces that need to load the
+   * Google Maps JS library (Live Drivers map). The key is bound to a
+   * URL parameter in the loaded `<script>` anyway, so returning it
+   * here is no greater exposure than the rendered page.
+   */
+  getKey: async (): Promise<{ apiKey: string }> => {
+    const res = await apiClient.get<{ apiKey: string }>(
+      '/config/maps-settings/key',
+    );
+    return res.data;
+  },
 };

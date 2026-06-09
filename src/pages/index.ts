@@ -4,6 +4,7 @@ export { CustomersPage } from './Customers';
 export { CustomerDetailPage } from './CustomerDetail';
 export { DriversPage } from './Drivers';
 export { DriverDetailPage } from './DriverDetail';
+export { LiveDriversPage } from './LiveDrivers';
 export { OrdersPage } from './Orders';
 export { OrderDetailPage } from './OrderDetail';
 export { PriceSettingsPage } from './PriceSettings';
