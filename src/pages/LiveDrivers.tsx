@@ -219,11 +219,21 @@ export function LiveDriversPage() {
                               )}
                             </p>
                           </div>
-                          {d.isOnDelivery ? (
-                            <Badge variant="warning">On delivery</Badge>
-                          ) : (
-                            <Badge variant="success">Idle</Badge>
-                          )}
+                          <div className="flex flex-col items-end gap-1">
+                            {d.isOnDelivery ? (
+                              <Badge variant="warning">On delivery</Badge>
+                            ) : (
+                              <Badge variant="success">Idle</Badge>
+                            )}
+                            {d.verificationStatus === 'approved' && (
+                              <Badge
+                                variant="destructive"
+                                title="Driver is approved but not active; orders won't fan out to them. Re-approve or transition to active."
+                              >
+                                approved (stuck)
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </button>
                     );
