@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import {
   Package,
   MapPin,
@@ -7,6 +8,7 @@ import {
   Clock,
   CheckCircle,
   Truck,
+  Megaphone,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
@@ -22,6 +24,7 @@ import {
   Breadcrumb,
   Spinner,
   Select,
+  Button,
 } from '@/components/ui';
 import { ordersApi } from '@/services/api';
 import type { OrderStatus } from '@/types';
@@ -53,6 +56,40 @@ export function OrderDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['order', id] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+  });
+
+  const [rebroadcastFeedback, setRebroadcastFeedback] = useState<
+    { kind: 'ok' | 'err'; text: string } | null
+  >(null);
+  const [rebroadcastCooldown, setRebroadcastCooldown] = useState(0);
+
+  useEffect(() => {
+    if (rebroadcastCooldown <= 0) return;
+    const t = setTimeout(
+      () => setRebroadcastCooldown((s) => Math.max(0, s - 1)),
+      1000,
+    );
+    return () => clearTimeout(t);
+  }, [rebroadcastCooldown]);
+
+  const rebroadcastMutation = useMutation({
+    mutationFn: () => ordersApi.rebroadcast(id!),
+    onSuccess: () => {
+      setRebroadcastFeedback({
+        kind: 'ok',
+        text: 'Re-notified eligible drivers.',
+      });
+      setRebroadcastCooldown(30);
+    },
+    onError: (err: unknown) => {
+      const e = err as { response?: { data?: { message?: string } } };
+      setRebroadcastFeedback({
+        kind: 'err',
+        text:
+          e.response?.data?.message ??
+          'Could not rebroadcast. Try again in a moment.',
+      });
     },
   });
 
@@ -94,11 +131,41 @@ export function OrderDetailPage() {
           ]}
         />
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div />
+          <div className="flex flex-col gap-1">
+            {rebroadcastFeedback && (
+              <span
+                className={
+                  rebroadcastFeedback.kind === 'ok'
+                    ? 'text-xs text-green-600'
+                    : 'text-xs text-destructive'
+                }
+              >
+                {rebroadcastFeedback.text}
+              </span>
+            )}
+          </div>
           <div className="flex flex-wrap items-center gap-3">
             <Badge variant={statusColors[order.status]} className="px-3 py-1 text-sm">
               {order.status.replace(/_/g, ' ')}
             </Badge>
+            {order.status === 'pending' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => rebroadcastMutation.mutate()}
+                disabled={
+                  rebroadcastMutation.isPending || rebroadcastCooldown > 0
+                }
+                title="Re-fire the eligible-drivers fanout (push + socket) for this order"
+              >
+                <Megaphone className="h-4 w-4 mr-1.5" />
+                {rebroadcastMutation.isPending
+                  ? 'Notifying…'
+                  : rebroadcastCooldown > 0
+                    ? `Try again in ${rebroadcastCooldown}s`
+                    : 'Rebroadcast'}
+              </Button>
+            )}
             {!isFinal && (
               <Select
                 value=""
