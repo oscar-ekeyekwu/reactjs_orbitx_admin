@@ -42,4 +42,19 @@ export const ordersApi = {
     });
     return response.data;
   },
+
+  /**
+   * Re-fire the eligible-drivers fanout for a PENDING order. Admin
+   * ops-side affordance for unsticking unaccepted orders. Backend
+   * enforces status=pending + a 30s cooldown per order.
+   */
+  rebroadcast: async (
+    id: string,
+  ): Promise<{ orderId: string; broadcastAt: string }> => {
+    const response = await apiClient.post<{
+      orderId: string;
+      broadcastAt: string;
+    }>(`/orders/${id}/rebroadcast`);
+    return response.data;
+  },
 };
