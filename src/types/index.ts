@@ -72,6 +72,24 @@ export interface Order {
   acceptedAt?: string;
   pickedUpAt?: string;
   deliveredAt?: string;
+  /** Phase 3 — payment lifecycle on the order. paymentStatus values
+   *  expand the legacy union to include pending_transfer +
+   *  customer_marked_paid so the admin UI can label and timeline
+   *  the offline-payment loop. */
+  paymentMethod?: 'cash' | 'card' | 'bank_transfer' | 'wallet';
+  paymentStatus?:
+    | 'pending'
+    | 'pending_cash'
+    | 'pending_transfer'
+    | 'customer_marked_paid'
+    | 'completed'
+    | 'failed';
+  customerMarkedPaidAt?: string | null;
+  paymentConfirmedAt?: string | null;
+  /** Storage URL for the customer's transfer screenshot, when
+   *  uploaded. The admin Order detail page renders this as a
+   *  clickable thumbnail for dispute resolution. */
+  paymentProofUrl?: string | null;
   createdAt: string;
   updatedAt: string;
   customer?: User;

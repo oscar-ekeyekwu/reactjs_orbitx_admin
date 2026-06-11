@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import {
   Package,
   MapPin,
@@ -7,6 +8,9 @@ import {
   Clock,
   CheckCircle,
   Truck,
+  Wallet,
+  ImageIcon,
+  X,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Header } from '@/components/layout';
@@ -290,6 +294,13 @@ export function OrderDetailPage() {
               </CardContent>
             </Card>
 
+            {/* Phase 3 — Payment loop visibility. Renders the offline
+                bank-transfer status, the two timestamps the customer
+                and driver respectively trigger, and the customer's
+                proof screenshot (when uploaded) as a clickable
+                thumbnail for dispute resolution. */}
+            <PaymentSection order={order} />
+
             {/* Customer */}
             {order.customer && (
               <Card>
@@ -359,5 +370,147 @@ export function OrderDetailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Phase 3 — surfaces the bank-transfer payment loop on the admin
+ * order detail. Renders four pieces of state:
+ *
+ *   1. paymentMethod + paymentStatus pill
+ *   2. customerMarkedPaidAt timestamp (when set)
+ *   3. paymentConfirmedAt timestamp (when set)
+ *   4. paymentProofUrl thumbnail (when uploaded) — click expands
+ *      to a full-size overlay so dispute investigations don't
+ *      need a separate storage console trip.
+ *
+ * Always renders so admins can see "no payment data yet" as easily
+ * as a confirmed one — the absence itself is information when ops
+ * are working a dispute.
+ */
+function PaymentSection({
+  order,
+}: {
+  order: import('@/types').Order;
+}) {
+  const [proofOpen, setProofOpen] = useState(false);
+  const proofUrl = order.paymentProofUrl ?? null;
+  const status = order.paymentStatus ?? 'pending_cash';
+
+  return (
+    <>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Wallet className="h-4 w-4 text-muted-foreground" />
+            Payment
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">Status</span>
+            <PaymentStatusBadge status={status} />
+          </div>
+          {order.paymentMethod && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Method</span>
+              <span className="font-medium capitalize">
+                {order.paymentMethod.replace(/_/g, ' ')}
+              </span>
+            </div>
+          )}
+          {order.customerMarkedPaidAt && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Customer marked paid</span>
+              <span className="font-medium">
+                {format(new Date(order.customerMarkedPaidAt), 'MMM d, h:mm a')}
+              </span>
+            </div>
+          )}
+          {order.paymentConfirmedAt && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Driver confirmed receipt</span>
+              <span className="font-medium">
+                {format(new Date(order.paymentConfirmedAt), 'MMM d, h:mm a')}
+              </span>
+            </div>
+          )}
+
+          {/* Proof image — only renders when uploaded. Empty state
+              "—" would clutter the card for the 99% of orders
+              without a proof. */}
+          {proofUrl && (
+            <div className="border-t pt-3">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                Transfer screenshot
+              </p>
+              <button
+                type="button"
+                onClick={() => setProofOpen(true)}
+                className="flex items-center gap-3 w-full text-left hover:opacity-80 transition-opacity"
+              >
+                <img
+                  src={proofUrl}
+                  alt="Customer transfer proof"
+                  className="h-16 w-16 object-cover rounded-md border"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium flex items-center gap-1">
+                    <ImageIcon className="h-3.5 w-3.5" />
+                    View full size
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    Uploaded by the customer at mark-paid time.
+                  </p>
+                </div>
+              </button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {proofOpen && proofUrl && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setProofOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setProofOpen(false);
+            }}
+            className="absolute top-4 right-4 text-white p-2"
+            aria-label="Close preview"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <img
+            src={proofUrl}
+            alt="Customer transfer proof"
+            className="max-h-[90vh] max-w-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+    </>
+  );
+}
+
+function PaymentStatusBadge({ status }: { status: string }) {
+  const variant: 'default' | 'secondary' | 'success' | 'warning' | 'destructive' | 'info' =
+    status === 'completed'
+      ? 'success'
+      : status === 'customer_marked_paid'
+        ? 'warning'
+        : status === 'pending_transfer'
+          ? 'info'
+          : status === 'failed'
+            ? 'destructive'
+            : 'secondary';
+  return (
+    <Badge variant={variant} className="capitalize">
+      {status.replace(/_/g, ' ')}
+    </Badge>
   );
 }
