@@ -80,3 +80,4 @@ export {
   type MapsSettings,
   type UpdateMapsSettingsDto,
 } from './maps-settings';
+export { orderRequestsApi, type OpenRequestRow } from './orderRequests';

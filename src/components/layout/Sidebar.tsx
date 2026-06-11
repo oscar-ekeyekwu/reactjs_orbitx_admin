@@ -20,6 +20,7 @@ import {
   AlertOctagon,
   ChevronDown,
   MapPin,
+  Megaphone,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -54,6 +55,7 @@ const navigation: NavSection[] = [
     label: 'Operations',
     items: [
       { name: 'Live Drivers', href: '/drivers/live', icon: MapPin },
+      { name: 'Live Requests', href: '/requests/live', icon: Megaphone },
       { name: 'Orders', href: '/orders', icon: Package },
       { name: 'Vehicles', href: '/vehicles', icon: Car },
       { name: 'Documents', href: '/documents', icon: FileText },
