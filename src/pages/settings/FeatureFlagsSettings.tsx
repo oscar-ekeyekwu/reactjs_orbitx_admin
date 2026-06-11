@@ -95,6 +95,32 @@ export function FeatureFlagsSettingsPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <ShieldCheck className="h-5 w-5" />
+                    Payment proof
+                  </CardTitle>
+                  <CardDescription>
+                    Whether customers must attach a screenshot of their bank
+                    transfer when marking an order paid. Drivers see the
+                    image inline before confirming receipt.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <FeatureToggle
+                    id="orderPaymentProofRequired"
+                    label="Require proof of transfer"
+                    description="When on, the customer mobile blocks the I've-paid action until a screenshot is attached. When off, attaching is still allowed but optional."
+                    checked={flags?.orderPaymentProofRequired ?? false}
+                    pending={mutation.isPending}
+                    error={mutation.isError}
+                    success={mutation.isSuccess}
+                    onToggle={() => toggle('orderPaymentProofRequired')}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ShieldCheck className="h-5 w-5" />
                     Vehicle edit grace mode
                   </CardTitle>
                   <CardDescription>
