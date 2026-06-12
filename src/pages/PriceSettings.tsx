@@ -78,6 +78,11 @@ const driverSettingsSchema = z
     driverChargeCap: nonNeg.refine((v) => v >= 0, {
       message: 'Must be 0 or greater',
     }),
+    maxOrdersPerDriver: nonNeg
+      .refine((v) => Number.isInteger(v), {
+        message: 'Must be a whole number',
+      })
+      .refine((v) => v >= 0, { message: 'Must be 0 or greater' }),
   })
   .superRefine((data, ctx) => {
     // Require a meaningful value for the active mode.
@@ -110,6 +115,7 @@ const DRIVER_DEFAULTS: DriverSettingsFormData = {
   driverChargeFlat: 0,
   driverChargePercentage: 0,
   driverChargeCap: 0,
+  maxOrdersPerDriver: 1,
 };
 
 export function PriceSettingsPage() {
@@ -184,6 +190,7 @@ export function PriceSettingsPage() {
         driverChargeFlat: driverSettings.driverChargeFlat ?? 0,
         driverChargePercentage: driverSettings.driverChargePercentage ?? 0,
         driverChargeCap: driverSettings.driverChargeCap ?? 0,
+        maxOrdersPerDriver: driverSettings.maxOrdersPerDriver ?? 1,
       });
     }
   }, [driverSettings, driverForm]);
@@ -585,6 +592,41 @@ export function PriceSettingsPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Concurrent-delivery cap. 1 = single-active-order mode
+                    (the default and recommended pilot setting). Higher
+                    values let drivers batch deliveries. 0 disables the
+                    cap entirely (drivers can hold unlimited concurrent
+                    assignments — only use when you've audited the
+                    operational consequences). */}
+                <div className="space-y-2 pt-2 border-t border-gray-100">
+                  <Label htmlFor="maxOrdersPerDriver">
+                    Max concurrent deliveries per driver
+                  </Label>
+                  <Input
+                    id="maxOrdersPerDriver"
+                    data-testid="max-orders-per-driver-input"
+                    type="number"
+                    step="1"
+                    min="0"
+                    {...driverForm.register('maxOrdersPerDriver', {
+                      valueAsNumber: true,
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    1 = drivers must complete an order before accepting
+                    another (recommended). Higher values allow batched
+                    deliveries. 0 disables the cap entirely.
+                  </p>
+                  {driverForm.formState.errors.maxOrdersPerDriver && (
+                    <p
+                      data-testid="max-orders-per-driver-error"
+                      className="text-xs text-red-600"
+                    >
+                      {driverForm.formState.errors.maxOrdersPerDriver.message}
+                    </p>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

@@ -191,6 +191,10 @@ export interface DriverSettingsDto {
   driverChargeFlat?: number;
   driverChargePercentage?: number;
   driverChargeCap?: number;
+  // Maximum uncompleted orders a single driver can hold at once.
+  // 1 = single-active-order (default), higher = batched dispatch,
+  // 0 = no cap (allow unlimited concurrent assignments).
+  maxOrdersPerDriver?: number;
 }
 
 export interface DriverSettings {
@@ -201,6 +205,7 @@ export interface DriverSettings {
   driverChargeFlat: number;
   driverChargePercentage: number;
   driverChargeCap: number;
+  maxOrdersPerDriver: number;
 }
 
 export const driverSettingsApi = {
