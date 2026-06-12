@@ -83,6 +83,9 @@ export interface FeatureFlags {
   useMapView: boolean;
   // F3 — toggles the F2 lock-mode gate in OrdersService.acceptOrder.
   vehicleEditGraceMode: VehicleEditGraceMode;
+  // Phase 3 — when true, customers must attach a screenshot of their
+  // bank transfer before marking an order paid.
+  orderPaymentProofRequired: boolean;
 }
 
 export const featureFlagsApi = {
