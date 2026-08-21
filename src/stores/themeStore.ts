@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type ThemeMode = 'light' | 'dark' | 'system';
-
 export interface AccentOption {
   id: string;
   name: string;
@@ -21,34 +19,22 @@ export const ACCENT_OPTIONS: AccentOption[] = [
 const DEFAULT_ACCENT_ID = 'green';
 
 interface ThemeState {
-  mode: ThemeMode;
   accentId: string;
-  setMode: (mode: ThemeMode) => void;
   setAccent: (id: string) => void;
 }
 
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      mode: 'system',
       accentId: DEFAULT_ACCENT_ID,
-      setMode: (mode) => set({ mode }),
       setAccent: (id) => set({ accentId: id }),
     }),
     { name: 'admin-theme' },
   ),
 );
 
-function resolveDarkMode(mode: ThemeMode): boolean {
-  if (mode === 'dark') return true;
-  if (mode === 'light') return false;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches;
-}
-
-export function applyTheme(mode: ThemeMode, accentId: string): void {
+export function applyTheme(accentId: string): void {
   const root = document.documentElement;
-  root.classList.toggle('dark', resolveDarkMode(mode));
-
   const accent =
     ACCENT_OPTIONS.find((a) => a.id === accentId) ??
     ACCENT_OPTIONS.find((a) => a.id === DEFAULT_ACCENT_ID)!;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -25,13 +25,9 @@ import { mapsSettingsApi } from '@/services/api/maps-settings';
 // there. Tuned mid-island; admins can pan freely once loaded.
 const LAGOS_CENTER = { lat: 6.5244, lng: 3.3792 };
 
-interface SelectedDriver {
-  driver: LiveDriverRow;
-}
-
 export function LiveDriversPage() {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<SelectedDriver | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   // Plaintext Maps key for the JS lib. Cached for an hour; the key
   // doesn't change often and a stale value just means the same map
@@ -66,15 +62,13 @@ export function LiveDriversPage() {
     [drivers],
   );
 
-  // Drop the InfoWindow if the selected driver leaves the snapshot
-  // (e.g. they went offline since we opened the popup).
-  useEffect(() => {
-    if (!selected) return;
-    const stillThere = drivers.find((d) => d.userId === selected.driver.userId);
-    if (!stillThere) setSelected(null);
-    else if (stillThere !== selected.driver)
-      setSelected({ driver: stillThere });
-  }, [drivers, selected]);
+  // Derived from the live snapshot rather than stored separately, so the
+  // InfoWindow's driver data stays fresh and disappears on its own once
+  // the driver drops out of the snapshot (e.g. goes offline).
+  const selected = useMemo(
+    () => drivers.find((d) => d.userId === selectedId) ?? null,
+    [drivers, selectedId],
+  );
 
   const apiKey = keyQuery.data?.apiKey ?? '';
 
@@ -134,7 +128,7 @@ export function LiveDriversPage() {
                       <AdvancedMarker
                         key={d.userId}
                         position={{ lat: d.latitude, lng: d.longitude }}
-                        onClick={() => setSelected({ driver: d })}
+                        onClick={() => setSelectedId(d.userId)}
                       >
                         <Pin
                           background={d.isOnDelivery ? '#f59e0b' : '#61F62A'}
@@ -144,19 +138,19 @@ export function LiveDriversPage() {
                       </AdvancedMarker>
                     ))}
                     {selected &&
-                      selected.driver.latitude != null &&
-                      selected.driver.longitude != null && (
+                      selected.latitude != null &&
+                      selected.longitude != null && (
                         <InfoWindow
                           position={{
-                            lat: selected.driver.latitude,
-                            lng: selected.driver.longitude,
+                            lat: selected.latitude,
+                            lng: selected.longitude,
                           }}
-                          onCloseClick={() => setSelected(null)}
+                          onCloseClick={() => setSelectedId(null)}
                         >
                           <DriverInfoCard
-                            driver={selected.driver}
+                            driver={selected}
                             onOpen={() =>
-                              navigate(`/drivers/${selected.driver.userId}`)
+                              navigate(`/drivers/${selected.userId}`)
                             }
                           />
                         </InfoWindow>
@@ -190,13 +184,13 @@ export function LiveDriversPage() {
               ) : (
                 <div className="max-h-[640px] divide-y overflow-y-auto">
                   {drivers.map((d) => {
-                    const isSelected = selected?.driver.userId === d.userId;
+                    const isSelected = selectedId === d.userId;
                     return (
                       <button
                         key={d.userId}
                         type="button"
                         onClick={() => {
-                          setSelected({ driver: d });
+                          setSelectedId(d.userId);
                         }}
                         className={`w-full px-4 py-3 text-left transition-colors hover:bg-muted/50 ${
                           isSelected ? 'bg-primary/5' : ''
