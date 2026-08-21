@@ -3,6 +3,12 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { addDays, formatISO } from 'date-fns';
+
+// Far enough out to stay green regardless of when the suite runs.
+const FAR_FUTURE_EXPIRY = formatISO(addDays(new Date(), 365), {
+  representation: 'date',
+});
 
 const { listMock } = vi.hoisted(() => ({ listMock: vi.fn() }));
 
@@ -45,7 +51,7 @@ function doc(overrides: Record<string, unknown> = {}) {
     type: 'drivers_license' as const,
     fileUrl: 'https://example/file',
     fileKey: 'user/u/drivers_license/abc.jpg',
-    expiryDate: '2026-08-01',
+    expiryDate: FAR_FUTURE_EXPIRY,
     status: 'approved' as const,
     uploadedBy: 'u-1',
     reviewedAt: '2026-05-19T10:00:00.000Z',

@@ -95,13 +95,13 @@ export function WalletFundTestPage() {
         />
 
         <div className="max-w-2xl space-y-6">
-          <div className="flex items-start gap-3 rounded-lg border border-yellow-300 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/30">
-            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-700 dark:text-yellow-400" />
-            <div className="text-sm text-yellow-800 dark:text-yellow-200">
+          <div className="flex items-start gap-3 rounded-lg border border-yellow-300 bg-yellow-50 p-4">
+            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-700" />
+            <div className="text-sm text-yellow-800">
               <p className="font-semibold">Non-production tool</p>
               <p className="mt-1">
                 The backend refuses this request when{' '}
-                <code className="rounded bg-yellow-100 px-1 dark:bg-yellow-900">
+                <code className="rounded bg-yellow-100 px-1">
                   NODE_ENV=production
                 </code>
                 . Use it on dev/staging to credit a driver wallet via virtual
@@ -185,13 +185,13 @@ export function WalletFundTestPage() {
           </form>
 
           {lastResult && (
-            <Card className="border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-900/20">
+            <Card className="border-green-300 bg-green-50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-green-800 dark:text-green-200">
+                <CardTitle className="flex items-center gap-2 text-green-800">
                   <CheckCircle2 className="h-5 w-5" />
                   Wallet credited
                 </CardTitle>
-                <CardDescription className="text-green-700 dark:text-green-300">
+                <CardDescription className="text-green-700">
                   The driver's wallet balance has been updated and a push
                   notification + socket event have been emitted.
                 </CardDescription>
