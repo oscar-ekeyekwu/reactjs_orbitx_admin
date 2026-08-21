@@ -58,20 +58,11 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const mode = useThemeStore((s) => s.mode);
   const accentId = useThemeStore((s) => s.accentId);
 
   useEffect(() => {
-    applyTheme(mode, accentId);
-  }, [mode, accentId]);
-
-  useEffect(() => {
-    if (mode !== 'system') return;
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = () => applyTheme(mode, accentId);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, [mode, accentId]);
+    applyTheme(accentId);
+  }, [accentId]);
 
   return (
     <QueryClientProvider client={queryClient}>
