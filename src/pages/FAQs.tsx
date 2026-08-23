@@ -14,6 +14,7 @@ import {
   CheckCircle,
   XCircle,
   Eye,
+  Globe,
 } from 'lucide-react';
 import { Header } from '@/components/layout';
 import {
@@ -43,6 +44,7 @@ const faqSchema = z.object({
   answer: z.string().min(10, 'Must be at least 10 characters').max(1000, 'Must be under 1000 characters'),
   category: z.string().min(1, 'Please select a category'),
   isActive: z.boolean(),
+  showOnLanding: z.boolean(),
 });
 
 type FAQFormData = z.infer<typeof faqSchema>;
@@ -99,7 +101,7 @@ export function FAQsPage() {
     formState: { errors },
   } = useForm<FAQFormData>({
     resolver: zodResolver(faqSchema),
-    defaultValues: { isActive: true },
+    defaultValues: { isActive: true, showOnLanding: false },
   });
 
   // useWatch is React-Compiler-friendly and re-renders only when the
@@ -108,10 +110,11 @@ export function FAQsPage() {
   const watchedAnswer = useWatch({ control, name: 'answer' }) ?? '';
   const watchedCategory = useWatch({ control, name: 'category' }) ?? '';
   const watchedIsActive = useWatch({ control, name: 'isActive' }) ?? true;
+  const watchedShowOnLanding = useWatch({ control, name: 'showOnLanding' }) ?? false;
 
   const openCreateDialog = () => {
     setEditingFaq(null);
-    reset({ question: '', answer: '', category: '', isActive: true });
+    reset({ question: '', answer: '', category: '', isActive: true, showOnLanding: false });
     setIsDialogOpen(true);
   };
 
@@ -122,6 +125,7 @@ export function FAQsPage() {
       answer: faq.answer,
       category: faq.category,
       isActive: faq.isActive,
+      showOnLanding: faq.showOnLanding,
     });
     setIsDialogOpen(true);
   };
@@ -155,6 +159,7 @@ export function FAQsPage() {
   const totalFaqs = faqs?.length || 0;
   const activeFaqs = faqs?.filter((f) => f.isActive).length || 0;
   const inactiveFaqs = totalFaqs - activeFaqs;
+  const landingFaqs = faqs?.filter((f) => f.showOnLanding).length || 0;
 
   const filteredFaqs = faqs?.filter((faq) => {
     const matchesSearch =
@@ -184,7 +189,7 @@ export function FAQsPage() {
 
       <div className="p-6 space-y-6">
         {/* Stats */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
               <div className="rounded-md bg-blue-100 p-2">
@@ -215,6 +220,17 @@ export function FAQsPage() {
               <div>
                 <p className="text-2xl font-bold">{inactiveFaqs}</p>
                 <p className="text-sm text-muted-foreground">Inactive</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="rounded-md bg-purple-100 p-2">
+                <Globe className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{landingFaqs}</p>
+                <p className="text-sm text-muted-foreground">On Landing Page</p>
               </div>
             </CardContent>
           </Card>
@@ -327,6 +343,12 @@ export function FAQsPage() {
                             <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
                           )}
                           <span className="flex-1 text-sm font-medium">{faq.question}</span>
+                          {faq.showOnLanding && (
+                            <Badge variant="secondary" className="shrink-0 gap-1">
+                              <Globe className="h-3 w-3" />
+                              Landing
+                            </Badge>
+                          )}
                           <Badge
                             variant={faq.isActive ? 'success' : 'secondary'}
                             className="shrink-0"
@@ -468,6 +490,24 @@ export function FAQsPage() {
               </label>
             </div>
 
+            {/* Landing page toggle */}
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div>
+                <p className="text-sm font-medium">Show on landing page</p>
+                <p className="text-xs text-muted-foreground">
+                  Publish this FAQ on the public marketing site's Contact page
+                </p>
+              </div>
+              <label className="relative inline-flex cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  {...register('showOnLanding')}
+                  className="sr-only peer"
+                />
+                <div className="relative h-5 w-9 rounded-full bg-muted transition-colors peer-checked:bg-primary after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow after:transition-all after:content-[''] peer-checked:after:translate-x-4" />
+              </label>
+            </div>
+
             {/* Live preview */}
             {(watchedQuestion || watchedAnswer) && (
               <div className="rounded-lg border overflow-hidden">
@@ -486,6 +526,12 @@ export function FAQsPage() {
                           <span className="italic text-muted-foreground">Your question…</span>
                         )}
                       </span>
+                      {watchedShowOnLanding && (
+                        <Badge variant="secondary" className="shrink-0 gap-1">
+                          <Globe className="h-3 w-3" />
+                          Landing
+                        </Badge>
+                      )}
                       <Badge variant={watchedIsActive ? 'success' : 'secondary'} className="shrink-0">
                         {watchedIsActive ? 'Active' : 'Inactive'}
                       </Badge>

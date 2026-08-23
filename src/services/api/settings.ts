@@ -112,6 +112,7 @@ export interface CreateFAQDto {
   category: string;
   order?: number;
   isActive?: boolean;
+  showOnLanding?: boolean;
 }
 
 export type UpdateFAQDto = Partial<CreateFAQDto>;

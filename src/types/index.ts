@@ -145,6 +145,7 @@ export interface FAQ {
   category: string;
   order: number;
   isActive: boolean;
+  showOnLanding: boolean;
   createdAt: string;
   updatedAt: string;
 }
