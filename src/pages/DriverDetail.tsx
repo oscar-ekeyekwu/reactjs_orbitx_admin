@@ -37,6 +37,7 @@ import {
   TableHead,
   TableCell,
 } from '@/components/ui';
+import { DeleteUserButton } from '@/components/users';
 import { usersApi, ordersApi, adminDocumentsApi } from '@/services/api';
 import { documentTypeLabel } from '@/services/api/documents';
 import type { OrderStatus } from '@/types';
@@ -175,27 +176,35 @@ export function DriverDetailPage() {
                   </div>
                 </div>
               </div>
-              {driver.isActive ? (
-                <Button
-                  variant="destructive"
-                  onClick={() => setConfirmDeactivateOpen(true)}
-                  disabled={toggleActiveMutation.isPending}
-                  className="w-full gap-2 sm:w-auto"
-                >
-                  <UserX className="h-4 w-4" />
-                  Deactivate
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  onClick={() => toggleActiveMutation.mutate(true)}
-                  disabled={toggleActiveMutation.isPending}
-                  className="w-full gap-2 sm:w-auto"
-                >
-                  <UserCheck className="h-4 w-4 text-green-500" />
-                  Activate
-                </Button>
-              )}
+              <div className="flex flex-col gap-2 sm:flex-row">
+                {driver.isActive ? (
+                  <Button
+                    variant="destructive"
+                    onClick={() => setConfirmDeactivateOpen(true)}
+                    disabled={toggleActiveMutation.isPending}
+                    className="w-full gap-2 sm:w-auto"
+                  >
+                    <UserX className="h-4 w-4" />
+                    Deactivate
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={() => toggleActiveMutation.mutate(true)}
+                    disabled={toggleActiveMutation.isPending}
+                    className="w-full gap-2 sm:w-auto"
+                  >
+                    <UserCheck className="h-4 w-4 text-green-500" />
+                    Activate
+                  </Button>
+                )}
+                <DeleteUserButton
+                  user={driver}
+                  noun="driver"
+                  listPath="/drivers"
+                  listQueryKey={['drivers']}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

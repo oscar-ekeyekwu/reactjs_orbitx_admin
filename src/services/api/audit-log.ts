@@ -7,7 +7,8 @@ export type ApprovalTargetType =
   | 'document'
   | 'order'
   | 'storage_provider'
-  | 'storage_migration';
+  | 'storage_migration'
+  | 'user';
 
 export type ApprovalAction =
   | 'approve'

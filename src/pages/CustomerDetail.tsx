@@ -33,6 +33,7 @@ import {
   TableHead,
   TableCell,
 } from '@/components/ui';
+import { DeleteUserButton } from '@/components/users';
 import { usersApi, ordersApi } from '@/services/api';
 import type { OrderStatus } from '@/types';
 
@@ -135,27 +136,35 @@ export function CustomerDetailPage() {
                   </div>
                 </div>
               </div>
-              {customer.isActive ? (
-                <Button
-                  variant="destructive"
-                  onClick={() => setConfirmDeactivateOpen(true)}
-                  disabled={toggleActiveMutation.isPending}
-                  className="w-full gap-2 sm:w-auto"
-                >
-                  <UserX className="h-4 w-4" />
-                  Deactivate
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  onClick={() => toggleActiveMutation.mutate(true)}
-                  disabled={toggleActiveMutation.isPending}
-                  className="w-full gap-2 sm:w-auto"
-                >
-                  <UserCheck className="h-4 w-4 text-green-500" />
-                  Activate
-                </Button>
-              )}
+              <div className="flex flex-col gap-2 sm:flex-row">
+                {customer.isActive ? (
+                  <Button
+                    variant="destructive"
+                    onClick={() => setConfirmDeactivateOpen(true)}
+                    disabled={toggleActiveMutation.isPending}
+                    className="w-full gap-2 sm:w-auto"
+                  >
+                    <UserX className="h-4 w-4" />
+                    Deactivate
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={() => toggleActiveMutation.mutate(true)}
+                    disabled={toggleActiveMutation.isPending}
+                    className="w-full gap-2 sm:w-auto"
+                  >
+                    <UserCheck className="h-4 w-4 text-green-500" />
+                    Activate
+                  </Button>
+                )}
+                <DeleteUserButton
+                  user={customer}
+                  noun="customer"
+                  listPath="/customers"
+                  listQueryKey={['customers']}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

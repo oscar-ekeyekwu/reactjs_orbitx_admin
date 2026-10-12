@@ -36,6 +36,7 @@ const TARGET_TYPES: ApprovalTargetType[] = [
   'order',
   'storage_provider',
   'storage_migration',
+  'user',
 ];
 
 const ACTIONS: ApprovalAction[] = [

@@ -47,6 +47,11 @@ import type {
   DriverAccountType,
   DriverVerificationStatus,
 } from '@/services/api/users';
+import {
+  BulkDeleteUsersBar,
+  SelectionCheckbox,
+  useRowSelection,
+} from '@/components/users';
 
 const ACCOUNT_TYPES: DriverAccountType[] = [
   'individual',
@@ -84,6 +89,7 @@ export function DriversPage() {
   const [companyId, setCompanyId] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const selection = useRowSelection();
 
   const queryClient = useQueryClient();
 
@@ -139,6 +145,8 @@ export function DriversPage() {
 
   const drivers = data?.data || [];
   const meta = data?.meta;
+  const pageIds = drivers.map((d) => d.id);
+  const pageSelectedCount = pageIds.filter(selection.isSelected).length;
 
   return (
     <div>
@@ -229,12 +237,19 @@ export function DriversPage() {
           </CardContent>
         </Card>
 
+        <BulkDeleteUsersBar
+          selectedIds={selection.selectedIds}
+          noun="driver"
+          listQueryKey={['drivers']}
+          onDeleted={selection.prune}
+        />
+
         {/* Table */}
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
               <div className="p-4">
-                <TableSkeleton rows={6} columns={5} />
+                <TableSkeleton rows={6} columns={7} />
               </div>
             ) : drivers.length === 0 ? (
               <div className="p-4">
@@ -252,6 +267,20 @@ export function DriversPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-10">
+                      <SelectionCheckbox
+                        label="Select all drivers on this page"
+                        checked={
+                          pageIds.length > 0 &&
+                          pageSelectedCount === pageIds.length
+                        }
+                        indeterminate={pageSelectedCount > 0}
+                        onChange={(checked) =>
+                          selection.toggleAll(pageIds, checked)
+                        }
+                        testId="drivers-select-all"
+                      />
+                    </TableHead>
                     <TableHead>Driver</TableHead>
                     <TableHead>Contact</TableHead>
                     <TableHead>Status</TableHead>
@@ -265,7 +294,18 @@ export function DriversPage() {
                     <TableRow
                       key={driver.id}
                       className="cursor-pointer hover:bg-muted/50"
+                      data-testid={`drivers-row-${driver.id}`}
                     >
+                      <TableCell>
+                        <SelectionCheckbox
+                          label={`Select ${driver.name}`}
+                          checked={selection.isSelected(driver.id)}
+                          onChange={(checked) =>
+                            selection.toggle(driver.id, checked)
+                          }
+                          testId={`drivers-select-${driver.id}`}
+                        />
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar>
