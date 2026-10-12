@@ -38,7 +38,7 @@ export function LiveRequestsPage() {
     refetchIntervalInBackground: false,
   });
 
-  const rows = requestsQuery.data ?? [];
+  const rows = useMemo(() => requestsQuery.data ?? [], [requestsQuery.data]);
 
   const stats = useMemo(() => {
     const total = rows.length;
