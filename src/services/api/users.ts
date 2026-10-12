@@ -41,6 +41,16 @@ export interface UpdateUserDto {
   isActive?: boolean;
 }
 
+export interface PurgeUserResult {
+  id: string;
+  removed: Record<string, number>;
+}
+
+export interface BulkPurgeUsersResult {
+  deleted: string[];
+  failed: Array<{ id: string; reason: string }>;
+}
+
 export const usersApi = {
   getAll: async (params?: UsersQueryParams): Promise<PaginatedResponse<User>> => {
     const response = await apiClient.get<PaginatedResponse<User>>('/users', { params });
@@ -73,8 +83,20 @@ export const usersApi = {
     return response.data;
   },
 
-  delete: async (id: string): Promise<void> => {
-    await apiClient.delete(`/users/${id}`);
+  // Permanent hard delete — the backend purges the user and every related
+  // row (orders, wallet, documents, tokens...). Not the NDPA soft path.
+  delete: async (id: string): Promise<PurgeUserResult> => {
+    const response = await apiClient.delete<PurgeUserResult>(`/users/${id}`);
+    return response.data;
+  },
+
+  // Each id is purged in its own transaction; failures come back per id.
+  bulkDelete: async (ids: string[]): Promise<BulkPurgeUsersResult> => {
+    const response = await apiClient.post<BulkPurgeUsersResult>(
+      '/users/bulk-delete',
+      { ids },
+    );
+    return response.data;
   },
 
   toggleActive: async (id: string, isActive: boolean): Promise<User> => {

@@ -22,12 +22,18 @@ import {
   EmptyState,
   TableSkeleton,
 } from '@/components/ui';
+import {
+  BulkDeleteUsersBar,
+  SelectionCheckbox,
+  useRowSelection,
+} from '@/components/users';
 import { usersApi } from '@/services/api';
 
 export function CustomersPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
+  const selection = useRowSelection();
 
   const { data, isLoading } = useQuery({
     queryKey: ['customers', page, search],
@@ -36,6 +42,8 @@ export function CustomersPage() {
 
   const customers = data?.data || [];
   const meta = data?.meta;
+  const pageIds = customers.map((c) => c.id);
+  const pageSelectedCount = pageIds.filter(selection.isSelected).length;
 
   return (
     <div>
@@ -62,12 +70,19 @@ export function CustomersPage() {
           </CardContent>
         </Card>
 
+        <BulkDeleteUsersBar
+          selectedIds={selection.selectedIds}
+          noun="customer"
+          listQueryKey={['customers']}
+          onDeleted={selection.prune}
+        />
+
         {/* Table */}
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
               <div className="p-4">
-                <TableSkeleton rows={6} columns={5} />
+                <TableSkeleton rows={6} columns={6} />
               </div>
             ) : customers.length === 0 ? (
               <div className="p-4">
@@ -85,6 +100,20 @@ export function CustomersPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-10">
+                      <SelectionCheckbox
+                        label="Select all customers on this page"
+                        checked={
+                          pageIds.length > 0 &&
+                          pageSelectedCount === pageIds.length
+                        }
+                        indeterminate={pageSelectedCount > 0}
+                        onChange={(checked) =>
+                          selection.toggleAll(pageIds, checked)
+                        }
+                        testId="customers-select-all"
+                      />
+                    </TableHead>
                     <TableHead>Customer</TableHead>
                     <TableHead>Contact</TableHead>
                     <TableHead>Status</TableHead>
@@ -98,7 +127,18 @@ export function CustomersPage() {
                       key={customer.id}
                       className="cursor-pointer hover:bg-muted/50"
                       onClick={() => navigate(`/customers/${customer.id}`)}
+                      data-testid={`customers-row-${customer.id}`}
                     >
+                      <TableCell>
+                        <SelectionCheckbox
+                          label={`Select ${customer.name}`}
+                          checked={selection.isSelected(customer.id)}
+                          onChange={(checked) =>
+                            selection.toggle(customer.id, checked)
+                          }
+                          testId={`customers-select-${customer.id}`}
+                        />
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar>
